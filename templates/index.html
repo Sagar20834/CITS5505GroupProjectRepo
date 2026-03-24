@@ -1,162 +1,223 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>RoadWatch</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RoadWatch Perth</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="../static/css/style.css">
 </head>
+<body class="page-shell">
+  <nav class="navbar custom-navbar">
+    <div class="container d-flex justify-content-between align-items-center gap-3">
+      <a class="navbar-brand" href="index.html">RoadWatch Perth</a>
 
-<body class="bg-gray-100">
+      <div class="nav-links">
+        <a class="active-link" href="index.html">Home</a>
+        <a href="report.html">Report Issue</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a class="btn nav-login-btn" href="login.html">Login</a>
+        <a class="btn nav-signup-btn" href="register.html">Register</a>
+      </div>
+    </div>
+  </nav>
 
-    <nav class="bg-gray-900 text-white px-6 py-4 flex justify-between items-center">
-        <h1 class="text-xl font-bold">RoadWatch</h1>
-
-        <div class="space-x-3">
-
-            <a href="index.html" class="hover:text-yellow-400">Home</a>
-            <a href="report.html" class="hover:text-yellow-400">Report Issue</a>
-            <a href="reports.html" class="hover:text-yellow-400">Reports</a>
-            <!-- <a href="logout.html" class="bg-red-500 px-3 py-1 rounded">Logout</a> -->
-
-            <!-- If admin  user then show this  -->
-            <a href="dashboard.html" class="hover:text-yellow-400">Dashboard</a>
-            <a href="login.html" class="bg-blue-500 px-3 py-1 rounded">Login</a>
-            <a href="register.html" class="bg-green-500 px-3 py-1 rounded">Register</a>
-
-        </div>
-    </nav>
-
-
-
-    <div>
-
-
-        <div class="bg-gray-100 flex items-center justify-center h-1/2 mt-8">
-
-            <div class="flex items-center justify-center w-1/2 ">
-                <div class="bg-white p-6 rounded shadow w-full  text-center">
-                    <h1 class="text-4xl font-bold">RoadWatch Perth</h1>
-                    <p class="mt-3 text-gray-600">Report road issues easily</p>
-                    <h2 class="text-xl font-bold mb-4">Road Issues Analytics</h2>
-                    <canvas id="chart" class="w-full h-1/2"></canvas>
-
-
-                </div>
+  <section class="content-section">
+    <div class="container">
+      <div class="info-card">
+        <div class="row align-items-center g-4">
+          <div class="col-lg-6">
+            <div class="hero-copy">
+              <p class="hero-kicker">Safer Streets Through Community Reporting</p>
+              <h1>Report road hazards across Perth before they become bigger problems.</h1>
+              <p class="hero-text">
+                RoadWatch Perth helps residents quickly report unsafe roads, track recurring issues,
+                and support smarter maintenance decisions with community data.
+              </p>
+              <div class="hero-actions">
+                <a class="btn hero-primary-btn" href="report.html">Report an Issue</a>
+                <a class="btn hero-secondary-btn" href="dashboard.html">Dashboard</a>
+              </div>
             </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="hero-card">
+              <h3>Why people use RoadWatch Perth</h3>
+              <ul>
+                <li>Quickly report unsafe roads</li>
+                <li>Submit reports anonymously</li>
+                <li>Help identify priority maintenance areas</li>
+                <li>View community-submitted reports across Perth</li>
+              </ul>
+            </div>
+          </div>
         </div>
-        <script>
-            const Utils = {
-                numbers({ count, min, max }) {
-                    return Array.from({ length: count }, () =>
-                        Math.floor(Math.random() * (max - min + 1)) + min
-                    );
-                },
-                labels(arr) {
-                    return arr;
-                },
-                CHART_COLORS: {
-                    red: "#EF4444",
-                    blue: "#3B82F6",
-                    green: "#10B981",
-                    yellow: "#F59E0B"
-                },
-                months({ count }) {
-                    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                    return monthNames.slice(0, count);
-                }
-            };
-
-            const DATA_COUNT = 12;
-            const NUMBER_CFG = { count: DATA_COUNT, min: 0, max: 100 };
-
-            const labels = Utils.months({ count: 12 });  // Now using the months function
-            const data = {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Broken Road',
-                        data: Utils.numbers(NUMBER_CFG),
-                        backgroundColor: Utils.CHART_COLORS.red,
-                    },
-                    {
-                        label: 'Crack',
-                        data: Utils.numbers(NUMBER_CFG),
-                        backgroundColor: Utils.CHART_COLORS.blue,
-                    },
-                    {
-                        label: 'Pothhole',
-                        data: Utils.numbers(NUMBER_CFG),
-                        backgroundColor: Utils.CHART_COLORS.green,
-                    },
-                    {
-                        label: 'Others',
-                        data: Utils.numbers(NUMBER_CFG),
-                        backgroundColor: Utils.CHART_COLORS.yellow,
-                    }
-                ]
-            };
-
-            let delayed;
-            const config = {
-                type: 'bar',
-                data: data,
-                options: {
-                    animation: {
-                        onComplete: () => {
-                            delayed = true;
-                        },
-                        delay: (context) => {
-                            let delay = 0;
-                            if (context.type === 'data' && context.mode === 'default' && !delayed) {
-                                delay = context.dataIndex * 300 + context.datasetIndex * 100;
-                            }
-                            return delay;
-                        },
-                    },
-                    scales: {
-                        x: {
-                            stacked: true,
-                        },
-                        y: {
-                            stacked: true
-                        }
-                    }
-                }
-            };
-
-            const actions = [
-                {
-                    name: 'Randomize',
-                    handler(chart) {
-                        chart.data.datasets.forEach(dataset => {
-                            dataset.data = Utils.numbers({ count: chart.data.labels.length, min: 0, max: 100 });
-                        });
-                        chart.update();
-                    }
-                },
-            ];
-
-            const ctx = document.getElementById("chart");
-            const myChart = new Chart(ctx, config);
-
-            // Button trigger
-            document.getElementById("randomizeBtn").addEventListener("click", () => {
-                actions[0].handler(myChart);
-            });
-        </script>
-
+      </div>
     </div>
+  </section>
 
-    <div class="text-center mt-2">
-
-
-        <div class="mt-5">
-            <a href="report.html" class="bg-yellow-500 px-5 py-2 rounded text-white mr-2">Report Issue</a>
-            <a href="reports.html" class="bg-blue-500 px-5 py-2 rounded text-white">View Reports</a>
+  <section class="features-section py-5">
+    <div class="container text-center">
+      <h2 class="section-title">How It Works</h2>
+      <div class="row g-4 mt-2">
+        <div class="col-md-4">
+          <div class="feature-card h-100">
+            <h4>Report Damage</h4>
+            <p>Submit road damage details such as potholes, cracks, flooding, or missing signs.</p>
+          </div>
         </div>
+        <div class="col-md-4">
+          <div class="feature-card h-100">
+            <h4>See Local Reports</h4>
+            <p>View reports submitted by other people in Perth to understand problem hotspots.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="feature-card h-100">
+            <h4>Support Priorities</h4>
+            <p>Repeatedly reported locations can be treated as higher priority by the system.</p>
+          </div>
+        </div>
+      </div>
     </div>
+  </section>
 
+  <section class="analytics-section py-5">
+    <div class="container">
+      <div class="row g-4 align-items-stretch">
+        <div class="col-lg-4">
+          <div class="analytics-copy h-100">
+            <p class="analytics-kicker">Analytics Overview</p>
+            <h2>Road issue trends at a glance</h2>
+            <p>
+              We have kept the chart on the homepage and moved it below the main introduction so
+              visitors first understand the purpose of RoadWatch Perth, then see a quick visual
+              summary of reported road issues.
+            </p>
+            <p>
+              The chart highlights common categories like broken roads, cracks, potholes, and
+              other hazards reported throughout the year.
+            </p>
+            <button id="randomizeBtn" class="btn analytics-refresh-btn" type="button">
+              Refresh Sample Data
+            </button>
+          </div>
+        </div>
+
+        <div class="col-lg-8">
+          <div class="chart-card h-100">
+            <div class="chart-card-header">
+              <h3>Road Issues Analytics</h3>
+              <p class="mb-0">A stacked view of issue types reported across the year.</p>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section py-5">
+    <div class="container">
+      <div class="cta-panel">
+        <h2>Help make Perth roads safer</h2>
+        <p>
+          Report a road issue today or review community submissions to stay aware of local
+          safety concerns.
+        </p>
+        <div class="hero-actions justify-content-center">
+          <a class="btn hero-primary-btn" href="report.html">Report an Issue</a>
+          <a class="btn hero-secondary-btn" href="dashboard.html">Dashboard</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer-section text-center py-3">
+    <div class="container">
+      <p class="mb-0">RoadWatch Perth - Community reporting for safer roads.</p>
+    </div>
+  </footer>
+
+  <script>
+    const Utils = {
+      numbers({ count, min, max }) {
+        return Array.from({ length: count }, () =>
+          Math.floor(Math.random() * (max - min + 1)) + min
+        );
+      },
+      chartColors: {
+        red: "#ef4444",
+        blue: "#3b82f6",
+        green: "#10b981",
+        yellow: "#f59e0b"
+      },
+      months({ count }) {
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        return monthNames.slice(0, count);
+      }
+    };
+
+    const issueChart = new Chart(document.getElementById("chart"), {
+      type: "bar",
+      data: {
+        labels: Utils.months({ count: 12 }),
+        datasets: [
+          {
+            label: "Broken Road",
+            data: Utils.numbers({ count: 12, min: 10, max: 95 }),
+            backgroundColor: Utils.chartColors.red
+          },
+          {
+            label: "Crack",
+            data: Utils.numbers({ count: 12, min: 10, max: 95 }),
+            backgroundColor: Utils.chartColors.blue
+          },
+          {
+            label: "Pothole",
+            data: Utils.numbers({ count: 12, min: 10, max: 95 }),
+            backgroundColor: Utils.chartColors.green
+          },
+          {
+            label: "Others",
+            data: Utils.numbers({ count: 12, min: 10, max: 95 }),
+            backgroundColor: Utils.chartColors.yellow
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: "top"
+          }
+        },
+        scales: {
+          x: {
+            stacked: true
+          },
+          y: {
+            stacked: true,
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+    document.getElementById("randomizeBtn").addEventListener("click", () => {
+      issueChart.data.datasets.forEach((dataset) => {
+        dataset.data = Utils.numbers({ count: issueChart.data.labels.length, min: 10, max: 95 });
+      });
+      issueChart.update();
+    });
+  </script>
 </body>
-
 </html>

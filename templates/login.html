@@ -1,45 +1,60 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>Login</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | RoadWatch Perth</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" href="../static/css/style.css">
 </head>
+<body class="page-shell">
+  <nav class="navbar custom-navbar">
+    <div class="container d-flex justify-content-between align-items-center gap-3">
+      <a class="navbar-brand" href="index.html">RoadWatch Perth</a>
 
-<body class="">
-    <nav class="bg-gray-900 text-white px-6 py-4 flex justify-between items-center">
-        <h1 class="text-xl font-bold">RoadWatch</h1>
-
-        <div class="space-x-3">
-
-            <a href="index.html" class="hover:text-yellow-400">Home</a>
-            <a href="report.html" class="hover:text-yellow-400">Report Issue</a>
-            <a href="reports.html" class="hover:text-yellow-400">Reports</a>
-            <!-- <a href="logout.html" class="bg-red-500 px-3 py-1 rounded">Logout</a> -->
-            <a href="login.html" class="bg-blue-500 px-3 py-1 rounded">Login</a>
-            <a href="register.html" class="bg-green-500 px-3 py-1 rounded">Register</a>
-
-        </div>
-    </nav>
-    <div class="bg-gray-100 flex justify-center items-center h-screen">
-
-
-
-
-        <div class="bg-white p-6 rounded shadow w-80">
-            <h2 class="text-xl font-bold mb-4">Login</h2>
-
-            <input placeholder="Username" class="w-full border p-2 mb-3">
-            <input type="password" placeholder="Password" class="w-full border p-2 mb-3">
-
-            <button class="bg-blue-500 text-white w-full py-2 rounded">Login</button>
-
-            <p class="text-sm mt-3">
-                Don't have an account? <a href="register.html" class="text-blue-500">Register</a>
-            </p>
-        </div>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="report.html">Report Issue</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a class="btn nav-login-btn active-link" href="login.html">Login</a>
+        <a class="btn nav-signup-btn" href="register.html">Register</a>
+      </div>
     </div>
+  </nav>
 
+  <main class="page-content">
+    <div class="container">
+      <div class="page-card narrow">
+        <p class="page-kicker">Account Access</p>
+        <h2>Login</h2>
+        <p class="page-lead">Sign in to manage reports and view your dashboard activity.</p>
+
+        <div class="row g-3">
+          <div class="col-12">
+            <input class="form-control-custom" placeholder="Username">
+          </div>
+          <div class="col-12">
+            <input class="form-control-custom" type="password" placeholder="Password">
+          </div>
+        </div>
+
+        <button class="btn page-secondary-btn w-100 mt-4" type="button">Login</button>
+
+        <p class="mt-3 mb-0">
+          Don't have an account?
+          <a href="register.html">Register</a>
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer-section text-center py-3">
+    <div class="container">
+      <p class="mb-0">RoadWatch Perth - Community reporting for safer roads.</p>
+    </div>
+  </footer>
 </body>
-
 </html>
