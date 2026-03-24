@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>RoadWatch Dashboard</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="bg-gray-100">
+
+    <!-- Navbar -->
+    <nav class="bg-gray-900 text-white px-6 py-4 flex justify-between items-center">
+        <h1 class="text-xl font-bold">RoadWatch</h1>
+
+        <div class="space-x-3">
+
+            <a href="index.html" class="hover:text-yellow-400">Home</a>
+            <a href="report.html" class="hover:text-yellow-400">Report Issue</a>
+            <a href="reports.html" class="hover:text-yellow-400">Reports</a>
+            <a href="login.html" class="bg-blue-500 px-3 py-1 rounded">Login</a>
+            <a href="register.html" class="bg-green-500 px-3 py-1 rounded">Register</a>
+
+        </div>
+    </nav>
+
+    <!-- Container -->
+    <div class="max-w-6xl mx-auto mt-6">
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+
+            <div class="bg-white p-4 rounded shadow text-center">
+                <h2 class="text-gray-500">Total Reports</h2>
+                <p class="text-3xl font-bold text-blue-500">25</p>
+            </div>
+
+            <div class="bg-white p-4 rounded shadow text-center">
+                <h2 class="text-gray-500">Pending</h2>
+                <p class="text-3xl font-bold text-yellow-500">10</p>
+            </div>
+
+            <div class="bg-white p-4 rounded shadow text-center">
+                <h2 class="text-gray-500">Resolved</h2>
+                <p class="text-3xl font-bold text-green-500">15</p>
+            </div>
+
+        </div>
+
+        <!-- Charts -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- Bar Chart -->
+            <div class="bg-white p-4 rounded shadow">
+                <h3 class="font-bold mb-3">Reports by Type</h3>
+                <canvas id="barChart"></canvas>
+            </div>
+
+            <!-- Pie Chart -->
+            <div class="bg-white p-4 rounded shadow">
+                <h3 class="font-bold mb-3">Status Distribution</h3>
+                <canvas id="pieChart"></canvas>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        // Bar Chart
+        new Chart(document.getElementById("barChart"), {
+            type: "bar",
+            data: {
+                labels: ["Pothole", "Crack", "Broken Road", "Other"],
+                datasets: [{
+                    label: " Issue Reports",
+                    data: [80, 15, 7, 25],
+                    backgroundColor: ["#3B82F6", "#F59E0B", "#EF4444", "#10B981"]
+                }]
+            }
+        });
+
+        // Pie Chart
+        new Chart(document.getElementById("pieChart"), {
+            type: "pie",
+            data: {
+                labels: ["Pending", "In Progress", "Resolved"],
+                datasets: [{
+                    data: [10, 5, 10],
+                    backgroundColor: ["#F59E0B", "#3B82F6", "#10B981"]
+                }]
+            }
+        });
+    </script>
+
+</body>
+
+</html>

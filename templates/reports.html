@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Reports</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body class="bg-gray-100">
+    <nav class="bg-gray-900 text-white px-6 py-4 flex justify-between items-center">
+        <h1 class="text-xl font-bold">RoadWatch</h1>
+
+        <div class="space-x-3">
+
+            <a href="index.html" class="hover:text-yellow-400">Home</a>
+            <a href="report.html" class="hover:text-yellow-400">Report Issue</a>
+            <a href="reports.html" class="hover:text-yellow-400">Reports</a>
+            <!-- <a href="logout.html" class="bg-red-500 px-3 py-1 rounded">Logout</a> -->
+            <a href="login.html" class="bg-blue-500 px-3 py-1 rounded">Login</a>
+            <a href="register.html" class="bg-green-500 px-3 py-1 rounded">Register</a>
+
+        </div>
+    </nav>
+
+    <div class="max-w-3xl mx-auto mt-10">
+
+        <h2 class="text-xl font-bold mb-4">All Reports</h2>
+
+        <input placeholder="Search..." class="w-full border p-2 mb-4">
+
+        <div class="bg-white p-4 mb-3 rounded shadow">
+            <h3 class="font-bold">Pothole</h3>
+            <p>Big pothole near road</p>
+            <p class="text-sm text-gray-500">Status: Pending</p>
+            <div class="flex flex-row-reverse gap-2 space-x-3 text-lg">
+                <i class="fas fa-edit text-blue-500 cursor-pointer hover:text-blue-700"></i>
+                <i class="fas fa-trash text-red-500 cursor-pointer hover:text-red-700"></i>
+            </div>
+
+        </div>
+
+        <div class="bg-white p-4 mb-3 rounded shadow">
+            <h3 class="font-bold">Broken Road</h3>
+            <p>Road is damaged badly</p>
+            <p class="text-sm text-gray-500">Status: Resolved</p>
+            <div class="flex flex-row-reverse gap-2 space-x-3 text-lg">
+                <i class="fas fa-edit text-blue-500 cursor-pointer hover:text-blue-700"></i>
+                <i class="fas fa-trash text-red-500 cursor-pointer hover:text-red-700"></i>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>
