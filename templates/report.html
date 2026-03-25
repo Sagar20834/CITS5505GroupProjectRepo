@@ -1,52 +1,47 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>Report Issue</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Report Issue | RoadWatch Perth</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-
-<body class="bg-gray-100">
-
-    <nav class="bg-gray-900 text-white px-6 py-4 flex justify-between items-center">
-        <h1 class="text-xl font-bold">RoadWatch</h1>
-
-        <div class="space-x-3">
-
-            <a href="index.html" class="hover:text-yellow-400">Home</a>
-            <a href="report.html" class="hover:text-yellow-400">Report Issue</a>
-            <a href="reports.html" class="hover:text-yellow-400">Reports</a>
-            <!-- <a href="logout.html" class="bg-red-500 px-3 py-1 rounded">Logout</a> -->
-            <a href="login.html" class="bg-blue-500 px-3 py-1 rounded">Login</a>
-            <a href="register.html" class="bg-green-500 px-3 py-1 rounded">Register</a>
-
-        </div>
-    </nav>
-
-    <div class="max-w-xl mx-auto mt-10 bg-white p-6 rounded shadow">
-
-        <h2 class="text-xl font-bold mb-4">Report Issue</h2>
-
-        <input placeholder="Issue Type" class="w-full border p-2 mb-3">
-        <input placeholder="Location" class="w-full border p-2 mb-3">
-
-        <textarea placeholder="Description" class="w-full border p-2 mb-3"></textarea>
-
-        <input type="file" class="mb-3">
-        <div class="flex justify-between items-center">
-            <button class="bg-blue-500 text-white px-4 py-2 rounded">
-                Submit As User
-            </button>
-            <button class="bg-blue-500 text-white px-4 py-2 rounded">
-                Submit Anonymously
-            </button>
-
-        </div>
-
-
-
+<body class="min-h-screen bg-slate-100 text-slate-800">
+  <nav class="bg-slate-900">
+    <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-5">
+      <a href="index.html" class="text-4xl font-bold text-white no-underline">RoadWatch Perth</a>
+      <div class="flex flex-wrap items-center gap-5 text-lg text-white">
+        <a href="index.html" class="hover:text-amber-400">Home</a>
+        <a href="report.html" class="text-amber-400">Report Issue</a>
+        <a href="dashboard.html" class="hover:text-amber-400">Dashboard</a>
+        <a href="login.html" class="rounded-lg bg-blue-500 px-5 py-2.5 font-semibold text-white no-underline hover:bg-blue-600">Login</a>
+        <a href="register.html" class="rounded-lg bg-green-500 px-5 py-2.5 font-semibold text-white no-underline hover:bg-green-600">Register</a>
+      </div>
     </div>
+  </nav>
 
+  <main class="px-6 py-14">
+    <div class="mx-auto max-w-4xl rounded-2xl border border-slate-200 bg-white p-8 shadow-lg md:p-10">
+      <p class="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700">Community Reporting</p>
+      <h1 class="mb-3 text-4xl font-bold text-slate-900">Report Issue</h1>
+      <p class="mb-8 text-xl leading-9 text-slate-600">Submit a road problem with enough detail to help track and prioritize it.</p>
+
+      <div class="space-y-4">
+        <input class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="Issue Type">
+        <input class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="Location">
+        <textarea class="min-h-[150px] w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="Description"></textarea>
+        <input class="w-full rounded-xl border border-slate-300 px-4 py-3" type="file">
+      </div>
+
+      <div class="mt-6 flex flex-wrap justify-between gap-4">
+        <button type="button" class="rounded-2xl bg-blue-500 px-7 py-4 text-lg font-semibold text-white hover:bg-blue-600">Submit As User</button>
+        <button type="button" class="rounded-2xl bg-blue-500 px-7 py-4 text-lg font-semibold text-white hover:bg-blue-600">Submit Anonymously</button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-slate-900 py-4 text-center text-white">
+    <p class="mb-0">RoadWatch Perth - Community reporting for safer roads.</p>
+  </footer>
 </body>
-
 </html>
