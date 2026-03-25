@@ -4,146 +4,112 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RoadWatch Perth</title>
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  >
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="../static/css/style.css">
 </head>
-<body class="page-shell">
-  <nav class="navbar custom-navbar">
-    <div class="container d-flex justify-content-between align-items-center gap-3">
-      <a class="navbar-brand" href="index.html">RoadWatch Perth</a>
-
-      <div class="nav-links">
-        <a class="active-link" href="index.html">Home</a>
-        <a href="report.html">Report Issue</a>
-        <a href="dashboard.html">Dashboard</a>
-        <a class="btn nav-login-btn" href="login.html">Login</a>
-        <a class="btn nav-signup-btn" href="register.html">Register</a>
+<body class="min-h-screen bg-slate-100 text-slate-800">
+  <nav class="bg-slate-900">
+    <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-5">
+      <a href="index.html" class="text-4xl font-bold text-white no-underline">RoadWatch Perth</a>
+      <div class="flex flex-wrap items-center gap-5 text-lg text-white">
+        <a href="index.html" class="text-amber-400">Home</a>
+        <a href="report.html" class="hover:text-amber-400">Report Issue</a>
+        <a href="dashboard.html" class="hover:text-amber-400">Dashboard</a>
+        <a href="login.html" class="rounded-lg bg-blue-500 px-5 py-2.5 font-semibold text-white no-underline hover:bg-blue-600">Login</a>
+        <a href="register.html" class="rounded-lg bg-green-500 px-5 py-2.5 font-semibold text-white no-underline hover:bg-green-600">Register</a>
       </div>
     </div>
   </nav>
 
-  <section class="content-section">
-    <div class="container">
-      <div class="info-card">
-        <div class="row align-items-center g-4">
-          <div class="col-lg-6">
-            <div class="hero-copy">
-              <p class="hero-kicker">Safer Streets Through Community Reporting</p>
-              <h1>Report road hazards across Perth before they become bigger problems.</h1>
-              <p class="hero-text">
-                RoadWatch Perth helps residents quickly report unsafe roads, track recurring issues,
-                and support smarter maintenance decisions with community data.
-              </p>
-              <div class="hero-actions">
-                <a class="btn hero-primary-btn" href="report.html">Report an Issue</a>
-                <a class="btn hero-secondary-btn" href="dashboard.html">Dashboard</a>
-              </div>
-            </div>
+  <section class="px-6 py-14">
+    <div class="mx-auto max-w-7xl rounded-2xl border border-slate-200 bg-white p-8 shadow-lg md:p-10">
+      <div class="grid gap-8 lg:grid-cols-2 lg:items-center">
+        <div>
+          <p class="mb-4 text-sm font-bold uppercase tracking-[0.28em] text-blue-700">Safer Streets Through Community Reporting</p>
+          <h1 class="mb-6 text-5xl font-bold leading-tight text-slate-900 md:text-6xl">Report road hazards across Perth before they become bigger problems.</h1>
+          <p class="mb-8 text-xl leading-9 text-slate-600">
+            RoadWatch Perth helps residents quickly report unsafe roads, track recurring issues,
+            and support smarter maintenance decisions with community data.
+          </p>
+          <div class="flex flex-wrap gap-4">
+            <a href="report.html" class="rounded-2xl bg-amber-500 px-7 py-4 text-2xl font-semibold text-slate-900 no-underline hover:bg-amber-400">Report an Issue</a>
+            <a href="dashboard.html" class="rounded-2xl bg-blue-500 px-7 py-4 text-2xl font-semibold text-white no-underline hover:bg-blue-600">Dashboard</a>
           </div>
+        </div>
 
-          <div class="col-lg-6">
-            <div class="hero-card">
-              <h3>Why people use RoadWatch Perth</h3>
-              <ul>
-                <li>Quickly report unsafe roads</li>
-                <li>Submit reports anonymously</li>
-                <li>Help identify priority maintenance areas</li>
-                <li>View community-submitted reports across Perth</li>
-              </ul>
-            </div>
-          </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+          <h2 class="mb-6 text-4xl font-bold text-sky-900">Why people use RoadWatch Perth</h2>
+          <ul class="space-y-5 pl-6 text-xl leading-9 text-slate-700">
+            <li>Quickly report unsafe roads</li>
+            <li>Submit reports anonymously</li>
+            <li>Help identify priority maintenance areas</li>
+            <li>View community-submitted reports across Perth</li>
+          </ul>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="features-section py-5">
-    <div class="container text-center">
-      <h2 class="section-title">How It Works</h2>
-      <div class="row g-4 mt-2">
-        <div class="col-md-4">
-          <div class="feature-card h-100">
-            <h4>Report Damage</h4>
-            <p>Submit road damage details such as potholes, cracks, flooding, or missing signs.</p>
-          </div>
+  <section class="px-6 py-6">
+    <div class="mx-auto max-w-7xl text-center">
+      <h2 class="mb-3 text-4xl font-bold text-slate-900">How It Works</h2>
+      <div class="mt-8 grid gap-6 md:grid-cols-3">
+        <div class="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-1">
+          <h3 class="mb-4 text-2xl font-bold text-sky-900">Report Damage</h3>
+          <p class="text-lg leading-8 text-slate-600">Submit road damage details such as potholes, cracks, flooding, or missing signs.</p>
         </div>
-        <div class="col-md-4">
-          <div class="feature-card h-100">
-            <h4>See Local Reports</h4>
-            <p>View reports submitted by other people in Perth to understand problem hotspots.</p>
-          </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-1">
+          <h3 class="mb-4 text-2xl font-bold text-sky-900">See Local Reports</h3>
+          <p class="text-lg leading-8 text-slate-600">View reports submitted by other people in Perth to understand problem hotspots.</p>
         </div>
-        <div class="col-md-4">
-          <div class="feature-card h-100">
-            <h4>Support Priorities</h4>
-            <p>Repeatedly reported locations can be treated as higher priority by the system.</p>
-          </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-1">
+          <h3 class="mb-4 text-2xl font-bold text-sky-900">Support Priorities</h3>
+          <p class="text-lg leading-8 text-slate-600">Repeatedly reported locations can be treated as higher priority by the system.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="analytics-section py-5">
-    <div class="container">
-      <div class="row g-4 align-items-stretch">
-        <div class="col-lg-4">
-          <div class="analytics-copy h-100">
-            <p class="analytics-kicker">Analytics Overview</p>
-            <h2>Road issue trends at a glance</h2>
-            <p>
-              We have kept the chart on the homepage and moved it below the main introduction so
-              visitors first understand the purpose of RoadWatch Perth, then see a quick visual
-              summary of reported road issues.
-            </p>
-            <p>
-              The chart highlights common categories like broken roads, cracks, potholes, and
-              other hazards reported throughout the year.
-            </p>
-            <button id="randomizeBtn" class="btn analytics-refresh-btn" type="button">
-              Refresh Sample Data
-            </button>
-          </div>
-        </div>
-
-        <div class="col-lg-8">
-          <div class="chart-card h-100">
-            <div class="chart-card-header">
-              <h3>Road Issues Analytics</h3>
-              <p class="mb-0">A stacked view of issue types reported across the year.</p>
-            </div>
-            <div class="chart-wrapper">
-              <canvas id="chart"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="cta-section py-5">
-    <div class="container">
-      <div class="cta-panel">
-        <h2>Help make Perth roads safer</h2>
-        <p>
-          Report a road issue today or review community submissions to stay aware of local
-          safety concerns.
+  <section class="px-6 py-10">
+    <div class="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[1fr,1.6fr]">
+      <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+        <p class="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-blue-700">Analytics Overview</p>
+        <h2 class="mb-5 text-4xl font-bold text-slate-900">Road issue trends at a glance</h2>
+        <p class="mb-4 text-lg leading-8 text-slate-600">
+          We have kept the chart on the homepage and moved it below the main introduction so
+          visitors first understand the purpose of RoadWatch Perth, then see a quick visual summary of reported road issues.
         </p>
-        <div class="hero-actions justify-content-center">
-          <a class="btn hero-primary-btn" href="report.html">Report an Issue</a>
-          <a class="btn hero-secondary-btn" href="dashboard.html">Dashboard</a>
+        <p class="mb-6 text-lg leading-8 text-slate-600">
+          The chart highlights common categories like broken roads, cracks, potholes, and other hazards reported throughout the year.
+        </p>
+        <button id="randomizeBtn" type="button" class="rounded-2xl bg-amber-500 px-6 py-3 text-lg font-semibold text-slate-900 hover:bg-amber-400">Refresh Sample Data</button>
+      </div>
+
+      <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+        <h3 class="mb-2 text-3xl font-bold text-sky-900">Road Issues Analytics</h3>
+        <p class="mb-5 text-lg text-slate-500">A stacked view of issue types reported across the year.</p>
+        <div class="relative h-[380px]">
+          <canvas id="chart"></canvas>
         </div>
       </div>
     </div>
   </section>
 
-  <footer class="footer-section text-center py-3">
-    <div class="container">
-      <p class="mb-0">RoadWatch Perth - Community reporting for safer roads.</p>
+  <section class="px-6 py-8 pb-14">
+    <div class="mx-auto max-w-7xl rounded-2xl border border-slate-200 bg-white px-8 py-10 text-center shadow-sm">
+      <h2 class="mb-4 text-4xl font-bold text-slate-900">Help make Perth roads safer</h2>
+      <p class="mx-auto mb-8 max-w-3xl text-xl leading-9 text-slate-600">
+        Report a road issue today or review community submissions to stay aware of local safety concerns.
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="report.html" class="rounded-2xl bg-amber-500 px-7 py-4 text-xl font-semibold text-slate-900 no-underline hover:bg-amber-400">Report an Issue</a>
+        <a href="dashboard.html" class="rounded-2xl bg-blue-500 px-7 py-4 text-xl font-semibold text-white no-underline hover:bg-blue-600">Dashboard</a>
+      </div>
     </div>
+  </section>
+
+  <footer class="bg-slate-900 py-4 text-center text-white">
+    <p class="mb-0">RoadWatch Perth - Community reporting for safer roads.</p>
   </footer>
 
   <script>
@@ -170,45 +136,17 @@
       data: {
         labels: Utils.months({ count: 12 }),
         datasets: [
-          {
-            label: "Broken Road",
-            data: Utils.numbers({ count: 12, min: 10, max: 95 }),
-            backgroundColor: Utils.chartColors.red
-          },
-          {
-            label: "Crack",
-            data: Utils.numbers({ count: 12, min: 10, max: 95 }),
-            backgroundColor: Utils.chartColors.blue
-          },
-          {
-            label: "Pothole",
-            data: Utils.numbers({ count: 12, min: 10, max: 95 }),
-            backgroundColor: Utils.chartColors.green
-          },
-          {
-            label: "Others",
-            data: Utils.numbers({ count: 12, min: 10, max: 95 }),
-            backgroundColor: Utils.chartColors.yellow
-          }
+          { label: "Broken Road", data: Utils.numbers({ count: 12, min: 10, max: 95 }), backgroundColor: Utils.chartColors.red },
+          { label: "Crack", data: Utils.numbers({ count: 12, min: 10, max: 95 }), backgroundColor: Utils.chartColors.blue },
+          { label: "Pothole", data: Utils.numbers({ count: 12, min: 10, max: 95 }), backgroundColor: Utils.chartColors.green },
+          { label: "Others", data: Utils.numbers({ count: 12, min: 10, max: 95 }), backgroundColor: Utils.chartColors.yellow }
         ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: "top"
-          }
-        },
-        scales: {
-          x: {
-            stacked: true
-          },
-          y: {
-            stacked: true,
-            beginAtZero: true
-          }
-        }
+        plugins: { legend: { position: "top" } },
+        scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } }
       }
     });
 
