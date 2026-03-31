@@ -1,0 +1,26 @@
+name: Restrict Push to Main
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  restrict:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Check push permissions
+        run: |
+          USER=${{ github.actor }}
+          ALLOWED_USER="Sagar20834"
+
+          if [[ "$USER" != "$ALLOWED_USER" ]]; then
+            echo "❌ Error: User '$USER' is not allowed to push directly to main."
+            echo "Only '$ALLOWED_USER' can push to main. Please use a pull request instead."
+            exit 1
+          fi
+
+          echo "✅ Push by '$USER' is allowed."
