@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,16 +8,20 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body class="min-h-screen bg-slate-100 text-slate-800">
-  <nav class="bg-slate-900">
+  <nav class="bg-slate-900 sticky top-0">
     <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-5">
       <a href="index.html" class="text-4xl font-bold text-white no-underline">RoadWatch Perth</a>
       <div class="flex flex-wrap items-center gap-5 text-lg text-white">
         <a href="index.html" class="text-amber-400">Home</a>
         <a href="report.html" class="hover:text-amber-400">Report Issue</a>
+        <a href="reports.html" class="hover:text-amber-400">Reports List </a>
         <a href="dashboard.html" class="hover:text-amber-400">Dashboard</a>
-        <a href="login.html" class="rounded-lg bg-blue-500 px-5 py-2.5 font-semibold text-white no-underline hover:bg-blue-600">Login</a>
-        <a href="register.html" class="rounded-lg bg-green-500 px-5 py-2.5 font-semibold text-white no-underline hover:bg-green-600">Register</a>
+        <a href="login.html"
+          class="rounded-lg bg-blue-500 px-5 py-2.5 font-semibold text-white no-underline hover:bg-blue-600">Login</a>
+        <a href="register.html"
+          class="rounded-lg bg-green-500 px-5 py-2.5 font-semibold text-white no-underline hover:bg-green-600">Register</a>
       </div>
     </div>
   </nav>
@@ -25,15 +30,20 @@
     <div class="mx-auto max-w-7xl rounded-2xl border border-slate-200 bg-white p-8 shadow-lg md:p-10">
       <div class="grid gap-8 lg:grid-cols-2 lg:items-center">
         <div>
-          <p class="mb-4 text-sm font-bold uppercase tracking-[0.28em] text-blue-700">Safer Streets Through Community Reporting</p>
-          <h1 class="mb-6 text-5xl font-bold leading-tight text-slate-900 md:text-6xl">Report road hazards across Perth before they become bigger problems.</h1>
+          <p class="mb-4 text-sm font-bold uppercase tracking-[0.28em] text-blue-700">Safer Streets Through Community
+            Reporting</p>
+          <h1 class="mb-6 text-5xl font-bold leading-tight text-slate-900 md:text-6xl">Report road hazards across Perth
+            before they become bigger problems.</h1>
           <p class="mb-8 text-xl leading-9 text-slate-600">
             RoadWatch Perth helps residents quickly report unsafe roads, track recurring issues,
             and support smarter maintenance decisions with community data.
           </p>
           <div class="flex flex-wrap gap-4">
-            <a href="report.html" class="rounded-2xl bg-amber-500 px-7 py-4 text-2xl font-semibold text-slate-900 no-underline hover:bg-amber-400">Report an Issue</a>
-            <a href="dashboard.html" class="rounded-2xl bg-blue-500 px-7 py-4 text-2xl font-semibold text-white no-underline hover:bg-blue-600">Dashboard</a>
+            <a href="report.html"
+              class="rounded-2xl bg-amber-500 px-7 py-4 text-2xl font-semibold text-slate-900 no-underline hover:bg-amber-400">Report
+              an Issue</a>
+            <a href="dashboard.html"
+              class="rounded-2xl bg-blue-500 px-7 py-4 text-2xl font-semibold text-white no-underline hover:bg-blue-600">Dashboard</a>
           </div>
         </div>
 
@@ -56,15 +66,18 @@
       <div class="mt-8 grid gap-6 md:grid-cols-3">
         <div class="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-1">
           <h3 class="mb-4 text-2xl font-bold text-sky-900">Report Damage</h3>
-          <p class="text-lg leading-8 text-slate-600">Submit road damage details such as potholes, cracks, flooding, or missing signs.</p>
+          <p class="text-lg leading-8 text-slate-600">Submit road damage details such as potholes, cracks, flooding, or
+            missing signs.</p>
         </div>
         <div class="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-1">
           <h3 class="mb-4 text-2xl font-bold text-sky-900">See Local Reports</h3>
-          <p class="text-lg leading-8 text-slate-600">View reports submitted by other people in Perth to understand problem hotspots.</p>
+          <p class="text-lg leading-8 text-slate-600">View reports submitted by other people in Perth to understand
+            problem hotspots.</p>
         </div>
         <div class="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-1">
           <h3 class="mb-4 text-2xl font-bold text-sky-900">Support Priorities</h3>
-          <p class="text-lg leading-8 text-slate-600">Repeatedly reported locations can be treated as higher priority by the system.</p>
+          <p class="text-lg leading-8 text-slate-600">Repeatedly reported locations can be treated as higher priority by
+            the system.</p>
         </div>
       </div>
     </div>
@@ -77,12 +90,16 @@
         <h2 class="mb-5 text-4xl font-bold text-slate-900">Road issue trends at a glance</h2>
         <p class="mb-4 text-lg leading-8 text-slate-600">
           We have kept the chart on the homepage and moved it below the main introduction so
-          visitors first understand the purpose of RoadWatch Perth, then see a quick visual summary of reported road issues.
+          visitors first understand the purpose of RoadWatch Perth, then see a quick visual summary of reported road
+          issues.
         </p>
         <p class="mb-6 text-lg leading-8 text-slate-600">
-          The chart highlights common categories like broken roads, cracks, potholes, and other hazards reported throughout the year.
+          The chart highlights common categories like broken roads, cracks, potholes, and other hazards reported
+          throughout the year.
         </p>
-        <button id="randomizeBtn" type="button" class="rounded-2xl bg-amber-500 px-6 py-3 text-lg font-semibold text-slate-900 hover:bg-amber-400">Refresh Sample Data</button>
+        <button id="randomizeBtn" type="button"
+          class="rounded-2xl bg-amber-500 px-6 py-3 text-lg font-semibold text-slate-900 hover:bg-amber-400">Refresh
+          Sample Data</button>
       </div>
 
       <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
@@ -102,13 +119,16 @@
         Report a road issue today or review community submissions to stay aware of local safety concerns.
       </p>
       <div class="flex flex-wrap justify-center gap-4">
-        <a href="report.html" class="rounded-2xl bg-amber-500 px-7 py-4 text-xl font-semibold text-slate-900 no-underline hover:bg-amber-400">Report an Issue</a>
-        <a href="dashboard.html" class="rounded-2xl bg-blue-500 px-7 py-4 text-xl font-semibold text-white no-underline hover:bg-blue-600">Dashboard</a>
+        <a href="report.html"
+          class="rounded-2xl bg-amber-500 px-7 py-4 text-xl font-semibold text-slate-900 no-underline hover:bg-amber-400">Report
+          an Issue</a>
+        <a href="dashboard.html"
+          class="rounded-2xl bg-blue-500 px-7 py-4 text-xl font-semibold text-white no-underline hover:bg-blue-600">Dashboard</a>
       </div>
     </div>
   </section>
 
-  <footer class="bg-slate-900 py-4 text-center text-white">
+  <footer class="bg-slate-900 py-4 text-center text-white fixed bottom-0 w-full">
     <p class="mb-0">RoadWatch Perth - Community reporting for safer roads.</p>
   </footer>
 
@@ -158,4 +178,5 @@
     });
   </script>
 </body>
+
 </html>
