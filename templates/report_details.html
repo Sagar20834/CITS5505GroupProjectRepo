@@ -1,59 +1,67 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Report Details | RoadWatch Perth</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="min-h-screen bg-slate-100 text-slate-800">
-  <nav class="bg-slate-900">
-    <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-5">
-      <a href="index.html" class="text-4xl font-bold text-white no-underline">RoadWatch Perth</a>
-      <div class="flex flex-wrap items-center gap-5 text-lg text-white">
-        <a href="index.html" class="hover:text-amber-400">Home</a>
-        <a href="report.html" class="hover:text-amber-400">Report Issue</a>
-        <a href="dashboard.html" class="hover:text-amber-400">Dashboard</a>
-        <a href="login.html" class="rounded-lg bg-blue-500 px-5 py-2.5 font-semibold text-white no-underline hover:bg-blue-600">Login</a>
-        <a href="register.html" class="rounded-lg bg-green-500 px-5 py-2.5 font-semibold text-white no-underline hover:bg-green-600">Register</a>
+{% extends "base.html" %}
+
+{% block title %}Report Details | RoadWatch Perth{% endblock %}
+
+{% block content %}
+  <section class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg">
+    <p class="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700">Report Summary</p>
+    <div class="mb-8 flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <h1 class="mb-3 text-4xl font-bold text-slate-900">Report Details</h1>
+        <p class="text-lg leading-8 text-slate-600">Detailed information for an individual road hazard report.</p>
+      </div>
+      <span class="rounded-full px-4 py-2 text-sm font-bold {{ status_styles[report.status] }}">{{ report.status }}</span>
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
+        <h2 class="mb-2 text-2xl font-bold text-sky-900">Issue Type</h2>
+        <p class="text-lg text-slate-600">{{ report.issue_type }}</p>
+      </div>
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
+        <h2 class="mb-2 text-2xl font-bold text-sky-900">Reported By</h2>
+        <p class="text-lg text-slate-600">{{ report.reporter_label }}</p>
+      </div>
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
+        <h2 class="mb-2 text-2xl font-bold text-sky-900">Submitted</h2>
+        <p class="text-lg text-slate-600">{{ report.created_at|datetime_label }}</p>
+      </div>
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
+        <h2 class="mb-2 text-2xl font-bold text-sky-900">Last Updated</h2>
+        <p class="text-lg text-slate-600">{{ report.updated_at|datetime_label }}</p>
+      </div>
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm md:col-span-2">
+        <h2 class="mb-2 text-2xl font-bold text-sky-900">Location</h2>
+        <p class="text-lg text-slate-600">{{ report.location }}</p>
+      </div>
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm md:col-span-2">
+        <h2 class="mb-2 text-2xl font-bold text-sky-900">Description</h2>
+        <p class="text-lg leading-8 text-slate-600">{{ report.description }}</p>
+      </div>
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm md:col-span-2">
+        <h2 class="mb-4 text-2xl font-bold text-sky-900">Image</h2>
+        {% if report.image_url %}
+          <img src="{{ report.image_url }}" alt="{{ report.issue_type }} image" class="max-h-[420px] w-full rounded-2xl object-cover">
+        {% else %}
+          <div class="flex min-h-[220px] items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">
+            No image provided
+          </div>
+        {% endif %}
       </div>
     </div>
-  </nav>
 
-  <main class="px-6 py-14">
-    <div class="mx-auto max-w-5xl rounded-2xl border border-slate-200 bg-white p-8 shadow-lg">
-      <p class="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700">Report Summary</p>
-      <h1 class="mb-3 text-4xl font-bold text-slate-900">Report Details</h1>
-      <p class="mb-8 text-lg leading-8 text-slate-600">Detailed information for an individual road hazard report.</p>
-
-      <div class="grid gap-4 md:grid-cols-2">
-        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
-          <h3 class="mb-2 text-2xl font-bold text-sky-900">Issue Type</h3>
-          <p class="text-lg text-slate-600">Pothole</p>
-        </div>
-        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
-          <h3 class="mb-2 text-2xl font-bold text-sky-900">Status</h3>
-          <p class="text-lg text-slate-600">Pending</p>
-        </div>
-        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm md:col-span-2">
-          <h3 class="mb-2 text-2xl font-bold text-sky-900">Location</h3>
-          <p class="text-lg text-slate-600">Perth local road intersection</p>
-        </div>
-        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm md:col-span-2">
-          <h3 class="mb-2 text-2xl font-bold text-sky-900">Description</h3>
-          <p class="text-lg leading-8 text-slate-600">A large pothole has formed near the lane edge and is becoming a risk for drivers.</p>
-        </div>
-      </div>
-
-      <div class="mt-6 flex flex-wrap gap-4">
-        <a href="reports.html" class="rounded-2xl bg-blue-500 px-6 py-3 text-lg font-semibold text-white no-underline hover:bg-blue-600">Back to Reports</a>
-        <a href="dashboard.html" class="rounded-2xl bg-amber-500 px-6 py-3 text-lg font-semibold text-slate-900 no-underline hover:bg-amber-400">Go to Dashboard</a>
-      </div>
+    <div class="mt-6 flex flex-wrap gap-4">
+      <a href="{{ url_for('reports.list_reports') }}" class="rounded-2xl bg-blue-500 px-6 py-3 text-lg font-semibold text-white no-underline hover:bg-blue-600">Back to Reports</a>
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('main.dashboard') }}" class="rounded-2xl bg-amber-500 px-6 py-3 text-lg font-semibold text-slate-900 no-underline hover:bg-amber-400">Go to Dashboard</a>
+      {% endif %}
+      {% if report.can_be_managed_by(current_user) %}
+        <a href="{{ url_for('reports.edit_report', report_id=report.id) }}" class="rounded-2xl border border-slate-300 px-6 py-3 text-lg font-semibold text-slate-700 no-underline hover:bg-slate-50">Edit Report</a>
+        <form method="post" action="{{ url_for('reports.delete_report', report_id=report.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="rounded-2xl border border-red-500 px-6 py-3 text-lg font-semibold text-red-600 hover:bg-red-50">Delete</button>
+        </form>
+      {% endif %}
     </div>
-  </main>
-
-  <footer class="bg-slate-900 py-4 text-center text-white">
-    <p class="mb-0">RoadWatch Perth - Community reporting for safer roads.</p>
-  </footer>
-</body>
-</html>
+  </section>
+{% endblock %}

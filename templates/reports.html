@@ -1,61 +1,88 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reports | RoadWatch Perth</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="min-h-screen bg-slate-100 text-slate-800">
-  <nav class="bg-slate-900">
-    <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-5">
-      <a href="index.html" class="text-4xl font-bold text-white no-underline">RoadWatch Perth</a>
-      <div class="flex flex-wrap items-center gap-5 text-lg text-white">
-        <a href="index.html" class="hover:text-amber-400">Home</a>
-        <a href="report.html" class="hover:text-amber-400">Report Issue</a>
-        <a href="dashboard.html" class="hover:text-amber-400">Dashboard</a>
-        <a href="login.html" class="rounded-lg bg-blue-500 px-5 py-2.5 font-semibold text-white no-underline hover:bg-blue-600">Login</a>
-        <a href="register.html" class="rounded-lg bg-green-500 px-5 py-2.5 font-semibold text-white no-underline hover:bg-green-600">Register</a>
+{% extends "base.html" %}
+
+{% block title %}Reports | RoadWatch Perth{% endblock %}
+
+{% block content %}
+  <section class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg">
+    <p class="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700">Community Reports</p>
+    <h1 class="mb-3 text-4xl font-bold text-slate-900">All Reports</h1>
+    <p class="mb-8 text-lg leading-8 text-slate-600">Search, filter, and review road issues submitted by the community.</p>
+
+    <form method="get" class="mb-8 grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-5 md:grid-cols-[1.4fr,0.9fr,auto]">
+      <div>
+        <label for="q" class="mb-2 block text-sm font-semibold text-slate-600">Search by location, type, or description</label>
+        <input id="q" name="q" value="{{ filters.q }}" class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="e.g. pothole Hay Street">
       </div>
-    </div>
-  </nav>
+      <div>
+        <label for="status" class="mb-2 block text-sm font-semibold text-slate-600">Status</label>
+        <select id="status" name="status" class="w-full rounded-xl border border-slate-300 px-4 py-3">
+          <option value="">All statuses</option>
+          {% for status in report_statuses %}
+            <option value="{{ status }}" {% if filters.status == status %}selected{% endif %}>{{ status }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="flex flex-col justify-end gap-3">
+        {% if current_user.is_authenticated %}
+          <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-600">
+            <input type="checkbox" name="mine" value="1" {% if filters.mine %}checked{% endif %} class="rounded border-slate-300">
+            Show only my linked reports
+          </label>
+        {% endif %}
+        <button type="submit" class="rounded-xl bg-blue-500 px-5 py-3 font-semibold text-white hover:bg-blue-600">Apply filters</button>
+      </div>
+    </form>
 
-  <main class="px-6 py-14">
-    <div class="mx-auto max-w-5xl rounded-2xl border border-slate-200 bg-white p-8 shadow-lg">
-      <p class="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700">Community Reports</p>
-      <h1 class="mb-3 text-4xl font-bold text-slate-900">All Reports</h1>
-      <p class="mb-8 text-lg leading-8 text-slate-600">Review recent issues reported by the community.</p>
-
-      <input class="mb-6 w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="Search reports...">
-
+    {% if reports %}
       <div class="space-y-5">
-        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
-          <h3 class="mb-2 text-2xl font-bold text-sky-900">Pothole</h3>
-          <p class="mb-2 text-lg text-slate-600">Big pothole near road</p>
-          <p class="mb-4 text-base text-slate-500">Status: Pending</p>
-          <div class="flex flex-wrap justify-end gap-3">
-            <a href="report_details.html" class="rounded-xl border border-blue-500 px-4 py-2 font-medium text-blue-600 no-underline hover:bg-blue-50">View</a>
-            <button type="button" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 hover:bg-slate-100">Edit</button>
-            <button type="button" class="rounded-xl border border-red-500 px-4 py-2 font-medium text-red-600 hover:bg-red-50">Delete</button>
-          </div>
-        </div>
+        {% for report in reports %}
+          <article class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
+            <div class="grid gap-5 md:grid-cols-[220px,1fr]">
+              <div class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-200">
+                {% if report.image_url %}
+                  <img src="{{ report.image_url }}" alt="{{ report.issue_type }} image" class="h-full min-h-[180px] w-full object-cover">
+                {% else %}
+                  <div class="flex min-h-[180px] items-center justify-center bg-slate-200 px-6 text-center text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
+                    No image provided
+                  </div>
+                {% endif %}
+              </div>
 
-        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
-          <h3 class="mb-2 text-2xl font-bold text-sky-900">Broken Road</h3>
-          <p class="mb-2 text-lg text-slate-600">Road is damaged badly</p>
-          <p class="mb-4 text-base text-slate-500">Status: Resolved</p>
-          <div class="flex flex-wrap justify-end gap-3">
-            <a href="report_details.html" class="rounded-xl border border-blue-500 px-4 py-2 font-medium text-blue-600 no-underline hover:bg-blue-50">View</a>
-            <button type="button" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 hover:bg-slate-100">Edit</button>
-            <button type="button" class="rounded-xl border border-red-500 px-4 py-2 font-medium text-red-600 hover:bg-red-50">Delete</button>
-          </div>
-        </div>
+              <div>
+                <div class="mb-4 flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <h2 class="mb-1 text-2xl font-bold text-sky-900">{{ report.issue_type }}</h2>
+                    <p class="text-base text-slate-500">{{ report.location }}</p>
+                  </div>
+                  <span class="rounded-full px-3 py-1 text-sm font-bold {{ status_styles[report.status] }}">{{ report.status }}</span>
+                </div>
+
+                <p class="mb-4 text-lg leading-8 text-slate-600">{{ report.description[:220] }}{% if report.description|length > 220 %}...{% endif %}</p>
+
+                <div class="mb-5 flex flex-wrap gap-4 text-sm text-slate-500">
+                  <span>Submitted by {{ report.reporter_label }}</span>
+                  <span>{{ report.created_at|datetime_label }}</span>
+                </div>
+
+                <div class="flex flex-wrap justify-end gap-3">
+                  <a href="{{ url_for('reports.report_details', report_id=report.id) }}" class="rounded-xl border border-blue-500 px-4 py-2 font-medium text-blue-600 no-underline hover:bg-blue-50">View</a>
+                  {% if report.can_be_managed_by(current_user) %}
+                    <a href="{{ url_for('reports.edit_report', report_id=report.id) }}" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100">Edit</a>
+                    <form method="post" action="{{ url_for('reports.delete_report', report_id=report.id) }}">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button type="submit" class="rounded-xl border border-red-500 px-4 py-2 font-medium text-red-600 hover:bg-red-50">Delete</button>
+                    </form>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </article>
+        {% endfor %}
       </div>
-    </div>
-  </main>
-
-  <footer class="bg-slate-900 py-4 text-center text-white">
-    <p class="mb-0">RoadWatch Perth - Community reporting for safer roads.</p>
-  </footer>
-</body>
-</html>
+    {% else %}
+      <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center">
+        <p class="text-lg text-slate-600">No reports matched the current filters.</p>
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

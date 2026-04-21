@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}RoadWatch Perth{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-screen bg-slate-100 text-slate-800">
+  <nav class="bg-slate-900">
+    <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-5">
+      <a href="{{ url_for('main.index') }}" class="text-4xl font-bold text-white no-underline">RoadWatch Perth</a>
+      <div class="flex flex-wrap items-center gap-4 text-base text-white md:text-lg">
+        <a href="{{ url_for('main.index') }}" class="{% if request.endpoint == 'main.index' %}text-amber-400{% else %}hover:text-amber-400{% endif %}">Home</a>
+        <a href="{{ url_for('main.dashboard') }}" class="{% if request.endpoint == 'main.dashboard' %}text-amber-400{% else %}hover:text-amber-400{% endif %}">Dashboard</a>
+        <a href="{{ url_for('reports.list_reports') }}" class="{% if request.endpoint == 'reports.list_reports' or request.endpoint == 'reports.report_details' %}text-amber-400{% else %}hover:text-amber-400{% endif %}">Reports</a>
+        <a href="{{ url_for('reports.create_report') }}" class="{% if request.endpoint == 'reports.create_report' or request.endpoint == 'reports.edit_report' %}text-amber-400{% else %}hover:text-amber-400{% endif %}">Report Issue</a>
+        {% if current_user.is_authenticated %}
+          {% if current_user.is_admin %}
+            <a href="{{ url_for('admin.admin_panel') }}" class="{% if request.endpoint == 'admin.admin_panel' %}text-amber-400{% else %}hover:text-amber-400{% endif %}">Admin</a>
+          {% endif %}
+          <span class="rounded-full bg-slate-800 px-3 py-1 text-sm text-slate-200">
+            {{ current_user.username }}{% if current_user.is_admin %} | admin{% endif %}
+          </span>
+          <form method="post" action="{{ url_for('auth.logout') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="rounded-lg bg-slate-700 px-4 py-2 font-semibold text-white hover:bg-slate-600">Logout</button>
+          </form>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}" class="{% if request.endpoint == 'auth.login' %}text-amber-400{% else %}rounded-lg bg-blue-500 px-5 py-2.5 font-semibold text-white no-underline hover:bg-blue-600{% endif %}">Login</a>
+          <a href="{{ url_for('auth.register') }}" class="{% if request.endpoint == 'auth.register' %}text-amber-400{% else %}rounded-lg bg-green-500 px-5 py-2.5 font-semibold text-white no-underline hover:bg-green-600{% endif %}">Register</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <main class="px-6 py-8">
+    <div class="mx-auto max-w-7xl">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="mb-6 space-y-3">
+            {% for category, message in messages %}
+              <div class="rounded-2xl border px-5 py-4 text-base shadow-sm
+                {% if category == 'success' %}border-green-200 bg-green-50 text-green-800
+                {% elif category == 'warning' %}border-amber-200 bg-amber-50 text-amber-800
+                {% elif category == 'error' %}border-red-200 bg-red-50 text-red-800
+                {% else %}border-slate-200 bg-white text-slate-700{% endif %}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+  <footer class="bg-slate-900 py-4 text-center text-white">
+    <p class="mb-0">RoadWatch Perth - Community reporting for safer roads.</p>
+    <p class="mt-1 text-sm text-slate-300">&copy; {{ current_year }} RoadWatch Perth</p>
+  </footer>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>
