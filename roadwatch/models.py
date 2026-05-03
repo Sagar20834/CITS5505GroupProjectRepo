@@ -62,6 +62,7 @@ class Report(db.Model):
         "Other",
     )
     STATUSES = ("Reported", "Under Review", "Fixed")
+    SEVERITIES = ("Low", "Medium", "High", "Urgent")
 
     id = db.Column(db.Integer, primary_key=True)
     issue_type = db.Column(db.String(50), nullable=False, index=True)
@@ -70,12 +71,20 @@ class Report(db.Model):
     description = db.Column(db.Text, nullable=False)
     image_url = db.Column(db.String(500), nullable=True)
     status = db.Column(db.String(30), nullable=False, default="Reported", index=True)
+    severity = db.Column(db.String(20), nullable=False, default="Medium", index=True)
     is_anonymous = db.Column(db.Boolean, nullable=False, default=False)
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow, index=True)
     updated_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow, onupdate=utcnow)
     reporter_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
 
     reporter = db.relationship("User", back_populates="reports")
+    status_notes = db.relationship(
+        "ReportStatusNote",
+        back_populates="report",
+        cascade="all, delete-orphan",
+        lazy="dynamic",
+        order_by="ReportStatusNote.created_at.desc()",
+    )
 
     @property
     def reporter_label(self):
@@ -90,6 +99,28 @@ class Report(db.Model):
 
     def __repr__(self):
         return f"<Report {self.id} {self.issue_type}>"
+
+
+class ReportStatusNote(db.Model):
+    __tablename__ = "report_status_notes"
+
+    id = db.Column(db.Integer, primary_key=True)
+    report_id = db.Column(db.Integer, db.ForeignKey("reports.id", ondelete="CASCADE"), nullable=False, index=True)
+    admin_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
+    old_status = db.Column(db.String(30), nullable=False)
+    new_status = db.Column(db.String(30), nullable=False)
+    note = db.Column(db.String(500), nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow, index=True)
+
+    report = db.relationship("Report", back_populates="status_notes")
+    admin = db.relationship("User")
+
+    @property
+    def admin_label(self):
+        return self.admin.username if self.admin else "Admin"
+
+    def __repr__(self):
+        return f"<ReportStatusNote {self.id} report={self.report_id}>"
 
 
 @event.listens_for(Report, "before_insert")
