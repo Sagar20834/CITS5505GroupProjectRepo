@@ -9,11 +9,15 @@ reports_bp = Blueprint("reports", __name__, url_prefix="/reports")
 
 
 def _build_form_data(report=None):
+    image_url = request.form.get("image_url")
+    if image_url is None and report is not None:
+        image_url = report.image_url
+
     return {
         "issue_type": request.form.get("issue_type", report.issue_type if report else ""),
         "location": request.form.get("location", report.location if report else ""),
         "description": request.form.get("description", report.description if report else ""),
-        "image_url": request.form.get("image_url", report.image_url if report else "").strip(),
+        "image_url": (image_url or "").strip(),
         "is_anonymous": request.form.get("is_anonymous", "on" if report and report.is_anonymous else "") == "on",
     }
 
