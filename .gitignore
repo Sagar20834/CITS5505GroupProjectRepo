@@ -1,0 +1,28 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Flask and local environment files
+.env
+.flaskenv
+instance/*.db
+instance/*.sqlite
+instance/*.sqlite3
+!instance/.gitkeep
+
+# Test and coverage output
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
