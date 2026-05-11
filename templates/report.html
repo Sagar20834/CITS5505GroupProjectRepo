@@ -28,6 +28,15 @@
         </div>
 
         <div>
+          <label for="severity" class="mb-2 block text-sm font-semibold text-slate-600">Severity</label>
+          <select id="severity" name="severity" class="w-full rounded-xl border border-slate-300 px-4 py-3" required>
+            {% for severity in report_severities %}
+              <option value="{{ severity }}" {% if form_data.severity == severity %}selected{% endif %}>{{ severity }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
           <label for="description" class="mb-2 block text-sm font-semibold text-slate-600">Description</label>
           <textarea id="description" name="description" class="min-h-[170px] w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="Describe the hazard, who it affects, and any urgency details." required>{{ form_data.description }}</textarea>
         </div>

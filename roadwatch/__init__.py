@@ -20,6 +20,13 @@ STATUS_STYLES = {
     "Fixed": "bg-green-100 text-green-800",
 }
 
+SEVERITY_STYLES = {
+    "Low": "bg-emerald-100 text-emerald-800",
+    "Medium": "bg-sky-100 text-sky-800",
+    "High": "bg-orange-100 text-orange-800",
+    "Urgent": "bg-red-100 text-red-800",
+}
+
 
 def create_app(config_class=Config):
     project_root = Path(__file__).resolve().parent.parent
@@ -63,7 +70,9 @@ def create_app(config_class=Config):
             "current_year": datetime.now().year,
             "issue_types": Report.ISSUE_TYPES,
             "report_statuses": Report.STATUSES,
+            "report_severities": Report.SEVERITIES,
             "status_styles": STATUS_STYLES,
+            "severity_styles": SEVERITY_STYLES,
         }
 
     @app.template_filter("datetime_label")

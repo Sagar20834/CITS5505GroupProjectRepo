@@ -54,7 +54,10 @@
                     <h2 class="mb-1 text-2xl font-bold text-sky-900">{{ report.issue_type }}</h2>
                     <p class="text-base text-slate-500">{{ report.location }}</p>
                   </div>
-                  <span class="rounded-full px-3 py-1 text-sm font-bold {{ status_styles[report.status] }}">{{ report.status }}</span>
+                  <div class="flex flex-wrap gap-2">
+                    <span class="rounded-full px-3 py-1 text-sm font-bold {{ severity_styles[report.severity] }}">{{ report.severity }}</span>
+                    <span class="rounded-full px-3 py-1 text-sm font-bold {{ status_styles[report.status] }}">{{ report.status }}</span>
+                  </div>
                 </div>
 
                 <p class="mb-4 text-lg leading-8 text-slate-600">{{ report.description[:220] }}{% if report.description|length > 220 %}...{% endif %}</p>
