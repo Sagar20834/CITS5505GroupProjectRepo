@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
 from flask_login import UserMixin
-from sqlalchemy import event, or_
+from sqlalchemy import UniqueConstraint, event, or_
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from .extensions import db
@@ -27,6 +27,12 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow)
 
     reports = db.relationship("Report", back_populates="reporter", lazy="dynamic")
+    confirmations = db.relationship(
+        "Confirmation",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="dynamic",
+    )
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -85,6 +91,11 @@ class Report(db.Model):
         lazy="dynamic",
         order_by="ReportStatusNote.created_at.desc()",
     )
+    confirmations = db.relationship(
+        "Confirmation",
+        back_populates="report",
+        cascade="all, delete-orphan",
+    )
 
     @property
     def reporter_label(self):
@@ -96,6 +107,15 @@ class Report(db.Model):
 
     def can_be_managed_by(self, user):
         return bool(user and user.is_authenticated and user.can_manage(self))
+
+    @property
+    def confirmation_count(self):
+        return len(self.confirmations)
+
+    def is_confirmed_by(self, user):
+        if not user or not user.is_authenticated:
+            return False
+        return any(confirmation.user_id == user.id for confirmation in self.confirmations)
 
     def __repr__(self):
         return f"<Report {self.id} {self.issue_type}>"
@@ -121,6 +141,22 @@ class ReportStatusNote(db.Model):
 
     def __repr__(self):
         return f"<ReportStatusNote {self.id} report={self.report_id}>"
+
+
+class Confirmation(db.Model):
+    __tablename__ = "confirmations"
+    __table_args__ = (UniqueConstraint("user_id", "report_id", name="uq_confirmations_user_report"),)
+
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    report_id = db.Column(db.Integer, db.ForeignKey("reports.id", ondelete="CASCADE"), nullable=False, index=True)
+
+    user = db.relationship("User", back_populates="confirmations")
+    report = db.relationship("Report", back_populates="confirmations")
+
+    def __repr__(self):
+        return f"<Confirmation user={self.user_id} report={self.report_id}>"
 
 
 @event.listens_for(Report, "before_insert")

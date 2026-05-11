@@ -3,7 +3,7 @@ from flask_login import current_user
 from sqlalchemy import or_
 
 from .extensions import db
-from .models import Report
+from .models import Confirmation, Report
 
 reports_bp = Blueprint("reports", __name__, url_prefix="/reports")
 
@@ -111,6 +111,31 @@ def create_report():
 def report_details(report_id):
     report = Report.query.get_or_404(report_id)
     return render_template("report_details.html", report=report)
+
+
+@reports_bp.post("/<int:report_id>/confirm")
+def toggle_confirmation(report_id):
+    report = Report.query.get_or_404(report_id)
+
+    if not current_user.is_authenticated:
+        flash("Log in to confirm that you have seen this issue.", "warning")
+        return redirect(url_for("auth.login", next=url_for("reports.report_details", report_id=report.id)))
+
+    confirmation = Confirmation.query.filter_by(report_id=report.id, user_id=current_user.id).first()
+
+    if confirmation:
+        db.session.delete(confirmation)
+        db.session.commit()
+        flash("Your confirmation has been removed.", "success")
+    else:
+        confirmation = Confirmation()
+        confirmation.report_id = report.id
+        confirmation.user_id = current_user.id
+        db.session.add(confirmation)
+        db.session.commit()
+        flash("You confirmed this report.", "success")
+
+    return redirect(request.referrer or url_for("reports.report_details", report_id=report.id))
 
 
 @reports_bp.route("/<int:report_id>/edit", methods=["GET", "POST"])

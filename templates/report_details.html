@@ -34,6 +34,10 @@
         <p class="text-lg text-slate-600">{{ report.created_at|datetime_label }}</p>
       </div>
       <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
+        <h2 class="mb-2 text-2xl font-bold text-sky-900">Confirmations</h2>
+        <p class="text-lg text-slate-600">{{ report.confirmation_count }} user{% if report.confirmation_count != 1 %}s{% endif %} confirmed this issue</p>
+      </div>
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
         <h2 class="mb-2 text-2xl font-bold text-sky-900">Last Updated</h2>
         <p class="text-lg text-slate-600">{{ report.updated_at|datetime_label }}</p>
       </div>
@@ -80,7 +84,15 @@
     <div class="mt-6 flex flex-wrap gap-4">
       <a href="{{ url_for('reports.list_reports') }}" class="rounded-2xl bg-blue-500 px-6 py-3 text-lg font-semibold text-white no-underline hover:bg-blue-600">Back to Reports</a>
       {% if current_user.is_authenticated %}
+        <form method="post" action="{{ url_for('reports.toggle_confirmation', report_id=report.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="rounded-2xl px-6 py-3 text-lg font-semibold {% if report.is_confirmed_by(current_user) %}bg-green-500 text-white hover:bg-green-600{% else %}border border-slate-300 text-slate-700 hover:bg-slate-50{% endif %}">
+            {% if report.is_confirmed_by(current_user) %}Remove Confirmation{% else %}Confirm This Issue{% endif %}
+          </button>
+        </form>
         <a href="{{ url_for('main.dashboard') }}" class="rounded-2xl bg-amber-500 px-6 py-3 text-lg font-semibold text-slate-900 no-underline hover:bg-amber-400">Go to Dashboard</a>
+      {% else %}
+        <span class="rounded-2xl border border-slate-300 px-6 py-3 text-lg font-semibold text-slate-500">Login to confirm</span>
       {% endif %}
       {% if report.can_be_managed_by(current_user) %}
         <a href="{{ url_for('reports.edit_report', report_id=report.id) }}" class="rounded-2xl border border-slate-300 px-6 py-3 text-lg font-semibold text-slate-700 no-underline hover:bg-slate-50">Edit Report</a>

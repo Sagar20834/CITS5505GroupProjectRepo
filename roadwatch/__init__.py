@@ -1,5 +1,6 @@
 from datetime import datetime
 from pathlib import Path
+import sys
 
 import click
 from flask import Flask, render_template
@@ -100,6 +101,10 @@ def _sync_schema(engine, metadata):
                 connection.exec_driver_sql(str(CreateIndex(index).compile(dialect=engine.dialect)))
 
 
+def _should_sync_schema():
+    return "db" not in sys.argv[1:]
+
+
 def create_app(config_class=Config):
     project_root = Path(__file__).resolve().parent.parent
     app = Flask(
@@ -121,8 +126,9 @@ def create_app(config_class=Config):
     app.register_blueprint(admin_bp)
     app.cli.add_command(seed_demo_command)
 
-    with app.app_context():
-        _sync_schema(db.engine, db.metadata)
+    if _should_sync_schema():
+        with app.app_context():
+            _sync_schema(db.engine, db.metadata)
 
     @login_manager.user_loader
     def load_user(user_id):
