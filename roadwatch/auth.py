@@ -43,7 +43,9 @@ def register():
         elif User.query.filter_by(email=form_data["email"]).first():
             flash("That email address is already registered.", "error")
         else:
-            user = User(username=form_data["username"], email=form_data["email"])
+            user = User()
+            user.username = form_data["username"]
+            user.email = form_data["email"]
             user.set_password(password)
             db.session.add(user)
             db.session.commit()

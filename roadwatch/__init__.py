@@ -1,8 +1,10 @@
 from datetime import datetime
 from pathlib import Path
 
+import click
 from flask import Flask, render_template
 from sqlalchemy import inspect
+from sqlalchemy.schema import CreateIndex
 
 from .admin import admin_bp
 from .auth import auth_bp
@@ -28,6 +30,76 @@ SEVERITY_STYLES = {
 }
 
 
+def _sql_literal(value):
+    if isinstance(value, bool):
+        return "1" if value else "0"
+    if isinstance(value, (int, float)):
+        return str(value)
+    if isinstance(value, str):
+        escaped_value = value.replace("'", "''")
+        return f"'{escaped_value}'"
+    return None
+
+
+def _column_default_sql(column):
+    if column.default is None:
+        return None
+
+    default_value = column.default.arg
+    if callable(default_value):
+        return None
+
+    return _sql_literal(default_value)
+
+
+def _build_add_column_sql(engine, column):
+    default_sql = _column_default_sql(column)
+    if not column.nullable and not column.primary_key and default_sql is None:
+        raise RuntimeError(
+            f"Cannot auto-add non-nullable column '{column.table.name}.{column.name}' without a scalar default."
+        )
+
+    column_sql = [
+        f'ALTER TABLE "{column.table.name}" ADD COLUMN "{column.name}"',
+        column.type.compile(dialect=engine.dialect),
+    ]
+
+    if default_sql is not None:
+        column_sql.append(f"DEFAULT {default_sql}")
+    if not column.nullable and not column.primary_key:
+        column_sql.append("NOT NULL")
+
+    return " ".join(column_sql)
+
+
+def _sync_schema(engine, metadata):
+    inspector = inspect(engine)
+    model_table_names = set(metadata.tables.keys())
+    existing_table_names = set(inspector.get_table_names())
+
+    if not model_table_names.issubset(existing_table_names):
+        metadata.create_all(bind=engine)
+        inspector = inspect(engine)
+        existing_table_names = set(inspector.get_table_names())
+
+    with engine.begin() as connection:
+        for table in metadata.sorted_tables:
+            if table.name not in existing_table_names:
+                continue
+
+            existing_columns = {column["name"] for column in inspector.get_columns(table.name)}
+            for column in table.columns:
+                if column.name in existing_columns:
+                    continue
+                connection.exec_driver_sql(_build_add_column_sql(engine, column))
+
+            existing_indexes = {index["name"] for index in inspector.get_indexes(table.name)}
+            for index in table.indexes:
+                if index.name in existing_indexes:
+                    continue
+                connection.exec_driver_sql(str(CreateIndex(index).compile(dialect=engine.dialect)))
+
+
 def create_app(config_class=Config):
     project_root = Path(__file__).resolve().parent.parent
     app = Flask(
@@ -50,17 +122,23 @@ def create_app(config_class=Config):
     app.cli.add_command(seed_demo_command)
 
     with app.app_context():
-        required_tables = {"users", "reports"}
-        existing_tables = set(inspect(db.engine).get_table_names())
-        if not required_tables.issubset(existing_tables):
-            db.create_all()
+        _sync_schema(db.engine, db.metadata)
 
     @login_manager.user_loader
     def load_user(user_id):
         return db.session.get(User, int(user_id))
 
+    app.extensions["seed_demo_hint_shown"] = False
+
     @app.before_request
     def protect_forms():
+        if not app.config.get("TESTING") and not app.extensions["seed_demo_hint_shown"]:
+            app.extensions["seed_demo_hint_shown"] = True
+            if User.query.count() == 0 and Report.query.count() == 0:
+                click.secho(
+                    "Database is empty. Run `flask --app app seed-demo` to load sample users and reports.",
+                    fg="yellow",
+                )
         validate_csrf()
 
     @app.context_processor

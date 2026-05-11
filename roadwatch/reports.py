@@ -16,6 +16,7 @@ def _build_form_data(report=None):
     return {
         "issue_type": request.form.get("issue_type", report.issue_type if report else ""),
         "location": request.form.get("location", report.location if report else ""),
+        "severity": request.form.get("severity", report.severity if report else "Medium"),
         "description": request.form.get("description", report.description if report else ""),
         "image_url": (image_url or "").strip(),
         "is_anonymous": request.form.get("is_anonymous", "on" if report and report.is_anonymous else "") == "on",
@@ -25,6 +26,8 @@ def _build_form_data(report=None):
 def _validate_report_form(form_data):
     if form_data["issue_type"] not in Report.ISSUE_TYPES:
         return "Please choose a valid issue type."
+    if form_data["severity"] not in Report.SEVERITIES:
+        return "Please choose a valid severity level."
     if len(form_data["location"]) < 5:
         return "Location should be at least 5 characters long."
     if len(form_data["description"]) < 15:
@@ -80,14 +83,14 @@ def create_report():
         elif not current_user.is_authenticated and not form_data["is_anonymous"]:
             flash("Log in if you want the report linked to your account, or submit it anonymously.", "warning")
         else:
-            report = Report(
-                issue_type=form_data["issue_type"],
-                location=form_data["location"],
-                description=form_data["description"],
-                image_url=form_data["image_url"] or None,
-                is_anonymous=form_data["is_anonymous"],
-                reporter_id=current_user.id if current_user.is_authenticated else None,
-            )
+            report = Report()
+            report.issue_type = form_data["issue_type"]
+            report.location = form_data["location"]
+            report.severity = form_data["severity"]
+            report.description = form_data["description"]
+            report.image_url = form_data["image_url"] or None
+            report.is_anonymous = form_data["is_anonymous"]
+            report.reporter_id = current_user.id if current_user.is_authenticated else None
             db.session.add(report)
             db.session.commit()
             flash("Report submitted successfully.", "success")
@@ -127,6 +130,7 @@ def edit_report(report_id):
         else:
             report.issue_type = form_data["issue_type"]
             report.location = form_data["location"]
+            report.severity = form_data["severity"]
             report.description = form_data["description"]
             report.image_url = form_data["image_url"] or None
             report.is_anonymous = form_data["is_anonymous"]
