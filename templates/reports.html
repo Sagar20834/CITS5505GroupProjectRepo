@@ -65,9 +65,20 @@
                 <div class="mb-5 flex flex-wrap gap-4 text-sm text-slate-500">
                   <span>Submitted by {{ report.reporter_label }}</span>
                   <span>{{ report.created_at|datetime_label }}</span>
+                  <span>{{ report.confirmation_count }} confirmation{% if report.confirmation_count != 1 %}s{% endif %}</span>
                 </div>
 
                 <div class="flex flex-wrap justify-end gap-3">
+                  {% if current_user.is_authenticated %}
+                    <form method="post" action="{{ url_for('reports.toggle_confirmation', report_id=report.id) }}">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button type="submit" class="rounded-xl border px-4 py-2 font-medium {% if report.is_confirmed_by(current_user) %}border-green-500 text-green-700 hover:bg-green-50{% else %}border-slate-300 text-slate-700 hover:bg-slate-100{% endif %}">
+                        {% if report.is_confirmed_by(current_user) %}Confirmed{% else %}Confirm Issue{% endif %}
+                      </button>
+                    </form>
+                  {% else %}
+                    <span class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-500">Login to confirm</span>
+                  {% endif %}
                   <a href="{{ url_for('reports.report_details', report_id=report.id) }}" class="rounded-xl border border-blue-500 px-4 py-2 font-medium text-blue-600 no-underline hover:bg-blue-50">View</a>
                   {% if report.can_be_managed_by(current_user) %}
                     <a href="{{ url_for('reports.edit_report', report_id=report.id) }}" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100">Edit</a>
