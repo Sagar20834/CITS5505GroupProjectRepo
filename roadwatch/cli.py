@@ -12,10 +12,15 @@ def seed_demo_command():
         click.echo("Database already contains data. Seed skipped.")
         return
 
-    admin = User(username="admin", email="admin@roadwatch.local", is_admin=True)
+    admin = User()
+    admin.username = "admin"
+    admin.email = "admin@roadwatch.local"
+    admin.is_admin = True
     admin.set_password("AdminPass123")
 
-    resident = User(username="perthresident", email="resident@roadwatch.local")
+    resident = User()
+    resident.username = "perthresident"
+    resident.email = "resident@roadwatch.local"
     resident.set_password("ResidentPass123")
 
     db.session.add_all([admin, resident])
@@ -27,6 +32,7 @@ def seed_demo_command():
             location="Hay Street, Perth CBD",
             description="A deep pothole has opened beside the turning lane and is affecting cars during peak hour.",
             status="Reported",
+            severity="High",
             moderation_status="Approved",
             reporter_id=resident.id,
         ),
@@ -35,6 +41,7 @@ def seed_demo_command():
             location="Canning Highway, South Perth",
             description="Water remains pooled along the shoulder after rain and is forcing cyclists into traffic.",
             status="Under Review",
+            severity="Urgent",
             moderation_status="Approved",
             is_anonymous=True,
             reporter_id=resident.id,
@@ -44,6 +51,7 @@ def seed_demo_command():
             location="Great Eastern Highway",
             description="The surface is fragmented across a short stretch and vehicles are bouncing through the section.",
             status="Fixed",
+            severity="Medium",
             moderation_status="Approved",
             reporter_id=admin.id,
         ),

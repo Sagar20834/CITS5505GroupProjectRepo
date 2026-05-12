@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
 from flask_login import UserMixin
-from sqlalchemy import event, or_
+from sqlalchemy import UniqueConstraint, event, or_
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from .extensions import db
@@ -27,6 +27,12 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow)
 
     reports = db.relationship("Report", back_populates="reporter", lazy="dynamic")
+    confirmations = db.relationship(
+        "Confirmation",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="dynamic",
+    )
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -66,6 +72,7 @@ class Report(db.Model):
     PENDING_APPROVAL = "Pending Approval"
     APPROVED = "Approved"
     REJECTED = "Rejected"
+    SEVERITIES = ("Low", "Medium", "High", "Urgent")
 
     id = db.Column(db.Integer, primary_key=True)
     issue_type = db.Column(db.String(50), nullable=False, index=True)
@@ -80,12 +87,25 @@ class Report(db.Model):
         default=PENDING_APPROVAL,
         index=True,
     )
+    severity = db.Column(db.String(20), nullable=False, default="Medium", index=True)
     is_anonymous = db.Column(db.Boolean, nullable=False, default=False)
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow, index=True)
     updated_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow, onupdate=utcnow)
     reporter_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
 
     reporter = db.relationship("User", back_populates="reports")
+    status_notes = db.relationship(
+        "ReportStatusNote",
+        back_populates="report",
+        cascade="all, delete-orphan",
+        lazy="dynamic",
+        order_by="ReportStatusNote.created_at.desc()",
+    )
+    confirmations = db.relationship(
+        "Confirmation",
+        back_populates="report",
+        cascade="all, delete-orphan",
+    )
 
     @property
     def reporter_label(self):
@@ -106,9 +126,54 @@ class Report(db.Model):
         if self.is_publicly_visible:
             return True
         return bool(user and user.is_authenticated and (user.is_admin or self.reporter_id == user.id))
+    def confirmation_count(self):
+        return len(self.confirmations)
+
+    def is_confirmed_by(self, user):
+        if not user or not user.is_authenticated:
+            return False
+        return any(confirmation.user_id == user.id for confirmation in self.confirmations)
 
     def __repr__(self):
         return f"<Report {self.id} {self.issue_type}>"
+
+
+class ReportStatusNote(db.Model):
+    __tablename__ = "report_status_notes"
+
+    id = db.Column(db.Integer, primary_key=True)
+    report_id = db.Column(db.Integer, db.ForeignKey("reports.id", ondelete="CASCADE"), nullable=False, index=True)
+    admin_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
+    old_status = db.Column(db.String(30), nullable=False)
+    new_status = db.Column(db.String(30), nullable=False)
+    note = db.Column(db.String(500), nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow, index=True)
+
+    report = db.relationship("Report", back_populates="status_notes")
+    admin = db.relationship("User")
+
+    @property
+    def admin_label(self):
+        return self.admin.username if self.admin else "Admin"
+
+    def __repr__(self):
+        return f"<ReportStatusNote {self.id} report={self.report_id}>"
+
+
+class Confirmation(db.Model):
+    __tablename__ = "confirmations"
+    __table_args__ = (UniqueConstraint("user_id", "report_id", name="uq_confirmations_user_report"),)
+
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    report_id = db.Column(db.Integer, db.ForeignKey("reports.id", ondelete="CASCADE"), nullable=False, index=True)
+
+    user = db.relationship("User", back_populates="confirmations")
+    report = db.relationship("Report", back_populates="confirmations")
+
+    def __repr__(self):
+        return f"<Confirmation user={self.user_id} report={self.report_id}>"
 
 
 @event.listens_for(Report, "before_insert")

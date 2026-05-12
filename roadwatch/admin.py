@@ -2,7 +2,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user
 
 from .extensions import db
-from .models import Report, User
+from .models import Report, ReportStatusNote, User
 from .security import admin_required
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -36,14 +36,45 @@ def update_report_approval(report_id):
 def update_report_status(report_id):
     report = Report.query.get_or_404(report_id)
     new_status = request.form.get("status", "").strip()
+    note_text = request.form.get("status_note", "").strip()
 
     if new_status not in Report.STATUSES:
         flash("Please select a valid report status.", "error")
         return redirect(request.referrer or url_for("admin.admin_panel"))
+    if note_text and len(note_text) > 500:
+        flash("Status notes must be 500 characters or fewer.", "error")
+        return redirect(request.referrer or url_for("admin.admin_panel"))
 
+    old_status = report.status
     report.status = new_status
+    if note_text:
+        db.session.add(
+            ReportStatusNote(
+                report=report,
+                admin_id=current_user.id,
+                old_status=old_status,
+                new_status=new_status,
+                note=note_text,
+            )
+        )
     db.session.commit()
     flash("Report status updated.", "success")
+    return redirect(request.referrer or url_for("admin.admin_panel"))
+
+
+@admin_bp.post("/reports/<int:report_id>/severity")
+@admin_required
+def update_report_severity(report_id):
+    report = Report.query.get_or_404(report_id)
+    new_severity = request.form.get("severity", "").strip()
+
+    if new_severity not in Report.SEVERITIES:
+        flash("Please select a valid severity level.", "error")
+        return redirect(request.referrer or url_for("admin.admin_panel"))
+
+    report.severity = new_severity
+    db.session.commit()
+    flash("Report severity updated.", "success")
     return redirect(request.referrer or url_for("admin.admin_panel"))
 
 
