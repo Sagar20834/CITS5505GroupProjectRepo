@@ -66,7 +66,7 @@
       <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
         <h2 class="mb-4 text-2xl font-bold text-slate-900">What happens next</h2>
         <p class="text-base leading-8 text-slate-600">
-          New reports start with the <strong>Reported</strong> status. Administrators can review, update, and remove reports through the admin page.
+          New reports are first sent to the admin for approval. They only become public after approval, and then administrators can continue updating their repair status through the admin page.
         </p>
         {% if not current_user.is_authenticated %}
           <p class="mt-4 text-base leading-8 text-slate-600">

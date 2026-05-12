@@ -62,6 +62,10 @@ class Report(db.Model):
         "Other",
     )
     STATUSES = ("Reported", "Under Review", "Fixed")
+    MODERATION_STATUSES = ("Pending Approval", "Approved", "Rejected")
+    PENDING_APPROVAL = "Pending Approval"
+    APPROVED = "Approved"
+    REJECTED = "Rejected"
 
     id = db.Column(db.Integer, primary_key=True)
     issue_type = db.Column(db.String(50), nullable=False, index=True)
@@ -70,6 +74,12 @@ class Report(db.Model):
     description = db.Column(db.Text, nullable=False)
     image_url = db.Column(db.String(500), nullable=True)
     status = db.Column(db.String(30), nullable=False, default="Reported", index=True)
+    moderation_status = db.Column(
+        db.String(30),
+        nullable=False,
+        default=PENDING_APPROVAL,
+        index=True,
+    )
     is_anonymous = db.Column(db.Boolean, nullable=False, default=False)
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow, index=True)
     updated_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow, onupdate=utcnow)
@@ -87,6 +97,15 @@ class Report(db.Model):
 
     def can_be_managed_by(self, user):
         return bool(user and user.is_authenticated and user.can_manage(self))
+
+    @property
+    def is_publicly_visible(self):
+        return self.moderation_status == self.APPROVED
+
+    def can_be_viewed_by(self, user):
+        if self.is_publicly_visible:
+            return True
+        return bool(user and user.is_authenticated and (user.is_admin or self.reporter_id == user.id))
 
     def __repr__(self):
         return f"<Report {self.id} {self.issue_type}>"

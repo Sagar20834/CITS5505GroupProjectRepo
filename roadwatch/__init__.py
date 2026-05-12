@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 
 from flask import Flask, render_template
-from sqlalchemy import inspect
+from sqlalchemy import inspect, text
 
 from .admin import admin_bp
 from .auth import auth_bp
@@ -18,6 +18,11 @@ STATUS_STYLES = {
     "Reported": "bg-amber-100 text-amber-800",
     "Under Review": "bg-blue-100 text-blue-800",
     "Fixed": "bg-green-100 text-green-800",
+}
+MODERATION_STYLES = {
+    "Pending Approval": "bg-amber-100 text-amber-800",
+    "Approved": "bg-green-100 text-green-800",
+    "Rejected": "bg-red-100 text-red-800",
 }
 
 
@@ -47,6 +52,20 @@ def create_app(config_class=Config):
         existing_tables = set(inspect(db.engine).get_table_names())
         if not required_tables.issubset(existing_tables):
             db.create_all()
+        else:
+            report_columns = {column["name"] for column in inspect(db.engine).get_columns("reports")}
+            if "moderation_status" not in report_columns:
+                db.session.execute(
+                    text(
+                        "ALTER TABLE reports ADD COLUMN moderation_status VARCHAR(30) NOT NULL DEFAULT 'Approved'"
+                    )
+                )
+                db.session.execute(
+                    text(
+                        "CREATE INDEX IF NOT EXISTS ix_reports_moderation_status ON reports (moderation_status)"
+                    )
+                )
+                db.session.commit()
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -64,6 +83,8 @@ def create_app(config_class=Config):
             "issue_types": Report.ISSUE_TYPES,
             "report_statuses": Report.STATUSES,
             "status_styles": STATUS_STYLES,
+            "moderation_statuses": Report.MODERATION_STATUSES,
+            "moderation_styles": MODERATION_STYLES,
         }
 
     @app.template_filter("datetime_label")

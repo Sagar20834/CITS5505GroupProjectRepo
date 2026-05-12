@@ -27,6 +27,7 @@ def seed_demo_command():
             location="Hay Street, Perth CBD",
             description="A deep pothole has opened beside the turning lane and is affecting cars during peak hour.",
             status="Reported",
+            moderation_status="Approved",
             reporter_id=resident.id,
         ),
         Report(
@@ -34,6 +35,7 @@ def seed_demo_command():
             location="Canning Highway, South Perth",
             description="Water remains pooled along the shoulder after rain and is forcing cyclists into traffic.",
             status="Under Review",
+            moderation_status="Approved",
             is_anonymous=True,
             reporter_id=resident.id,
         ),
@@ -42,6 +44,7 @@ def seed_demo_command():
             location="Great Eastern Highway",
             description="The surface is fragmented across a short stretch and vehicles are bouncing through the section.",
             status="Fixed",
+            moderation_status="Approved",
             reporter_id=admin.id,
         ),
     ]

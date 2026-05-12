@@ -36,6 +36,17 @@ def list_reports():
 
     query = Report.query
 
+    if current_user.is_authenticated:
+        if not current_user.is_admin:
+            query = query.filter(
+                or_(
+                    Report.moderation_status == Report.APPROVED,
+                    Report.reporter_id == current_user.id,
+                )
+            )
+    else:
+        query = query.filter(Report.moderation_status == Report.APPROVED)
+
     if search_term:
         pattern = f"%{search_term}%"
         query = query.filter(
@@ -81,12 +92,13 @@ def create_report():
                 location=form_data["location"],
                 description=form_data["description"],
                 image_url=form_data["image_url"] or None,
+                moderation_status=Report.PENDING_APPROVAL,
                 is_anonymous=form_data["is_anonymous"],
                 reporter_id=current_user.id if current_user.is_authenticated else None,
             )
             db.session.add(report)
             db.session.commit()
-            flash("Report submitted successfully.", "success")
+            flash("Report submitted and sent to the admin for approval.", "success")
             return redirect(url_for("reports.report_details", report_id=report.id))
 
     return render_template(
@@ -103,6 +115,11 @@ def create_report():
 @reports_bp.route("/<int:report_id>", methods=["GET"])
 def report_details(report_id):
     report = Report.query.get_or_404(report_id)
+
+    if not report.can_be_viewed_by(current_user):
+        flash("This report is waiting for admin approval and is not public yet.", "warning")
+        return redirect(url_for("reports.list_reports"))
+
     return render_template("report_details.html", report=report)
 
 
@@ -126,8 +143,13 @@ def edit_report(report_id):
             report.description = form_data["description"]
             report.image_url = form_data["image_url"] or None
             report.is_anonymous = form_data["is_anonymous"]
+            if not current_user.is_admin:
+                report.moderation_status = Report.PENDING_APPROVAL
             db.session.commit()
-            flash("Report updated.", "success")
+            if current_user.is_admin:
+                flash("Report updated.", "success")
+            else:
+                flash("Report updated and sent back for admin approval.", "success")
             return redirect(url_for("reports.report_details", report_id=report.id))
 
     return render_template(

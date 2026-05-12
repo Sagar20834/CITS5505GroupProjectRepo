@@ -10,8 +10,19 @@
         <h1 class="mb-3 text-4xl font-bold text-slate-900">Report Details</h1>
         <p class="text-lg leading-8 text-slate-600">Detailed information for an individual road hazard report.</p>
       </div>
-      <span class="rounded-full px-4 py-2 text-sm font-bold {{ status_styles[report.status] }}">{{ report.status }}</span>
+      <div class="flex flex-wrap gap-2">
+        <span class="rounded-full px-4 py-2 text-sm font-bold {{ status_styles[report.status] }}">{{ report.status }}</span>
+        {% if current_user.is_authenticated and (current_user.is_admin or report.reporter_id == current_user.id) %}
+          <span class="rounded-full px-4 py-2 text-sm font-bold {{ moderation_styles[report.moderation_status] }}">{{ report.moderation_status }}</span>
+        {% endif %}
+      </div>
     </div>
+
+    {% if report.moderation_status != "Approved" and current_user.is_authenticated and (current_user.is_admin or report.reporter_id == current_user.id) %}
+      <div class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-base text-amber-800">
+        This report is not public yet. It is currently marked as <strong>{{ report.moderation_status }}</strong> and is only visible to the submitter and administrators.
+      </div>
+    {% endif %}
 
     <div class="grid gap-4 md:grid-cols-2">
       <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
