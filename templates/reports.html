@@ -31,9 +31,9 @@
         </select>
       </div>
       <div>
-        <label for="status" class="mb-2 block text-sm font-semibold text-slate-600">Status</label>
+        <label for="status" class="mb-2 block text-sm font-semibold text-slate-600">Progress</label>
         <select id="status" name="status" class="w-full rounded-xl border border-slate-300 px-4 py-3">
-          <option value="">All statuses</option>
+          <option value="">All progress states</option>
           {% for status in report_statuses %}
             <option value="{{ status }}" {% if filters.status == status %}selected{% endif %}>{{ status }}</option>
           {% endfor %}
@@ -84,10 +84,10 @@
                     {% endif %}
                   </div>
                   <div class="flex flex-wrap gap-2">
-                    <span class="rounded-full px-3 py-1 text-sm font-bold {{ severity_styles[report.severity] }}">{{ report.severity }}</span>
-                    <span class="rounded-full px-3 py-1 text-sm font-bold {{ status_styles[report.status] }}">{{ report.status }}</span>
+                    <span class="rounded-full px-3 py-1 text-sm font-bold {{ severity_styles[report.severity] }}">Severity: {{ report.severity }}</span>
+                    <span class="rounded-full px-3 py-1 text-sm font-bold {{ status_styles[report.status] }}">Progress: {{ report.status }}</span>
                     {% if current_user.is_authenticated and (current_user.is_admin or report.reporter_id == current_user.id) %}
-                      <span class="rounded-full px-3 py-1 text-sm font-bold {{ moderation_styles[report.moderation_status] }}">{{ report.moderation_status }}</span>
+                      <span class="rounded-full px-3 py-1 text-sm font-bold {{ moderation_styles[report.moderation_status] }}">Approval: {{ report.moderation_status }}</span>
                     {% endif %}
                   </div>
                 </div>

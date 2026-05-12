@@ -49,8 +49,8 @@
                       <p class="mt-1 text-sm text-slate-500">Submitted by {{ report.reporter_label }} on {{ report.created_at|datetime_label }}</p>
                     </div>
                     <div class="flex flex-wrap gap-2">
-                      <span class="rounded-full px-3 py-1 text-sm font-bold {{ severity_styles[report.severity] }}">{{ report.severity }}</span>
-                      <span class="rounded-full px-3 py-1 text-sm font-bold {{ moderation_styles[report.moderation_status] }}">{{ report.moderation_status }}</span>
+                      <span class="rounded-full px-3 py-1 text-sm font-bold {{ severity_styles[report.severity] }}">Severity: {{ report.severity }}</span>
+                      <span class="rounded-full px-3 py-1 text-sm font-bold {{ moderation_styles[report.moderation_status] }}">Approval: {{ report.moderation_status }}</span>
                     </div>
                   </div>
 
@@ -153,9 +153,9 @@
                       <p class="mt-1 text-sm text-slate-500">Submitted by {{ report.reporter_label }} on {{ report.created_at|datetime_label }}</p>
                     </div>
                     <div class="flex flex-wrap gap-2">
-                      <span class="rounded-full px-3 py-1 text-sm font-bold {{ severity_styles[report.severity] }}">{{ report.severity }}</span>
-                      <span class="rounded-full px-3 py-1 text-sm font-bold {{ status_styles[report.status] }}">{{ report.status }}</span>
-                      <span class="rounded-full px-3 py-1 text-sm font-bold {{ moderation_styles[report.moderation_status] }}">{{ report.moderation_status }}</span>
+                      <span class="rounded-full px-3 py-1 text-sm font-bold {{ severity_styles[report.severity] }}">Severity: {{ report.severity }}</span>
+                      <span class="rounded-full px-3 py-1 text-sm font-bold {{ status_styles[report.status] }}">Progress: {{ report.status }}</span>
+                      <span class="rounded-full px-3 py-1 text-sm font-bold {{ moderation_styles[report.moderation_status] }}">Approval: {{ report.moderation_status }}</span>
                     </div>
                   </div>
 
@@ -178,7 +178,7 @@
                     <form method="post" action="{{ url_for('admin.update_report_status', report_id=report.id) }}" class="flex flex-wrap items-end gap-3">
                       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                       <div>
-                        <label for="status-{{ report.id }}" class="mb-2 block text-sm font-semibold text-slate-600">Update status</label>
+                        <label for="status-{{ report.id }}" class="mb-2 block text-sm font-semibold text-slate-600">Update progress</label>
                         <select id="status-{{ report.id }}" name="status" class="rounded-xl border border-slate-300 px-4 py-3">
                           {% for status in report_statuses %}
                             <option value="{{ status }}" {% if report.status == status %}selected{% endif %}>{{ status }}</option>
@@ -189,7 +189,7 @@
                         <label for="status-note-{{ report.id }}" class="mb-2 block text-sm font-semibold text-slate-600">Status note</label>
                         <input id="status-note-{{ report.id }}" name="status_note" maxlength="500" class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="Optional admin update">
                       </div>
-                      <button type="submit" class="rounded-2xl bg-blue-500 px-5 py-3 font-semibold text-white hover:bg-blue-600">Save Status</button>
+                      <button type="submit" class="rounded-2xl bg-blue-500 px-5 py-3 font-semibold text-white hover:bg-blue-600">Save Progress</button>
                     </form>
 
                     <form method="post" action="{{ url_for('admin.update_report_severity', report_id=report.id) }}" class="flex flex-wrap items-end gap-3">
