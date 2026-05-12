@@ -13,8 +13,17 @@
       <div class="flex flex-wrap gap-2">
         <span class="rounded-full px-4 py-2 text-sm font-bold {{ severity_styles[report.severity] }}">{{ report.severity }}</span>
         <span class="rounded-full px-4 py-2 text-sm font-bold {{ status_styles[report.status] }}">{{ report.status }}</span>
+        {% if current_user.is_authenticated and (current_user.is_admin or report.reporter_id == current_user.id) %}
+          <span class="rounded-full px-4 py-2 text-sm font-bold {{ moderation_styles[report.moderation_status] }}">{{ report.moderation_status }}</span>
+        {% endif %}
       </div>
     </div>
+
+    {% if report.moderation_status != "Approved" and current_user.is_authenticated and (current_user.is_admin or report.reporter_id == current_user.id) %}
+      <div class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-base text-amber-800">
+        This report is not public yet. It is currently marked as <strong>{{ report.moderation_status }}</strong> and is only visible to the submitter and administrators.
+      </div>
+    {% endif %}
 
     <div class="grid gap-4 md:grid-cols-2">
       <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
@@ -44,6 +53,20 @@
       <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm md:col-span-2">
         <h2 class="mb-2 text-2xl font-bold text-sky-900">Location</h2>
         <p class="text-lg text-slate-600">{{ report.location }}</p>
+        <div class="mt-4 grid gap-4 md:grid-cols-3">
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Street</p>
+            <p class="mt-1 text-base text-slate-600">{{ report.street_address or "Not provided" }}</p>
+          </div>
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Suburb</p>
+            <p class="mt-1 text-base text-slate-600">{{ report.suburb or "Not provided" }}</p>
+          </div>
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Postcode</p>
+            <p class="mt-1 text-base text-slate-600">{{ report.postcode or "Not provided" }}</p>
+          </div>
+        </div>
       </div>
       <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm md:col-span-2">
         <h2 class="mb-2 text-2xl font-bold text-sky-900">Description</h2>

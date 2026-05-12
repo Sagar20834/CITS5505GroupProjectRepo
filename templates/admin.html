@@ -6,7 +6,7 @@
   <section class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg">
     <p class="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700">Admin Access</p>
     <h1 class="mb-3 text-4xl font-bold text-slate-900">Admin Report Management</h1>
-    <p class="mb-8 text-lg leading-8 text-slate-600">Manage reports here only: update status or delete reports. Analytics remain on the separate dashboard page.</p>
+    <p class="mb-8 text-lg leading-8 text-slate-600">Approve or reject newly submitted reports before they go live, then manage their repair status or remove them if needed. Analytics remain on the separate dashboard page.</p>
 
     {% if reports %}
       <div class="space-y-5">
@@ -33,12 +33,25 @@
                   <div class="flex flex-wrap gap-2">
                     <span class="rounded-full px-3 py-1 text-sm font-bold {{ severity_styles[report.severity] }}">{{ report.severity }}</span>
                     <span class="rounded-full px-3 py-1 text-sm font-bold {{ status_styles[report.status] }}">{{ report.status }}</span>
+                    <span class="rounded-full px-3 py-1 text-sm font-bold {{ moderation_styles[report.moderation_status] }}">{{ report.moderation_status }}</span>
                   </div>
                 </div>
 
                 <p class="mb-5 text-lg leading-8 text-slate-600">{{ report.description }}</p>
 
                 <div class="flex flex-wrap items-end gap-3">
+                  <form method="post" action="{{ url_for('admin.update_report_approval', report_id=report.id) }}" class="flex flex-wrap items-end gap-3">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div>
+                      <label for="moderation-status-{{ report.id }}" class="mb-2 block text-sm font-semibold text-slate-600">Approval status</label>
+                      <select id="moderation-status-{{ report.id }}" name="moderation_status" class="rounded-xl border border-slate-300 px-4 py-3">
+                        {% for moderation_status in moderation_statuses %}
+                          <option value="{{ moderation_status }}" {% if report.moderation_status == moderation_status %}selected{% endif %}>{{ moderation_status }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                    <button type="submit" class="rounded-2xl bg-amber-500 px-5 py-3 font-semibold text-slate-900 hover:bg-amber-400">Save Approval</button>
+                  </form>
                   <form method="post" action="{{ url_for('admin.update_report_status', report_id=report.id) }}" class="flex flex-wrap items-end gap-3">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div>

@@ -14,7 +14,11 @@ main_bp = Blueprint("main", __name__)
 
 @main_bp.get("/")
 def index():
-    reports = Report.query.order_by(Report.created_at.desc()).all()
+    reports = (
+        Report.query.filter(Report.moderation_status == Report.APPROVED)
+        .order_by(Report.created_at.desc())
+        .all()
+    )
     issue_counts = build_issue_counts(reports)
     monthly_issue_matrix = build_monthly_issue_matrix(reports)
     chart_data = {
@@ -35,7 +39,11 @@ def index():
 
 @main_bp.get("/dashboard")
 def dashboard():
-    reports = Report.query.order_by(Report.created_at.desc()).all()
+    reports = (
+        Report.query.filter(Report.moderation_status == Report.APPROVED)
+        .order_by(Report.created_at.desc())
+        .all()
+    )
     issue_counts = build_issue_counts(reports)
     status_counts = build_status_counts(reports)
     chart_data = {

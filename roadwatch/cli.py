@@ -26,33 +26,42 @@ def seed_demo_command():
     db.session.add_all([admin, resident])
     db.session.flush()
 
-    pothole_report = Report()
-    pothole_report.issue_type = "Pothole"
-    pothole_report.location = "Hay Street, Perth CBD"
-    pothole_report.description = "A deep pothole has opened beside the turning lane and is affecting cars during peak hour."
-    pothole_report.status = "Reported"
-    pothole_report.reporter_id = resident.id
-
-    flooding_report = Report()
-    flooding_report.issue_type = "Flooding"
-    flooding_report.location = "Canning Highway, South Perth"
-    flooding_report.description = (
-        "Water remains pooled along the shoulder after rain and is forcing cyclists into traffic."
-    )
-    flooding_report.status = "Under Review"
-    flooding_report.is_anonymous = True
-    flooding_report.reporter_id = resident.id
-
-    broken_road_report = Report()
-    broken_road_report.issue_type = "Broken Road"
-    broken_road_report.location = "Great Eastern Highway"
-    broken_road_report.description = (
-        "The surface is fragmented across a short stretch and vehicles are bouncing through the section."
-    )
-    broken_road_report.status = "Fixed"
-    broken_road_report.reporter_id = admin.id
-
-    sample_reports = [pothole_report, flooding_report, broken_road_report]
+    sample_reports = [
+        Report(
+            issue_type="Pothole",
+            street_address="Hay Street",
+            suburb="Perth CBD",
+            postcode="6000",
+            description="A deep pothole has opened beside the turning lane and is affecting cars during peak hour.",
+            status="Reported",
+            severity="High",
+            moderation_status="Approved",
+            reporter_id=resident.id,
+        ),
+        Report(
+            issue_type="Flooding",
+            street_address="Canning Highway",
+            suburb="South Perth",
+            postcode="6151",
+            description="Water remains pooled along the shoulder after rain and is forcing cyclists into traffic.",
+            status="Under Review",
+            severity="Urgent",
+            moderation_status="Approved",
+            is_anonymous=True,
+            reporter_id=resident.id,
+        ),
+        Report(
+            issue_type="Broken Road",
+            street_address="Great Eastern Highway",
+            suburb="Rivervale",
+            postcode="6103",
+            description="The surface is fragmented across a short stretch and vehicles are bouncing through the section.",
+            status="Fixed",
+            severity="Medium",
+            moderation_status="Approved",
+            reporter_id=admin.id,
+        ),
+    ]
 
     db.session.add_all(sample_reports)
     db.session.commit()

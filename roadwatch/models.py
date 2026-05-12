@@ -15,6 +15,19 @@ def normalize_location(location):
     return " ".join((location or "").lower().split())
 
 
+def clean_location_part(value):
+    return " ".join((value or "").split())
+
+
+def compose_location(street_address, suburb, postcode):
+    street_address = clean_location_part(street_address)
+    suburb = clean_location_part(suburb)
+    postcode = clean_location_part(postcode)
+
+    locality = " ".join(part for part in (suburb, postcode) if part)
+    return ", ".join(part for part in (street_address, locality) if part)
+
+
 class User(UserMixin, db.Model):
     __tablename__ = "users"
 
@@ -68,15 +81,28 @@ class Report(db.Model):
         "Other",
     )
     STATUSES = ("Reported", "Under Review", "Fixed")
+    MODERATION_STATUSES = ("Pending Approval", "Approved", "Rejected")
+    PENDING_APPROVAL = "Pending Approval"
+    APPROVED = "Approved"
+    REJECTED = "Rejected"
     SEVERITIES = ("Low", "Medium", "High", "Urgent")
 
     id = db.Column(db.Integer, primary_key=True)
     issue_type = db.Column(db.String(50), nullable=False, index=True)
     location = db.Column(db.String(255), nullable=False, index=True)
     location_key = db.Column(db.String(255), nullable=False, index=True)
+    street_address = db.Column(db.String(255), nullable=False, default="", index=True)
+    suburb = db.Column(db.String(120), nullable=False, default="", index=True)
+    postcode = db.Column(db.String(10), nullable=False, default="", index=True)
     description = db.Column(db.Text, nullable=False)
     image_url = db.Column(db.String(500), nullable=True)
     status = db.Column(db.String(30), nullable=False, default="Reported", index=True)
+    moderation_status = db.Column(
+        db.String(30),
+        nullable=False,
+        default=PENDING_APPROVAL,
+        index=True,
+    )
     severity = db.Column(db.String(20), nullable=False, default="Medium", index=True)
     is_anonymous = db.Column(db.Boolean, nullable=False, default=False)
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow, index=True)
@@ -109,6 +135,14 @@ class Report(db.Model):
         return bool(user and user.is_authenticated and user.can_manage(self))
 
     @property
+    def is_publicly_visible(self):
+        return self.moderation_status == self.APPROVED
+
+    def can_be_viewed_by(self, user):
+        if self.is_publicly_visible:
+            return True
+        return bool(user and user.is_authenticated and (user.is_admin or self.reporter_id == user.id))
+
     def confirmation_count(self):
         return len(self.confirmations)
 
@@ -162,4 +196,8 @@ class Confirmation(db.Model):
 @event.listens_for(Report, "before_insert")
 @event.listens_for(Report, "before_update")
 def sync_location_key(mapper, connection, target):
+    target.street_address = clean_location_part(target.street_address)
+    target.suburb = clean_location_part(target.suburb)
+    target.postcode = clean_location_part(target.postcode)
+    target.location = compose_location(target.street_address, target.suburb, target.postcode) or clean_location_part(target.location)
     target.location_key = normalize_location(target.location)
