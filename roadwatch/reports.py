@@ -3,7 +3,7 @@ from flask_login import current_user
 from sqlalchemy import or_
 
 from .extensions import db
-from .models import Confirmation, Report
+from .models import Comment, Confirmation, Report
 
 reports_bp = Blueprint("reports", __name__, url_prefix="/reports")
 
@@ -32,6 +32,12 @@ def _validate_report_form(form_data):
         return "Location should be at least 5 characters long."
     if len(form_data["description"]) < 15:
         return "Description should be at least 15 characters long."
+    return None
+
+
+def _validate_comment_body(body):
+    if len(body) < 5:
+        return "Comments must be at least 5 characters long."
     return None
 
 
@@ -110,7 +116,8 @@ def create_report():
 @reports_bp.route("/<int:report_id>", methods=["GET"])
 def report_details(report_id):
     report = Report.query.get_or_404(report_id)
-    return render_template("report_details.html", report=report)
+    comments = Comment.query.filter_by(report_id=report.id).order_by(Comment.created_at.asc()).all()
+    return render_template("report_details.html", report=report, comments=comments)
 
 
 @reports_bp.post("/<int:report_id>/confirm")
@@ -136,6 +143,31 @@ def toggle_confirmation(report_id):
         flash("You confirmed this report.", "success")
 
     return redirect(request.referrer or url_for("reports.report_details", report_id=report.id))
+
+
+@reports_bp.post("/<int:report_id>/comments")
+def create_comment(report_id):
+    report = Report.query.get_or_404(report_id)
+
+    if not current_user.is_authenticated:
+        flash("Log in to join the discussion on a report.", "warning")
+        return redirect(url_for("auth.login", next=url_for("reports.report_details", report_id=report.id)))
+
+    body = request.form.get("body", "").strip()
+    validation_error = _validate_comment_body(body)
+
+    if validation_error:
+        flash(validation_error, "error")
+        return redirect(url_for("reports.report_details", report_id=report.id))
+
+    comment = Comment()
+    comment.body = body
+    comment.report_id = report.id
+    comment.author_id = current_user.id
+    db.session.add(comment)
+    db.session.commit()
+    flash("Comment posted.", "success")
+    return redirect(url_for("reports.report_details", report_id=report.id, _anchor="comments"))
 
 
 @reports_bp.route("/<int:report_id>/edit", methods=["GET", "POST"])

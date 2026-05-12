@@ -103,4 +103,57 @@
       {% endif %}
     </div>
   </section>
+
+  <section id="comments" class="mt-8 rounded-2xl border border-slate-200 bg-white p-8 shadow-lg">
+    <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <p class="mb-2 text-sm font-bold uppercase tracking-[0.24em] text-blue-700">Discussion</p>
+        <h2 class="text-3xl font-bold text-slate-900">Comments</h2>
+      </div>
+      <span class="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">
+        {{ comments|length }} comment{% if comments|length != 1 %}s{% endif %}
+      </span>
+    </div>
+
+    {% if current_user.is_authenticated %}
+      <form method="post" action="{{ url_for('reports.create_comment', report_id=report.id) }}" class="mb-8 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="body" class="mb-2 block text-sm font-semibold text-slate-600">Add a comment</label>
+        <textarea id="body" name="body" class="min-h-[120px] w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="Share extra context, ask a question, or post an update." required></textarea>
+        <div class="mt-4 flex justify-end">
+          <button type="submit" class="rounded-2xl bg-blue-500 px-5 py-3 font-semibold text-white hover:bg-blue-600">Post Comment</button>
+        </div>
+      </form>
+    {% else %}
+      <div class="mb-8 rounded-2xl border border-slate-200 bg-slate-50 p-5 text-slate-600">
+        Log in to post comments. Guests can still read the discussion below.
+      </div>
+    {% endif %}
+
+    {% if comments %}
+      <div class="space-y-4">
+        {% for comment in comments %}
+          <article class="rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-sm">
+            <div class="mb-3 flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p class="text-lg font-semibold text-slate-900">{{ comment.author.username }}</p>
+                <p class="text-sm text-slate-500">{{ comment.created_at|datetime_label }}</p>
+              </div>
+              {% if current_user.is_authenticated and current_user.is_admin %}
+                <form method="post" action="{{ url_for('admin.delete_comment', comment_id=comment.id) }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="rounded-xl border border-red-500 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50">Delete</button>
+                </form>
+              {% endif %}
+            </div>
+            <p class="text-base leading-8 text-slate-700">{{ comment.body }}</p>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
+        <p class="text-lg text-slate-600">No comments yet. Start the discussion if you have more context to add.</p>
+      </div>
+    {% endif %}
+  </section>
 {% endblock %}

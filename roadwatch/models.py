@@ -1,6 +1,5 @@
 from datetime import datetime, timezone
 
-from flask_login import UserMixin
 from sqlalchemy import UniqueConstraint, event, or_
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -15,7 +14,7 @@ def normalize_location(location):
     return " ".join((location or "").lower().split())
 
 
-class User(UserMixin, db.Model):
+class User(db.Model):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -23,10 +22,16 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=False)
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
-    is_active = db.Column(db.Boolean, nullable=False, default=True)
+    _is_active = db.Column("is_active", db.Boolean, nullable=False, default=True)
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow)
 
     reports = db.relationship("Report", back_populates="reporter", lazy="dynamic")
+    comments = db.relationship(
+        "Comment",
+        back_populates="author",
+        cascade="all, delete-orphan",
+        lazy="dynamic",
+    )
     confirmations = db.relationship(
         "Confirmation",
         back_populates="user",
@@ -48,6 +53,22 @@ class User(UserMixin, db.Model):
 
     def can_manage(self, report):
         return self.is_admin or report.reporter_id == self.id
+
+    @property
+    def is_active(self):
+        return bool(self._is_active)
+
+    @is_active.setter
+    def is_active(self, value):
+        self._is_active = bool(value)
+
+    @property
+    def is_authenticated(self):
+        return True
+
+    @property
+    def is_anonymous(self):
+        return False
 
     def get_id(self):
         return str(self.id)
@@ -91,6 +112,12 @@ class Report(db.Model):
         lazy="dynamic",
         order_by="ReportStatusNote.created_at.desc()",
     )
+    comments = db.relationship(
+        "Comment",
+        back_populates="report",
+        cascade="all, delete-orphan",
+        order_by="Comment.created_at.asc()",
+    )
     confirmations = db.relationship(
         "Confirmation",
         back_populates="report",
@@ -110,12 +137,17 @@ class Report(db.Model):
 
     @property
     def confirmation_count(self):
-        return len(self.confirmations)
+        return db.session.query(db.func.count(Confirmation.id)).filter_by(report_id=self.id).scalar() or 0
 
     def is_confirmed_by(self, user):
         if not user or not user.is_authenticated:
             return False
-        return any(confirmation.user_id == user.id for confirmation in self.confirmations)
+        return (
+            db.session.query(Confirmation.id)
+            .filter_by(report_id=self.id, user_id=user.id)
+            .first()
+            is not None
+        )
 
     def __repr__(self):
         return f"<Report {self.id} {self.issue_type}>"
@@ -141,6 +173,22 @@ class ReportStatusNote(db.Model):
 
     def __repr__(self):
         return f"<ReportStatusNote {self.id} report={self.report_id}>"
+
+
+class Comment(db.Model):
+    __tablename__ = "comments"
+
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow, index=True)
+    report_id = db.Column(db.Integer, db.ForeignKey("reports.id", ondelete="CASCADE"), nullable=False, index=True)
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+
+    report = db.relationship("Report", back_populates="comments")
+    author = db.relationship("User", back_populates="comments")
+
+    def __repr__(self):
+        return f"<Comment {self.id} report={self.report_id} author={self.author_id}>"
 
 
 class Confirmation(db.Model):

@@ -2,7 +2,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user
 
 from .extensions import db
-from .models import Report, ReportStatusNote, User
+from .models import Comment, Report, ReportStatusNote, User
 from .security import admin_required
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -32,15 +32,13 @@ def update_report_status(report_id):
     old_status = report.status
     report.status = new_status
     if note_text:
-        db.session.add(
-            ReportStatusNote(
-                report=report,
-                admin_id=current_user.id,
-                old_status=old_status,
-                new_status=new_status,
-                note=note_text,
-            )
-        )
+        status_note = ReportStatusNote()
+        status_note.report = report
+        status_note.admin_id = current_user.id
+        status_note.old_status = old_status
+        status_note.new_status = new_status
+        status_note.note = note_text
+        db.session.add(status_note)
     db.session.commit()
     flash("Report status updated.", "success")
     return redirect(request.referrer or url_for("admin.admin_panel"))
@@ -70,6 +68,17 @@ def delete_report(report_id):
     db.session.commit()
     flash("Report removed from the system.", "success")
     return redirect(request.referrer or url_for("admin.admin_panel"))
+
+
+@admin_bp.post("/comments/<int:comment_id>/delete")
+@admin_required
+def delete_comment(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+    report_id = comment.report_id
+    db.session.delete(comment)
+    db.session.commit()
+    flash("Comment removed.", "success")
+    return redirect(request.referrer or url_for("reports.report_details", report_id=report_id, _anchor="comments"))
 
 
 @admin_bp.post("/users/<int:user_id>/toggle-active")
