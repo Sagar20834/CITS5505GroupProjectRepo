@@ -51,6 +51,13 @@
     </form>
 
     {% if reports %}
+      <div class="mb-5 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500">
+        <span>
+          Showing {{ pagination.first }}-{{ pagination.last }} of {{ pagination.total }} report{% if pagination.total != 1 %}s{% endif %}
+        </span>
+        <span>Page {{ pagination.page }} of {{ pagination.pages }}</span>
+      </div>
+
       <div class="space-y-5">
         {% for report in reports %}
           <article class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
@@ -118,6 +125,34 @@
           </article>
         {% endfor %}
       </div>
+
+      {% if pagination.pages > 1 %}
+        <nav class="mt-8 flex flex-wrap items-center justify-center gap-2" aria-label="Report pages">
+          {% if pagination.has_prev %}
+            <a href="{{ url_for('reports.list_reports', page=pagination.prev_num, street_address=filters.street_address, suburb=filters.suburb, postcode=filters.postcode, issue_type=filters.issue_type, status=filters.status, mine='1' if filters.mine else None) }}" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100">Previous</a>
+          {% else %}
+            <span class="rounded-xl border border-slate-200 px-4 py-2 font-medium text-slate-300">Previous</span>
+          {% endif %}
+
+          {% for page_number in pagination.iter_pages(left_edge=1, left_current=1, right_current=2, right_edge=1) %}
+            {% if page_number %}
+              {% if page_number == pagination.page %}
+                <span class="rounded-xl bg-blue-500 px-4 py-2 font-semibold text-white">{{ page_number }}</span>
+              {% else %}
+                <a href="{{ url_for('reports.list_reports', page=page_number, street_address=filters.street_address, suburb=filters.suburb, postcode=filters.postcode, issue_type=filters.issue_type, status=filters.status, mine='1' if filters.mine else None) }}" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100">{{ page_number }}</a>
+              {% endif %}
+            {% else %}
+              <span class="px-2 text-slate-400">...</span>
+            {% endif %}
+          {% endfor %}
+
+          {% if pagination.has_next %}
+            <a href="{{ url_for('reports.list_reports', page=pagination.next_num, street_address=filters.street_address, suburb=filters.suburb, postcode=filters.postcode, issue_type=filters.issue_type, status=filters.status, mine='1' if filters.mine else None) }}" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100">Next</a>
+          {% else %}
+            <span class="rounded-xl border border-slate-200 px-4 py-2 font-medium text-slate-300">Next</span>
+          {% endif %}
+        </nav>
+      {% endif %}
     {% else %}
       <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center">
         <p class="text-lg text-slate-600">No reports matched the current filters.</p>

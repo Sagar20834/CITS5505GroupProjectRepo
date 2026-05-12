@@ -8,18 +8,25 @@
     <h1 class="mb-3 text-4xl font-bold text-slate-900">Admin Report Management</h1>
     <p class="mb-8 text-lg leading-8 text-slate-600">Review pending reports before they go public, then manage approved or rejected reports separately.</p>
 
-    <div class="mb-10">
+    <div id="pending-reports" class="mb-10">
       <div class="mb-5 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p class="mb-2 text-sm font-bold uppercase tracking-[0.24em] text-blue-700">Review Queue</p>
           <h2 class="text-3xl font-bold text-slate-900">Pending Approval</h2>
         </div>
         <span class="rounded-full bg-amber-100 px-4 py-2 text-sm font-semibold text-amber-800">
-          {{ pending_reports|length }} pending
+          {{ pending_pagination.total }} pending
         </span>
       </div>
 
       {% if pending_reports %}
+        <div class="mb-5 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500">
+          <span>
+            Showing {{ pending_pagination.first }}-{{ pending_pagination.last }} of {{ pending_pagination.total }} pending report{% if pending_pagination.total != 1 %}s{% endif %}
+          </span>
+          <span>Page {{ pending_pagination.page }} of {{ pending_pagination.pages }}</span>
+        </div>
+
         <div class="space-y-5">
           {% for report in pending_reports %}
             <article class="rounded-2xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
@@ -70,6 +77,34 @@
             </article>
           {% endfor %}
         </div>
+
+        {% if pending_pagination.pages > 1 %}
+          <nav class="mt-8 flex flex-wrap items-center justify-center gap-2" aria-label="Pending report pages">
+            {% if pending_pagination.has_prev %}
+              <a href="{{ url_for('admin.admin_panel', pending_page=pending_pagination.prev_num, reviewed_page=reviewed_pagination.page) }}#pending-reports" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100">Previous</a>
+            {% else %}
+              <span class="rounded-xl border border-slate-200 px-4 py-2 font-medium text-slate-300">Previous</span>
+            {% endif %}
+
+            {% for page_number in pending_pagination.iter_pages(left_edge=1, left_current=1, right_current=2, right_edge=1) %}
+              {% if page_number %}
+                {% if page_number == pending_pagination.page %}
+                  <span class="rounded-xl bg-blue-500 px-4 py-2 font-semibold text-white">{{ page_number }}</span>
+                {% else %}
+                  <a href="{{ url_for('admin.admin_panel', pending_page=page_number, reviewed_page=reviewed_pagination.page) }}#pending-reports" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100">{{ page_number }}</a>
+                {% endif %}
+              {% else %}
+                <span class="px-2 text-slate-400">...</span>
+              {% endif %}
+            {% endfor %}
+
+            {% if pending_pagination.has_next %}
+              <a href="{{ url_for('admin.admin_panel', pending_page=pending_pagination.next_num, reviewed_page=reviewed_pagination.page) }}#pending-reports" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100">Next</a>
+            {% else %}
+              <span class="rounded-xl border border-slate-200 px-4 py-2 font-medium text-slate-300">Next</span>
+            {% endif %}
+          </nav>
+        {% endif %}
       {% else %}
         <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center">
           <p class="text-lg text-slate-600">No reports are currently waiting for approval.</p>
@@ -77,13 +112,25 @@
       {% endif %}
     </div>
 
-    <div>
-      <div class="mb-5">
-        <p class="mb-2 text-sm font-bold uppercase tracking-[0.24em] text-blue-700">Processed Reports</p>
-        <h2 class="text-3xl font-bold text-slate-900">Approved And Rejected Reports</h2>
+    <div id="reviewed-reports">
+      <div class="mb-5 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p class="mb-2 text-sm font-bold uppercase tracking-[0.24em] text-blue-700">Processed Reports</p>
+          <h2 class="text-3xl font-bold text-slate-900">Approved And Rejected Reports</h2>
+        </div>
+        <span class="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">
+          {{ reviewed_pagination.total }} reviewed
+        </span>
       </div>
 
       {% if reviewed_reports %}
+        <div class="mb-5 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500">
+          <span>
+            Showing {{ reviewed_pagination.first }}-{{ reviewed_pagination.last }} of {{ reviewed_pagination.total }} reviewed report{% if reviewed_pagination.total != 1 %}s{% endif %}
+          </span>
+          <span>Page {{ reviewed_pagination.page }} of {{ reviewed_pagination.pages }}</span>
+        </div>
+
         <div class="space-y-5">
           {% for report in reviewed_reports %}
             <article class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
@@ -168,6 +215,34 @@
             </article>
           {% endfor %}
         </div>
+
+        {% if reviewed_pagination.pages > 1 %}
+          <nav class="mt-8 flex flex-wrap items-center justify-center gap-2" aria-label="Reviewed report pages">
+            {% if reviewed_pagination.has_prev %}
+              <a href="{{ url_for('admin.admin_panel', pending_page=pending_pagination.page, reviewed_page=reviewed_pagination.prev_num) }}#reviewed-reports" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100">Previous</a>
+            {% else %}
+              <span class="rounded-xl border border-slate-200 px-4 py-2 font-medium text-slate-300">Previous</span>
+            {% endif %}
+
+            {% for page_number in reviewed_pagination.iter_pages(left_edge=1, left_current=1, right_current=2, right_edge=1) %}
+              {% if page_number %}
+                {% if page_number == reviewed_pagination.page %}
+                  <span class="rounded-xl bg-blue-500 px-4 py-2 font-semibold text-white">{{ page_number }}</span>
+                {% else %}
+                  <a href="{{ url_for('admin.admin_panel', pending_page=pending_pagination.page, reviewed_page=page_number) }}#reviewed-reports" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100">{{ page_number }}</a>
+                {% endif %}
+              {% else %}
+                <span class="px-2 text-slate-400">...</span>
+              {% endif %}
+            {% endfor %}
+
+            {% if reviewed_pagination.has_next %}
+              <a href="{{ url_for('admin.admin_panel', pending_page=pending_pagination.page, reviewed_page=reviewed_pagination.next_num) }}#reviewed-reports" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100">Next</a>
+            {% else %}
+              <span class="rounded-xl border border-slate-200 px-4 py-2 font-medium text-slate-300">Next</span>
+            {% endif %}
+          </nav>
+        {% endif %}
       {% else %}
         <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center">
           <p class="text-lg text-slate-600">No reviewed reports are available yet.</p>

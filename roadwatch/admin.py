@@ -6,15 +6,33 @@ from .models import Comment, Report, ReportStatusNote, User
 from .security import admin_required
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
+ADMIN_REPORTS_PER_PAGE = 5
 
 
 @admin_bp.get("/")
 @admin_required
 def admin_panel():
-    reports = Report.query.order_by(Report.created_at.desc()).all()
-    pending_reports = [report for report in reports if report.moderation_status == Report.PENDING_APPROVAL]
-    reviewed_reports = [report for report in reports if report.moderation_status != Report.PENDING_APPROVAL]
-    return render_template("admin.html", pending_reports=pending_reports, reviewed_reports=reviewed_reports)
+    pending_page = max(request.args.get("pending_page", 1, type=int), 1)
+    reviewed_page = max(request.args.get("reviewed_page", 1, type=int), 1)
+
+    pending_pagination = (
+        Report.query.filter(Report.moderation_status == Report.PENDING_APPROVAL)
+        .order_by(Report.created_at.desc())
+        .paginate(page=pending_page, per_page=ADMIN_REPORTS_PER_PAGE, error_out=False)
+    )
+    reviewed_pagination = (
+        Report.query.filter(Report.moderation_status != Report.PENDING_APPROVAL)
+        .order_by(Report.created_at.desc())
+        .paginate(page=reviewed_page, per_page=ADMIN_REPORTS_PER_PAGE, error_out=False)
+    )
+
+    return render_template(
+        "admin.html",
+        pending_reports=pending_pagination.items,
+        reviewed_reports=reviewed_pagination.items,
+        pending_pagination=pending_pagination,
+        reviewed_pagination=reviewed_pagination,
+    )
 
 
 @admin_bp.post("/reports/<int:report_id>/approval")

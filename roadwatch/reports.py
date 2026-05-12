@@ -10,6 +10,7 @@ from .extensions import db
 from .models import Comment, Confirmation, Report
 
 reports_bp = Blueprint("reports", __name__, url_prefix="/reports")
+REPORTS_PER_PAGE = 10
 
 
 def _local_address_suggestions(query_text):
@@ -118,6 +119,7 @@ def _validate_comment_body(body):
 
 @reports_bp.get("/")
 def list_reports():
+    page = max(request.args.get("page", 1, type=int), 1)
     selected_postcode = request.args.get("postcode", "").strip()
     selected_street = request.args.get("street_address", "").strip()
     selected_suburb = request.args.get("suburb", "").strip()
@@ -150,11 +152,12 @@ def list_reports():
     if selected_status in Report.STATUSES:
         query = query.filter(Report.status == selected_status)
 
-    reports = query.order_by(Report.created_at.desc()).all()
+    pagination = query.order_by(Report.created_at.desc()).paginate(page=page, per_page=REPORTS_PER_PAGE, error_out=False)
 
     return render_template(
         "reports.html",
-        reports=reports,
+        reports=pagination.items,
+        pagination=pagination,
         filters={
             "postcode": selected_postcode,
             "street_address": selected_street,
