@@ -25,7 +25,9 @@
         <div class="grid gap-5 md:grid-cols-2">
           <div class="md:col-span-2">
             <label for="street_address" class="mb-2 block text-sm font-semibold text-slate-600">Street address</label>
-            <input id="street_address" name="street_address" value="{{ form_data.street_address }}" class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="e.g. Hay Street near William Street" required>
+            <input id="street_address" name="street_address" value="{{ form_data.street_address }}" list="street-address-suggestions" autocomplete="off" class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="e.g. Hay Street near William Street" required>
+            <datalist id="street-address-suggestions"></datalist>
+            <p class="mt-2 text-sm text-slate-500">Start typing to see street suggestions. If live map autocomplete is configured, it will be used first; otherwise saved report data is used.</p>
           </div>
           <div>
             <label for="suburb" class="mb-2 block text-sm font-semibold text-slate-600">Suburb</label>
@@ -95,4 +97,64 @@
       </div>
     </aside>
   </div>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    (() => {
+      const input = document.getElementById("street_address");
+      const dataList = document.getElementById("street-address-suggestions");
+
+      if (!input || !dataList) {
+        return;
+      }
+
+      let activeRequest = null;
+
+      const renderSuggestions = (items) => {
+        dataList.innerHTML = "";
+        items.forEach((item) => {
+          const option = document.createElement("option");
+          option.value = item;
+          dataList.appendChild(option);
+        });
+      };
+
+      input.addEventListener("input", async (event) => {
+        const query = event.target.value.trim();
+
+        if (query.length < 2) {
+          renderSuggestions([]);
+          return;
+        }
+
+        if (activeRequest) {
+          activeRequest.abort();
+        }
+
+        activeRequest = new AbortController();
+
+        try {
+          const response = await fetch(`{{ url_for('reports.address_suggestions') }}?q=${encodeURIComponent(query)}`, {
+            signal: activeRequest.signal,
+            headers: {
+              "X-Requested-With": "XMLHttpRequest"
+            }
+          });
+
+          if (!response.ok) {
+            renderSuggestions([]);
+            return;
+          }
+
+          const suggestions = await response.json();
+          renderSuggestions(Array.isArray(suggestions) ? suggestions : []);
+        } catch (error) {
+          if (error.name !== "AbortError") {
+            renderSuggestions([]);
+          }
+        }
+      });
+    })();
+  </script>
 {% endblock %}

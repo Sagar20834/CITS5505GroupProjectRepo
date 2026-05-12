@@ -8,7 +8,7 @@
     <h1 class="mb-3 text-4xl font-bold text-slate-900">All Reports</h1>
     <p class="mb-8 text-lg leading-8 text-slate-600">Search, filter, and review road issues submitted by the community.</p>
 
-    <form method="get" class="mb-8 grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-5 md:grid-cols-2 xl:grid-cols-[1.1fr,1fr,0.8fr,0.8fr,auto]">
+    <form method="get" class="mb-8 grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-5 md:grid-cols-2 xl:grid-cols-[1fr,0.95fr,0.7fr,0.9fr,0.8fr,auto]">
       <div>
         <label for="street_address" class="mb-2 block text-sm font-semibold text-slate-600">Street address</label>
         <input id="street_address" name="street_address" value="{{ filters.street_address }}" class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="e.g. Hay Street">
@@ -20,6 +20,15 @@
       <div>
         <label for="postcode" class="mb-2 block text-sm font-semibold text-slate-600">Postcode</label>
         <input id="postcode" name="postcode" value="{{ filters.postcode }}" class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="e.g. 6000" inputmode="numeric" pattern="[0-9]{4}" maxlength="4">
+      </div>
+      <div>
+        <label for="issue_type" class="mb-2 block text-sm font-semibold text-slate-600">Issue type</label>
+        <select id="issue_type" name="issue_type" class="w-full rounded-xl border border-slate-300 px-4 py-3">
+          <option value="">All issue types</option>
+          {% for issue_type in issue_types %}
+            <option value="{{ issue_type }}" {% if filters.issue_type == issue_type %}selected{% endif %}>{{ issue_type }}</option>
+          {% endfor %}
+        </select>
       </div>
       <div>
         <label for="status" class="mb-2 block text-sm font-semibold text-slate-600">Status</label>

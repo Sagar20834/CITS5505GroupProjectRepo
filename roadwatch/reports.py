@@ -1,4 +1,9 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+import json
+from urllib.error import URLError
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
+
+from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user
 from sqlalchemy import or_
 
@@ -6,6 +11,67 @@ from .extensions import db
 from .models import Confirmation, Report
 
 reports_bp = Blueprint("reports", __name__, url_prefix="/reports")
+
+
+def _local_address_suggestions(query_text):
+    suggestions = (
+        db.session.query(Report.street_address)
+        .filter(Report.street_address.isnot(None))
+        .filter(Report.street_address != "")
+        .filter(Report.street_address.ilike(f"%{query_text}%"))
+        .distinct()
+        .order_by(Report.street_address.asc())
+        .limit(8)
+        .all()
+    )
+
+    return [street_address for street_address, in suggestions]
+
+
+def _mapbox_address_suggestions(query_text):
+    token = current_app.config.get("MAPBOX_ACCESS_TOKEN", "")
+    if not token:
+        return []
+
+    params = urlencode(
+        {
+            "q": query_text,
+            "access_token": token,
+            "autocomplete": "true",
+            "country": "au",
+            "types": "street,address",
+            "proximity": "115.8605,-31.9505",
+            "limit": 6,
+        }
+    )
+    request_url = f"https://api.mapbox.com/search/geocode/v6/forward?{params}"
+    request_headers = {
+        "Accept": "application/json",
+        "User-Agent": "RoadWatchPerth/1.0",
+    }
+
+    try:
+        with urlopen(Request(request_url, headers=request_headers), timeout=3) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except (URLError, TimeoutError, json.JSONDecodeError):
+        return []
+
+    features = payload.get("features", [])
+    normalized = []
+
+    for feature in features:
+        properties = feature.get("properties") or {}
+        candidate = (
+            properties.get("name")
+            or properties.get("full_address")
+            or feature.get("place_name")
+            or feature.get("text")
+            or ""
+        ).strip()
+        if candidate and candidate not in normalized:
+            normalized.append(candidate)
+
+    return normalized
 
 
 def _build_form_data(report=None):
@@ -49,6 +115,7 @@ def list_reports():
     selected_postcode = request.args.get("postcode", "").strip()
     selected_street = request.args.get("street_address", "").strip()
     selected_suburb = request.args.get("suburb", "").strip()
+    selected_issue_type = request.args.get("issue_type", "").strip()
     selected_status = request.args.get("status", "").strip()
     mine_only = request.args.get("mine") == "1"
 
@@ -74,6 +141,9 @@ def list_reports():
     if selected_suburb:
         query = query.filter(Report.suburb.ilike(f"%{selected_suburb}%"))
 
+    if selected_issue_type in Report.ISSUE_TYPES:
+        query = query.filter(Report.issue_type == selected_issue_type)
+
     if selected_status in Report.STATUSES:
         query = query.filter(Report.status == selected_status)
 
@@ -92,10 +162,25 @@ def list_reports():
             "postcode": selected_postcode,
             "street_address": selected_street,
             "suburb": selected_suburb,
+            "issue_type": selected_issue_type,
             "status": selected_status,
             "mine": mine_only,
         },
     )
+
+
+@reports_bp.get("/address-suggestions")
+def address_suggestions():
+    query_text = request.args.get("q", "").strip()
+
+    if len(query_text) < 2:
+        return jsonify([])
+
+    suggestions = _mapbox_address_suggestions(query_text)
+    if not suggestions:
+        suggestions = _local_address_suggestions(query_text)
+
+    return jsonify(suggestions)
 
 
 @reports_bp.route("/new", methods=["GET", "POST"])
