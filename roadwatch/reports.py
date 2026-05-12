@@ -15,7 +15,12 @@ def _build_form_data(report=None):
 
     return {
         "issue_type": request.form.get("issue_type", report.issue_type if report else ""),
-        "location": request.form.get("location", report.location if report else ""),
+        "street_address": request.form.get(
+            "street_address",
+            (report.street_address or report.location) if report else "",
+        ),
+        "suburb": request.form.get("suburb", report.suburb if report else ""),
+        "postcode": request.form.get("postcode", report.postcode if report else ""),
         "severity": request.form.get("severity", report.severity if report else "Medium"),
         "description": request.form.get("description", report.description if report else ""),
         "image_url": (image_url or "").strip(),
@@ -28,8 +33,12 @@ def _validate_report_form(form_data):
         return "Please choose a valid issue type."
     if form_data["severity"] not in Report.SEVERITIES:
         return "Please choose a valid severity level."
-    if len(form_data["location"]) < 5:
-        return "Location should be at least 5 characters long."
+    if len(form_data["street_address"].strip()) < 5:
+        return "Street address should be at least 5 characters long."
+    if len(form_data["suburb"].strip()) < 2:
+        return "Suburb should be at least 2 characters long."
+    if not (form_data["postcode"].isdigit() and len(form_data["postcode"]) == 4):
+        return "Postcode should be a valid 4-digit value."
     if len(form_data["description"]) < 15:
         return "Description should be at least 15 characters long."
     return None
@@ -37,7 +46,9 @@ def _validate_report_form(form_data):
 
 @reports_bp.get("/")
 def list_reports():
-    search_term = request.args.get("q", "").strip()
+    selected_postcode = request.args.get("postcode", "").strip()
+    selected_street = request.args.get("street_address", "").strip()
+    selected_suburb = request.args.get("suburb", "").strip()
     selected_status = request.args.get("status", "").strip()
     mine_only = request.args.get("mine") == "1"
 
@@ -54,15 +65,14 @@ def list_reports():
     else:
         query = query.filter(Report.moderation_status == Report.APPROVED)
 
-    if search_term:
-        pattern = f"%{search_term}%"
-        query = query.filter(
-            or_(
-                Report.issue_type.ilike(pattern),
-                Report.location.ilike(pattern),
-                Report.description.ilike(pattern),
-            )
-        )
+    if selected_postcode:
+        query = query.filter(Report.postcode.ilike(f"%{selected_postcode}%"))
+
+    if selected_street:
+        query = query.filter(Report.street_address.ilike(f"%{selected_street}%"))
+
+    if selected_suburb:
+        query = query.filter(Report.suburb.ilike(f"%{selected_suburb}%"))
 
     if selected_status in Report.STATUSES:
         query = query.filter(Report.status == selected_status)
@@ -78,7 +88,13 @@ def list_reports():
     return render_template(
         "reports.html",
         reports=reports,
-        filters={"q": search_term, "status": selected_status, "mine": mine_only},
+        filters={
+            "postcode": selected_postcode,
+            "street_address": selected_street,
+            "suburb": selected_suburb,
+            "status": selected_status,
+            "mine": mine_only,
+        },
     )
 
 
@@ -96,7 +112,9 @@ def create_report():
         else:
             report = Report(
                 issue_type=form_data["issue_type"],
-                location=form_data["location"],
+                street_address=form_data["street_address"],
+                suburb=form_data["suburb"],
+                postcode=form_data["postcode"],
                 severity=form_data["severity"],
                 description=form_data["description"],
                 image_url=form_data["image_url"] or None,
@@ -172,7 +190,9 @@ def edit_report(report_id):
             flash(validation_error, "error")
         else:
             report.issue_type = form_data["issue_type"]
-            report.location = form_data["location"]
+            report.street_address = form_data["street_address"]
+            report.suburb = form_data["suburb"]
+            report.postcode = form_data["postcode"]
             report.severity = form_data["severity"]
             report.description = form_data["description"]
             report.image_url = form_data["image_url"] or None

@@ -29,7 +29,9 @@ def seed_demo_command():
     sample_reports = [
         Report(
             issue_type="Pothole",
-            location="Hay Street, Perth CBD",
+            street_address="Hay Street",
+            suburb="Perth CBD",
+            postcode="6000",
             description="A deep pothole has opened beside the turning lane and is affecting cars during peak hour.",
             status="Reported",
             severity="High",
@@ -38,7 +40,9 @@ def seed_demo_command():
         ),
         Report(
             issue_type="Flooding",
-            location="Canning Highway, South Perth",
+            street_address="Canning Highway",
+            suburb="South Perth",
+            postcode="6151",
             description="Water remains pooled along the shoulder after rain and is forcing cyclists into traffic.",
             status="Under Review",
             severity="Urgent",
@@ -48,7 +52,9 @@ def seed_demo_command():
         ),
         Report(
             issue_type="Broken Road",
-            location="Great Eastern Highway",
+            street_address="Great Eastern Highway",
+            suburb="Rivervale",
+            postcode="6103",
             description="The surface is fragmented across a short stretch and vehicles are bouncing through the section.",
             status="Fixed",
             severity="Medium",

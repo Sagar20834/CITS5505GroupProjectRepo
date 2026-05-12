@@ -8,10 +8,18 @@
     <h1 class="mb-3 text-4xl font-bold text-slate-900">All Reports</h1>
     <p class="mb-8 text-lg leading-8 text-slate-600">Search, filter, and review road issues submitted by the community.</p>
 
-    <form method="get" class="mb-8 grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-5 md:grid-cols-[1.4fr,0.9fr,auto]">
+    <form method="get" class="mb-8 grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-5 md:grid-cols-2 xl:grid-cols-[1.1fr,1fr,0.8fr,0.8fr,auto]">
       <div>
-        <label for="q" class="mb-2 block text-sm font-semibold text-slate-600">Search by location, type, or description</label>
-        <input id="q" name="q" value="{{ filters.q }}" class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="e.g. pothole Hay Street">
+        <label for="street_address" class="mb-2 block text-sm font-semibold text-slate-600">Street address</label>
+        <input id="street_address" name="street_address" value="{{ filters.street_address }}" class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="e.g. Hay Street">
+      </div>
+      <div>
+        <label for="suburb" class="mb-2 block text-sm font-semibold text-slate-600">Suburb</label>
+        <input id="suburb" name="suburb" value="{{ filters.suburb }}" class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="e.g. Perth CBD">
+      </div>
+      <div>
+        <label for="postcode" class="mb-2 block text-sm font-semibold text-slate-600">Postcode</label>
+        <input id="postcode" name="postcode" value="{{ filters.postcode }}" class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="e.g. 6000" inputmode="numeric" pattern="[0-9]{4}" maxlength="4">
       </div>
       <div>
         <label for="status" class="mb-2 block text-sm font-semibold text-slate-600">Status</label>
@@ -53,6 +61,11 @@
                   <div>
                     <h2 class="mb-1 text-2xl font-bold text-sky-900">{{ report.issue_type }}</h2>
                     <p class="text-base text-slate-500">{{ report.location }}</p>
+                    {% if report.street_address or report.suburb or report.postcode %}
+                      <p class="mt-1 text-sm text-slate-400">
+                        {{ report.street_address or "No street set" }}{% if report.suburb %} | {{ report.suburb }}{% endif %}{% if report.postcode %} | {{ report.postcode }}{% endif %}
+                      </p>
+                    {% endif %}
                   </div>
                   <div class="flex flex-wrap gap-2">
                     <span class="rounded-full px-3 py-1 text-sm font-bold {{ severity_styles[report.severity] }}">{{ report.severity }}</span>

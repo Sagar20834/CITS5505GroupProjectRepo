@@ -53,6 +53,20 @@
       <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm md:col-span-2">
         <h2 class="mb-2 text-2xl font-bold text-sky-900">Location</h2>
         <p class="text-lg text-slate-600">{{ report.location }}</p>
+        <div class="mt-4 grid gap-4 md:grid-cols-3">
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Street</p>
+            <p class="mt-1 text-base text-slate-600">{{ report.street_address or "Not provided" }}</p>
+          </div>
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Suburb</p>
+            <p class="mt-1 text-base text-slate-600">{{ report.suburb or "Not provided" }}</p>
+          </div>
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Postcode</p>
+            <p class="mt-1 text-base text-slate-600">{{ report.postcode or "Not provided" }}</p>
+          </div>
+        </div>
       </div>
       <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm md:col-span-2">
         <h2 class="mb-2 text-2xl font-bold text-sky-900">Description</h2>
