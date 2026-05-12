@@ -13,9 +13,28 @@ reports_bp = Blueprint("reports", __name__, url_prefix="/reports")
 REPORTS_PER_PAGE = 10
 
 
+def _format_address_suggestion(street_address, suburb="", postcode=""):
+    street_address = " ".join((street_address or "").split())
+    suburb = " ".join((suburb or "").split())
+    postcode = " ".join((postcode or "").split())
+
+    if not street_address:
+        return None
+
+    locality = " ".join(part for part in (suburb, postcode) if part)
+    label = ", ".join(part for part in (street_address, locality) if part)
+
+    return {
+        "street_address": street_address,
+        "suburb": suburb,
+        "postcode": postcode,
+        "label": label,
+    }
+
+
 def _local_address_suggestions(query_text):
     suggestions = (
-        db.session.query(Report.street_address)
+        db.session.query(Report.street_address, Report.suburb, Report.postcode)
         .filter(Report.street_address.isnot(None))
         .filter(Report.street_address != "")
         .filter(Report.moderation_status == Report.APPROVED)
@@ -26,29 +45,27 @@ def _local_address_suggestions(query_text):
         .all()
     )
 
-    return [street_address for street_address, in suggestions]
+    return [
+        suggestion
+        for suggestion in (_format_address_suggestion(street_address, suburb, postcode) for street_address, suburb, postcode in suggestions)
+        if suggestion
+    ]
 
 
-def _mapbox_address_suggestions(query_text):
-    token = current_app.config.get("MAPBOX_ACCESS_TOKEN", "")
-    if not token:
-        return []
-
+def _photon_address_suggestions(query_text):
     params = urlencode(
         {
-            "q": query_text,
-            "access_token": token,
-            "autocomplete": "true",
-            "country": "au",
-            "types": "street,address",
-            "proximity": "115.8605,-31.9505",
-            "limit": 6,
+            "q": f"{query_text}, Perth, Western Australia",
+            "lat": -31.9505,
+            "lon": 115.8605,
+            "limit": 8,
+            "lang": "en",
         }
     )
-    request_url = f"https://api.mapbox.com/search/geocode/v6/forward?{params}"
+    request_url = f"https://photon.komoot.io/api/?{params}"
     request_headers = {
         "Accept": "application/json",
-        "User-Agent": "RoadWatchPerth/1.0",
+        "User-Agent": "RoadWatchPerth/1.0 address autocomplete",
     }
 
     try:
@@ -62,15 +79,21 @@ def _mapbox_address_suggestions(query_text):
 
     for feature in features:
         properties = feature.get("properties") or {}
-        candidate = (
-            properties.get("name")
-            or properties.get("full_address")
-            or feature.get("place_name")
-            or feature.get("text")
+        if properties.get("country") and properties.get("country") != "Australia":
+            continue
+
+        street_address = properties.get("street") or properties.get("name") or ""
+        suburb = (
+            properties.get("district")
+            or properties.get("suburb")
+            or properties.get("city")
+            or properties.get("locality")
             or ""
-        ).strip()
-        if candidate and candidate not in normalized:
-            normalized.append(candidate)
+        )
+        postcode = properties.get("postcode") or ""
+        suggestion = _format_address_suggestion(street_address, suburb, postcode)
+        if suggestion and suggestion["label"] not in {item["label"] for item in normalized}:
+            normalized.append(suggestion)
 
     return normalized
 
@@ -176,7 +199,7 @@ def address_suggestions():
     if len(query_text) < 2:
         return jsonify([])
 
-    suggestions = _mapbox_address_suggestions(query_text)
+    suggestions = _photon_address_suggestions(query_text)
     if not suggestions:
         suggestions = _local_address_suggestions(query_text)
 
