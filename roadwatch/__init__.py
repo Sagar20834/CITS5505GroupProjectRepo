@@ -22,6 +22,11 @@ STATUS_STYLES = {
     "Under Review": "bg-blue-100 text-blue-800",
     "Fixed": "bg-green-100 text-green-800",
 }
+MODERATION_STYLES = {
+    "Pending Approval": "bg-amber-100 text-amber-800",
+    "Approved": "bg-green-100 text-green-800",
+    "Rejected": "bg-red-100 text-red-800",
+}
 
 SEVERITY_STYLES = {
     "Low": "bg-emerald-100 text-emerald-800",
@@ -161,6 +166,8 @@ def create_app(config_class=Config):
             "report_statuses": Report.STATUSES,
             "report_severities": Report.SEVERITIES,
             "status_styles": STATUS_STYLES,
+            "moderation_statuses": Report.MODERATION_STATUSES,
+            "moderation_styles": MODERATION_STYLES,
             "severity_styles": SEVERITY_STYLES,
         }
 

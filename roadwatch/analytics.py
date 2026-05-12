@@ -55,7 +55,11 @@ def build_hotspots(limit=5):
             db.func.count(Report.id).label("report_count"),
             db.func.count(db.func.distinct(Report.reporter_id)).label("reporter_count"),
         )
-        .filter(Report.location_key.isnot(None), Report.location_key != "")
+        .filter(
+            Report.location_key.isnot(None),
+            Report.location_key != "",
+            Report.moderation_status == Report.APPROVED,
+        )
         .group_by(Report.location_key)
         .having(db.func.count(Report.id) > 1)
         .order_by(db.desc("report_count"), db.asc("location"))

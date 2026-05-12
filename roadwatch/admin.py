@@ -15,6 +15,22 @@ def admin_panel():
     return render_template("admin.html", reports=reports)
 
 
+@admin_bp.post("/reports/<int:report_id>/approval")
+@admin_required
+def update_report_approval(report_id):
+    report = Report.query.get_or_404(report_id)
+    new_moderation_status = request.form.get("moderation_status", "").strip()
+
+    if new_moderation_status not in Report.MODERATION_STATUSES:
+        flash("Please select a valid approval status.", "error")
+        return redirect(request.referrer or url_for("admin.admin_panel"))
+
+    report.moderation_status = new_moderation_status
+    db.session.commit()
+    flash("Report approval status updated.", "success")
+    return redirect(request.referrer or url_for("admin.admin_panel"))
+
+
 @admin_bp.post("/reports/<int:report_id>/status")
 @admin_required
 def update_report_status(report_id):
