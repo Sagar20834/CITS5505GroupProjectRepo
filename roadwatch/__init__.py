@@ -9,7 +9,7 @@ from sqlalchemy.schema import CreateIndex
 
 from .admin import admin_bp
 from .auth import auth_bp
-from .cli import seed_demo_command
+from .cli import reset_demo_command, seed_demo_command
 from .config import Config
 from .extensions import db, login_manager, migrate
 from .main import main_bp
@@ -105,6 +105,13 @@ def _should_sync_schema():
     return "db" not in sys.argv[1:]
 
 
+def _should_show_seed_demo_hint():
+    cli_args = sys.argv[1:]
+    if not cli_args:
+        return True
+    return "run" in cli_args
+
+
 def create_app(config_class=Config):
     project_root = Path(__file__).resolve().parent.parent
     app = Flask(
@@ -125,26 +132,24 @@ def create_app(config_class=Config):
     app.register_blueprint(reports_bp)
     app.register_blueprint(admin_bp)
     app.cli.add_command(seed_demo_command)
+    app.cli.add_command(reset_demo_command)
 
     if _should_sync_schema():
         with app.app_context():
             _sync_schema(db.engine, db.metadata)
+            if not app.config.get("TESTING") and _should_show_seed_demo_hint():
+                if User.query.count() == 0 and Report.query.count() == 0:
+                    click.secho(
+                        "Database is empty. Run `flask --app app seed-demo` to load sample users and reports.",
+                        fg="yellow",
+                    )
 
     @login_manager.user_loader
     def load_user(user_id):
         return db.session.get(User, int(user_id))
 
-    app.extensions["seed_demo_hint_shown"] = False
-
     @app.before_request
     def protect_forms():
-        if not app.config.get("TESTING") and not app.extensions["seed_demo_hint_shown"]:
-            app.extensions["seed_demo_hint_shown"] = True
-            if User.query.count() == 0 and Report.query.count() == 0:
-                click.secho(
-                    "Database is empty. Run `flask --app app seed-demo` to load sample users and reports.",
-                    fg="yellow",
-                )
         validate_csrf()
 
     @app.context_processor
