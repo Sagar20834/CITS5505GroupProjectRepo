@@ -15,7 +15,9 @@ def _build_demo_report(
     *,
     key,
     issue_type,
-    location,
+    street_address,
+    suburb,
+    postcode,
     severity,
     status,
     description,
@@ -23,20 +25,23 @@ def _build_demo_report(
     reporter_id=None,
     is_anonymous=False,
     image_url=None,
+    moderation_status=Report.APPROVED,
 ):
     report = Report()
-    report._demo_key = key
     report.issue_type = issue_type
-    report.location = location
+    report.street_address = street_address
+    report.suburb = suburb
+    report.postcode = postcode
     report.severity = severity
     report.status = status
+    report.moderation_status = moderation_status
     report.description = description
     report.created_at = created_at
     report.updated_at = created_at
     report.reporter_id = reporter_id
     report.is_anonymous = is_anonymous
     report.image_url = image_url
-    return report
+    return key, report
 
 
 def _build_comment(*, report_id, author_id, body):
@@ -91,47 +96,243 @@ def _seed_demo_data():
     db.session.add_all([admin, resident, commuter, cyclist])
     db.session.flush()
 
-    sample_reports = [
-        Report(
+    sample_report_entries = [
+        _build_demo_report(
+            key="hay-pothole",
             issue_type="Pothole",
             street_address="Hay Street",
             suburb="Perth CBD",
             postcode="6000",
-            description="A deep pothole has opened beside the turning lane and is affecting cars during peak hour.",
-            status="Reported",
             severity="High",
-            moderation_status="Approved",
+            status="Reported",
+            description="A deep pothole has opened beside the turning lane and is affecting cars during peak hour.",
+            created_at=_utc_datetime(current_year, 1, 14, 7, 45),
             reporter_id=resident.id,
+            image_url="https://loremflickr.com/1200/800/pothole,road?lock=101",
         ),
-        Report(
+        _build_demo_report(
+            key="hay-crack",
+            issue_type="Crack",
+            street_address="Hay Street",
+            suburb="Perth CBD",
+            postcode="6000",
+            severity="Medium",
+            status="Under Review",
+            description="Long cracks are spreading across the left lane and braking cars are bouncing through the section.",
+            created_at=_utc_datetime(current_year, 1, 28, 9, 10),
+            reporter_id=commuter.id,
+            image_url="https://loremflickr.com/1200/800/cracked-road,street?lock=102",
+        ),
+        _build_demo_report(
+            key="stgeorges-pothole",
+            issue_type="Pothole",
+            street_address="St Georges Terrace",
+            suburb="Perth CBD",
+            postcode="6000",
+            severity="Medium",
+            status="Reported",
+            description="A rough pothole near the taxi bay is forcing drivers to cut into the next lane at short notice.",
+            created_at=_utc_datetime(current_year, 2, 7, 8, 35),
+            reporter_id=commuter.id,
+            moderation_status=Report.PENDING_APPROVAL,
+        ),
+        _build_demo_report(
+            key="canning-flooding",
             issue_type="Flooding",
             street_address="Canning Highway",
             suburb="South Perth",
             postcode="6151",
-            description="Water remains pooled along the shoulder after rain and is forcing cyclists into traffic.",
+            severity="High",
             status="Under Review",
-            severity="Urgent",
-            moderation_status="Approved",
+            description="Water remains pooled along the shoulder after rain and is forcing cyclists into traffic.",
+            created_at=_utc_datetime(current_year, 2, 3, 6, 55),
+            reporter_id=cyclist.id,
             is_anonymous=True,
-            reporter_id=resident.id,
+            image_url="https://loremflickr.com/1200/800/flooded-road,rain?lock=103",
         ),
-        Report(
+        _build_demo_report(
+            key="canning-sign",
+            issue_type="Missing Sign",
+            street_address="Canning Highway",
+            suburb="South Perth",
+            postcode="6151",
+            severity="Medium",
+            status="Reported",
+            description="A warning sign near the merge point is missing and drivers are cutting into the bike lane unexpectedly.",
+            created_at=_utc_datetime(current_year, 2, 17, 8, 20),
+            reporter_id=resident.id,
+            moderation_status=Report.PENDING_APPROVAL,
+        ),
+        _build_demo_report(
+            key="great-eastern-broken",
             issue_type="Broken Road",
             street_address="Great Eastern Highway",
             suburb="Rivervale",
             postcode="6103",
-            description="The surface is fragmented across a short stretch and vehicles are bouncing through the section.",
+            severity="Urgent",
             status="Fixed",
+            description="The surface is fragmented across a short stretch and vehicles are bouncing through the section.",
+            created_at=_utc_datetime(current_year, 3, 2, 10, 30),
+            reporter_id=admin.id,
+            image_url="https://loremflickr.com/1200/800/damaged-road,highway?lock=104",
+        ),
+        _build_demo_report(
+            key="leach-broken",
+            issue_type="Broken Road",
+            street_address="Leach Highway",
+            suburb="Willetton",
+            postcode="6155",
+            severity="High",
+            status="Under Review",
+            description="The road surface has broken up around a patched trench and traffic is drifting around the damaged area.",
+            created_at=_utc_datetime(current_year, 3, 8, 13, 5),
+            reporter_id=resident.id,
+        ),
+        _build_demo_report(
+            key="albany-gravel",
+            issue_type="Other",
+            street_address="Albany Highway",
+            suburb="Victoria Park",
+            postcode="6100",
+            severity="Low",
+            status="Reported",
+            description="Loose gravel keeps spilling from the shoulder into the traffic lane after each windy afternoon.",
+            created_at=_utc_datetime(current_year, 3, 19, 15, 5),
+            reporter_id=commuter.id,
+        ),
+        _build_demo_report(
+            key="albany-pothole",
+            issue_type="Pothole",
+            street_address="Albany Highway",
+            suburb="Victoria Park",
+            postcode="6100",
+            severity="High",
+            status="Under Review",
+            description="A pothole near the bus stop is widening and buses are swerving around it during school pickup.",
+            created_at=_utc_datetime(current_year, 4, 5, 14, 25),
+            reporter_id=resident.id,
+            image_url="https://loremflickr.com/1200/800/pothole,street?lock=105",
+        ),
+        _build_demo_report(
+            key="marmion-pothole",
+            issue_type="Pothole",
+            street_address="Marmion Avenue",
+            suburb="Clarkson",
+            postcode="6030",
+            severity="Urgent",
+            status="Fixed",
+            description="A large pothole near the median had been damaging tyres before emergency patching was completed.",
+            created_at=_utc_datetime(current_year, 4, 9, 12, 15),
+            reporter_id=admin.id,
+            image_url="https://loremflickr.com/1200/800/road-repair,pothole?lock=106",
+        ),
+        _build_demo_report(
+            key="wanneroo-crack",
+            issue_type="Crack",
+            street_address="Wanneroo Road",
+            suburb="Balcatta",
+            postcode="6021",
             severity="Medium",
-            moderation_status="Approved",
+            status="Fixed",
+            description="The cracked surface was causing steering wobble for motorcycles near the right-turn pocket.",
+            created_at=_utc_datetime(current_year, 4, 13, 11, 40),
             reporter_id=admin.id,
         ),
+        _build_demo_report(
+            key="riverside-flooding",
+            issue_type="Flooding",
+            street_address="Riverside Drive",
+            suburb="East Perth",
+            postcode="6004",
+            severity="Medium",
+            status="Reported",
+            description="Drainage is blocked after light rain and water starts covering one lane beside the river wall.",
+            created_at=_utc_datetime(current_year, 4, 29, 7, 15),
+            reporter_id=cyclist.id,
+        ),
+        _build_demo_report(
+            key="guildford-flooding",
+            issue_type="Flooding",
+            street_address="Guildford Road",
+            suburb="Bayswater",
+            postcode="6053",
+            severity="Medium",
+            status="Reported",
+            description="Water is repeatedly pooling near the curb after minor rain and buses are throwing spray onto the footpath.",
+            created_at=_utc_datetime(current_year, 5, 2, 7, 5),
+            reporter_id=resident.id,
+        ),
+        _build_demo_report(
+            key="mitchell-sign",
+            issue_type="Missing Sign",
+            street_address="Mitchell Freeway Northbound Exit",
+            suburb="Leederville",
+            postcode="6007",
+            severity="Low",
+            status="Fixed",
+            description="Lane guidance signage at the exit was missing and motorists were braking late at the split.",
+            created_at=_utc_datetime(current_year, 5, 4, 16, 50),
+            reporter_id=admin.id,
+        ),
+        _build_demo_report(
+            key="tonkin-broken",
+            issue_type="Broken Road",
+            street_address="Tonkin Highway",
+            suburb="Redcliffe",
+            postcode="6104",
+            severity="Urgent",
+            status="Under Review",
+            description="Large broken patches around a joint are forcing heavy vehicles to drift across the lane line.",
+            created_at=_utc_datetime(current_year, 5, 8, 5, 35),
+            reporter_id=commuter.id,
+        ),
+        _build_demo_report(
+            key="beaufort-other",
+            issue_type="Other",
+            street_address="Beaufort Street",
+            suburb="Mount Lawley",
+            postcode="6050",
+            severity="Low",
+            status="Reported",
+            description="Raised reflective markers have come loose and are rattling under traffic throughout the evening peak.",
+            created_at=_utc_datetime(current_year, 5, 11, 18, 5),
+            reporter_id=resident.id,
+            is_anonymous=True,
+        ),
+        _build_demo_report(
+            key="roe-pothole",
+            issue_type="Pothole",
+            street_address="Roe Highway",
+            suburb="Kewdale",
+            postcode="6105",
+            severity="High",
+            status="Under Review",
+            description="Freight vehicles are hitting a deep pothole near the merge lane and shedding debris across the shoulder.",
+            created_at=_utc_datetime(current_year, 5, 15, 5, 50),
+            reporter_id=commuter.id,
+            image_url="https://loremflickr.com/1200/800/highway,pothole?lock=107",
+        ),
+        _build_demo_report(
+            key="rejected-report",
+            issue_type="Other",
+            street_address="Demo Road",
+            suburb="Perth",
+            postcode="6000",
+            severity="Low",
+            status="Reported",
+            description="This demo report represents an inappropriate or duplicate submission that an admin rejected.",
+            created_at=_utc_datetime(current_year, 5, 18, 9, 25),
+            reporter_id=resident.id,
+            moderation_status=Report.REJECTED,
+        ),
     ]
+
+    sample_reports = [report for _, report in sample_report_entries]
 
     db.session.add_all(sample_reports)
     db.session.flush()
 
-    report_lookup = {report._demo_key: report for report in sample_reports}
+    report_lookup = dict(sample_report_entries)
 
     demo_comments = [
         _build_comment(
