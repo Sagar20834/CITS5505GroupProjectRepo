@@ -12,7 +12,9 @@ admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 @admin_required
 def admin_panel():
     reports = Report.query.order_by(Report.created_at.desc()).all()
-    return render_template("admin.html", reports=reports)
+    pending_reports = [report for report in reports if report.moderation_status == Report.PENDING_APPROVAL]
+    reviewed_reports = [report for report in reports if report.moderation_status != Report.PENDING_APPROVAL]
+    return render_template("admin.html", pending_reports=pending_reports, reviewed_reports=reviewed_reports)
 
 
 @admin_bp.post("/reports/<int:report_id>/approval")
@@ -27,7 +29,14 @@ def update_report_approval(report_id):
 
     report.moderation_status = new_moderation_status
     db.session.commit()
-    flash("Report approval status updated.", "success")
+
+    if new_moderation_status == Report.APPROVED:
+        flash("Report approved and published.", "success")
+    elif new_moderation_status == Report.REJECTED:
+        flash("Report rejected and removed from public view.", "success")
+    else:
+        flash("Report moved back to pending approval.", "success")
+
     return redirect(request.referrer or url_for("admin.admin_panel"))
 
 

@@ -3,9 +3,8 @@ from urllib.error import URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, url_for
+from flask import Blueprint, abort, current_app, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user
-from sqlalchemy import or_
 
 from .extensions import db
 from .models import Comment, Confirmation, Report
@@ -18,6 +17,7 @@ def _local_address_suggestions(query_text):
         db.session.query(Report.street_address)
         .filter(Report.street_address.isnot(None))
         .filter(Report.street_address != "")
+        .filter(Report.moderation_status == Report.APPROVED)
         .filter(Report.street_address.ilike(f"%{query_text}%"))
         .distinct()
         .order_by(Report.street_address.asc())
@@ -127,19 +127,16 @@ def list_reports():
 
     query = Report.query
 
-    if current_user.is_authenticated:
-        if not current_user.is_admin:
-            query = query.filter(
-                or_(
-                    Report.moderation_status == Report.APPROVED,
-                    Report.reporter_id == current_user.id,
-                )
-            )
+    if mine_only:
+        if not current_user.is_authenticated:
+            flash("Log in to filter the list to your own reports.", "warning")
+            return redirect(url_for("auth.login", next=request.full_path))
+        query = query.filter(Report.reporter_id == current_user.id)
     else:
         query = query.filter(Report.moderation_status == Report.APPROVED)
 
     if selected_postcode:
-        query = query.filter(Report.postcode.ilike(f"%{selected_postcode}%"))
+        query = query.filter(Report.postcode == selected_postcode)
 
     if selected_street:
         query = query.filter(Report.street_address.ilike(f"%{selected_street}%"))
@@ -152,12 +149,6 @@ def list_reports():
 
     if selected_status in Report.STATUSES:
         query = query.filter(Report.status == selected_status)
-
-    if mine_only:
-        if not current_user.is_authenticated:
-            flash("Log in to filter the list to your own reports.", "warning")
-            return redirect(url_for("auth.login", next=request.full_path))
-        query = query.filter(Report.reporter_id == current_user.id)
 
     reports = query.order_by(Report.created_at.desc()).all()
 
@@ -201,22 +192,23 @@ def create_report():
         elif not current_user.is_authenticated and not form_data["is_anonymous"]:
             flash("Log in if you want the report linked to your account, or submit it anonymously.", "warning")
         else:
-            report = Report(
-                issue_type=form_data["issue_type"],
-                street_address=form_data["street_address"],
-                suburb=form_data["suburb"],
-                postcode=form_data["postcode"],
-                severity=form_data["severity"],
-                description=form_data["description"],
-                image_url=form_data["image_url"] or None,
-                moderation_status=Report.PENDING_APPROVAL,
-                is_anonymous=form_data["is_anonymous"],
-                reporter_id=current_user.id if current_user.is_authenticated else None,
-            )
+            report = Report()
+            report.issue_type = form_data["issue_type"]
+            report.street_address = form_data["street_address"]
+            report.suburb = form_data["suburb"]
+            report.postcode = form_data["postcode"]
+            report.severity = form_data["severity"]
+            report.description = form_data["description"]
+            report.image_url = form_data["image_url"] or None
+            report.moderation_status = Report.PENDING_APPROVAL
+            report.is_anonymous = form_data["is_anonymous"]
+            report.reporter_id = current_user.id if current_user.is_authenticated else None
             db.session.add(report)
             db.session.commit()
-            flash("Report submitted and sent to the admin for approval.", "success")
-            return redirect(url_for("reports.report_details", report_id=report.id))
+            flash("Your report is waiting for admin approval.", "success")
+            if current_user.is_authenticated:
+                return redirect(url_for("reports.report_details", report_id=report.id))
+            return redirect(url_for("reports.list_reports"))
 
     return render_template(
         "report.html",
@@ -237,12 +229,16 @@ def report_details(report_id):
         flash("This report is waiting for admin approval and is not public yet.", "warning")
         return redirect(url_for("reports.list_reports"))
 
-    return render_template("report_details.html", report=report)
+    comments = Comment.query.filter_by(report_id=report.id).order_by(Comment.created_at.asc()).all()
+    return render_template("report_details.html", report=report, comments=comments)
 
 
 @reports_bp.post("/<int:report_id>/confirm")
 def toggle_confirmation(report_id):
     report = Report.query.get_or_404(report_id)
+
+    if not report.can_be_viewed_by(current_user):
+        abort(404)
 
     if not current_user.is_authenticated:
         flash("Log in to confirm that you have seen this issue.", "warning")
@@ -268,6 +264,9 @@ def toggle_confirmation(report_id):
 @reports_bp.post("/<int:report_id>/comments")
 def create_comment(report_id):
     report = Report.query.get_or_404(report_id)
+
+    if not report.can_be_viewed_by(current_user):
+        abort(404)
 
     if not current_user.is_authenticated:
         flash("Log in to join the discussion on a report.", "warning")
