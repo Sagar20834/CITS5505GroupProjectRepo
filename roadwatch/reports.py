@@ -3,21 +3,41 @@ from urllib.error import URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, url_for
+from flask import Blueprint, abort, current_app, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user
-from sqlalchemy import or_
 
 from .extensions import db
-from .models import Confirmation, Report
+from .models import Comment, Confirmation, Report
 
 reports_bp = Blueprint("reports", __name__, url_prefix="/reports")
+REPORTS_PER_PAGE = 10
+
+
+def _format_address_suggestion(street_address, suburb="", postcode=""):
+    street_address = " ".join((street_address or "").split())
+    suburb = " ".join((suburb or "").split())
+    postcode = " ".join((postcode or "").split())
+
+    if not street_address:
+        return None
+
+    locality = " ".join(part for part in (suburb, postcode) if part)
+    label = ", ".join(part for part in (street_address, locality) if part)
+
+    return {
+        "street_address": street_address,
+        "suburb": suburb,
+        "postcode": postcode,
+        "label": label,
+    }
 
 
 def _local_address_suggestions(query_text):
     suggestions = (
-        db.session.query(Report.street_address)
+        db.session.query(Report.street_address, Report.suburb, Report.postcode)
         .filter(Report.street_address.isnot(None))
         .filter(Report.street_address != "")
+        .filter(Report.moderation_status == Report.APPROVED)
         .filter(Report.street_address.ilike(f"%{query_text}%"))
         .distinct()
         .order_by(Report.street_address.asc())
@@ -25,29 +45,27 @@ def _local_address_suggestions(query_text):
         .all()
     )
 
-    return [street_address for street_address, in suggestions]
+    return [
+        suggestion
+        for suggestion in (_format_address_suggestion(street_address, suburb, postcode) for street_address, suburb, postcode in suggestions)
+        if suggestion
+    ]
 
 
-def _mapbox_address_suggestions(query_text):
-    token = current_app.config.get("MAPBOX_ACCESS_TOKEN", "")
-    if not token:
-        return []
-
+def _photon_address_suggestions(query_text):
     params = urlencode(
         {
-            "q": query_text,
-            "access_token": token,
-            "autocomplete": "true",
-            "country": "au",
-            "types": "street,address",
-            "proximity": "115.8605,-31.9505",
-            "limit": 6,
+            "q": f"{query_text}, Perth, Western Australia",
+            "lat": -31.9505,
+            "lon": 115.8605,
+            "limit": 8,
+            "lang": "en",
         }
     )
-    request_url = f"https://api.mapbox.com/search/geocode/v6/forward?{params}"
+    request_url = f"https://photon.komoot.io/api/?{params}"
     request_headers = {
         "Accept": "application/json",
-        "User-Agent": "RoadWatchPerth/1.0",
+        "User-Agent": "RoadWatchPerth/1.0 address autocomplete",
     }
 
     try:
@@ -61,15 +79,21 @@ def _mapbox_address_suggestions(query_text):
 
     for feature in features:
         properties = feature.get("properties") or {}
-        candidate = (
-            properties.get("name")
-            or properties.get("full_address")
-            or feature.get("place_name")
-            or feature.get("text")
+        if properties.get("country") and properties.get("country") != "Australia":
+            continue
+
+        street_address = properties.get("street") or properties.get("name") or ""
+        suburb = (
+            properties.get("district")
+            or properties.get("suburb")
+            or properties.get("city")
+            or properties.get("locality")
             or ""
-        ).strip()
-        if candidate and candidate not in normalized:
-            normalized.append(candidate)
+        )
+        postcode = properties.get("postcode") or ""
+        suggestion = _format_address_suggestion(street_address, suburb, postcode)
+        if suggestion and suggestion["label"] not in {item["label"] for item in normalized}:
+            normalized.append(suggestion)
 
     return normalized
 
@@ -110,8 +134,15 @@ def _validate_report_form(form_data):
     return None
 
 
+def _validate_comment_body(body):
+    if len(body) < 5:
+        return "Comments must be at least 5 characters long."
+    return None
+
+
 @reports_bp.get("/")
 def list_reports():
+    page = max(request.args.get("page", 1, type=int), 1)
     selected_postcode = request.args.get("postcode", "").strip()
     selected_street = request.args.get("street_address", "").strip()
     selected_suburb = request.args.get("suburb", "").strip()
@@ -121,19 +152,16 @@ def list_reports():
 
     query = Report.query
 
-    if current_user.is_authenticated:
-        if not current_user.is_admin:
-            query = query.filter(
-                or_(
-                    Report.moderation_status == Report.APPROVED,
-                    Report.reporter_id == current_user.id,
-                )
-            )
+    if mine_only:
+        if not current_user.is_authenticated:
+            flash("Log in to filter the list to your own reports.", "warning")
+            return redirect(url_for("auth.login", next=request.full_path))
+        query = query.filter(Report.reporter_id == current_user.id)
     else:
         query = query.filter(Report.moderation_status == Report.APPROVED)
 
     if selected_postcode:
-        query = query.filter(Report.postcode.ilike(f"%{selected_postcode}%"))
+        query = query.filter(Report.postcode == selected_postcode)
 
     if selected_street:
         query = query.filter(Report.street_address.ilike(f"%{selected_street}%"))
@@ -147,17 +175,12 @@ def list_reports():
     if selected_status in Report.STATUSES:
         query = query.filter(Report.status == selected_status)
 
-    if mine_only:
-        if not current_user.is_authenticated:
-            flash("Log in to filter the list to your own reports.", "warning")
-            return redirect(url_for("auth.login", next=request.full_path))
-        query = query.filter(Report.reporter_id == current_user.id)
-
-    reports = query.order_by(Report.created_at.desc()).all()
+    pagination = query.order_by(Report.created_at.desc()).paginate(page=page, per_page=REPORTS_PER_PAGE, error_out=False)
 
     return render_template(
         "reports.html",
-        reports=reports,
+        reports=pagination.items,
+        pagination=pagination,
         filters={
             "postcode": selected_postcode,
             "street_address": selected_street,
@@ -176,7 +199,7 @@ def address_suggestions():
     if len(query_text) < 2:
         return jsonify([])
 
-    suggestions = _mapbox_address_suggestions(query_text)
+    suggestions = _photon_address_suggestions(query_text)
     if not suggestions:
         suggestions = _local_address_suggestions(query_text)
 
@@ -195,22 +218,23 @@ def create_report():
         elif not current_user.is_authenticated and not form_data["is_anonymous"]:
             flash("Log in if you want the report linked to your account, or submit it anonymously.", "warning")
         else:
-            report = Report(
-                issue_type=form_data["issue_type"],
-                street_address=form_data["street_address"],
-                suburb=form_data["suburb"],
-                postcode=form_data["postcode"],
-                severity=form_data["severity"],
-                description=form_data["description"],
-                image_url=form_data["image_url"] or None,
-                moderation_status=Report.PENDING_APPROVAL,
-                is_anonymous=form_data["is_anonymous"],
-                reporter_id=current_user.id if current_user.is_authenticated else None,
-            )
+            report = Report()
+            report.issue_type = form_data["issue_type"]
+            report.street_address = form_data["street_address"]
+            report.suburb = form_data["suburb"]
+            report.postcode = form_data["postcode"]
+            report.severity = form_data["severity"]
+            report.description = form_data["description"]
+            report.image_url = form_data["image_url"] or None
+            report.moderation_status = Report.PENDING_APPROVAL
+            report.is_anonymous = form_data["is_anonymous"]
+            report.reporter_id = current_user.id if current_user.is_authenticated else None
             db.session.add(report)
             db.session.commit()
-            flash("Report submitted and sent to the admin for approval.", "success")
-            return redirect(url_for("reports.report_details", report_id=report.id))
+            flash("Your report is waiting for admin approval.", "success")
+            if current_user.is_authenticated:
+                return redirect(url_for("reports.report_details", report_id=report.id))
+            return redirect(url_for("reports.list_reports"))
 
     return render_template(
         "report.html",
@@ -231,12 +255,16 @@ def report_details(report_id):
         flash("This report is waiting for admin approval and is not public yet.", "warning")
         return redirect(url_for("reports.list_reports"))
 
-    return render_template("report_details.html", report=report)
+    comments = Comment.query.filter_by(report_id=report.id).order_by(Comment.created_at.asc()).all()
+    return render_template("report_details.html", report=report, comments=comments)
 
 
 @reports_bp.post("/<int:report_id>/confirm")
 def toggle_confirmation(report_id):
     report = Report.query.get_or_404(report_id)
+
+    if not report.can_be_viewed_by(current_user):
+        abort(404)
 
     if not current_user.is_authenticated:
         flash("Log in to confirm that you have seen this issue.", "warning")
@@ -257,6 +285,34 @@ def toggle_confirmation(report_id):
         flash("You confirmed this report.", "success")
 
     return redirect(request.referrer or url_for("reports.report_details", report_id=report.id))
+
+
+@reports_bp.post("/<int:report_id>/comments")
+def create_comment(report_id):
+    report = Report.query.get_or_404(report_id)
+
+    if not report.can_be_viewed_by(current_user):
+        abort(404)
+
+    if not current_user.is_authenticated:
+        flash("Log in to join the discussion on a report.", "warning")
+        return redirect(url_for("auth.login", next=url_for("reports.report_details", report_id=report.id)))
+
+    body = request.form.get("body", "").strip()
+    validation_error = _validate_comment_body(body)
+
+    if validation_error:
+        flash(validation_error, "error")
+        return redirect(url_for("reports.report_details", report_id=report.id))
+
+    comment = Comment()
+    comment.body = body
+    comment.report_id = report.id
+    comment.author_id = current_user.id
+    db.session.add(comment)
+    db.session.commit()
+    flash("Comment posted.", "success")
+    return redirect(url_for("reports.report_details", report_id=report.id, _anchor="comments"))
 
 
 @reports_bp.route("/<int:report_id>/edit", methods=["GET", "POST"])

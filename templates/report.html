@@ -27,7 +27,7 @@
             <label for="street_address" class="mb-2 block text-sm font-semibold text-slate-600">Street address</label>
             <input id="street_address" name="street_address" value="{{ form_data.street_address }}" list="street-address-suggestions" autocomplete="off" class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="e.g. Hay Street near William Street" required>
             <datalist id="street-address-suggestions"></datalist>
-            <p class="mt-2 text-sm text-slate-500">Start typing to see street suggestions. If live map autocomplete is configured, it will be used first; otherwise saved report data is used.</p>
+            <p class="mt-2 text-sm text-slate-500">Start typing to see OpenStreetMap suggestions. If the public lookup service is unavailable, saved approved report locations are used as a fallback.</p>
           </div>
           <div>
             <label for="suburb" class="mb-2 block text-sm font-semibold text-slate-600">Suburb</label>
@@ -103,6 +103,8 @@
   <script>
     (() => {
       const input = document.getElementById("street_address");
+      const suburbInput = document.getElementById("suburb");
+      const postcodeInput = document.getElementById("postcode");
       const dataList = document.getElementById("street-address-suggestions");
 
       if (!input || !dataList) {
@@ -110,15 +112,46 @@
       }
 
       let activeRequest = null;
+      let currentSuggestions = [];
 
       const renderSuggestions = (items) => {
         dataList.innerHTML = "";
-        items.forEach((item) => {
+        currentSuggestions = items
+          .map((item) => {
+            if (typeof item === "string") {
+              return { street_address: item, suburb: "", postcode: "", label: item };
+            }
+            return {
+              street_address: item.street_address || item.label || "",
+              suburb: item.suburb || "",
+              postcode: item.postcode || "",
+              label: item.label || item.street_address || ""
+            };
+          })
+          .filter((item) => item.street_address);
+
+        currentSuggestions.forEach((item) => {
           const option = document.createElement("option");
-          option.value = item;
+          option.value = item.street_address;
+          option.label = item.label;
           dataList.appendChild(option);
         });
       };
+
+      input.addEventListener("change", () => {
+        const selectedSuggestion = currentSuggestions.find((item) => item.street_address === input.value);
+
+        if (!selectedSuggestion) {
+          return;
+        }
+
+        if (suburbInput && selectedSuggestion.suburb) {
+          suburbInput.value = selectedSuggestion.suburb;
+        }
+        if (postcodeInput && selectedSuggestion.postcode) {
+          postcodeInput.value = selectedSuggestion.postcode;
+        }
+      });
 
       input.addEventListener("input", async (event) => {
         const query = event.target.value.trim();
