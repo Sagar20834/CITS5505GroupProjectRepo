@@ -83,7 +83,7 @@ def update_report_status(report_id):
         status_note.note = note_text
         db.session.add(status_note)
     db.session.commit()
-    flash("Report status updated.", "success")
+    flash("Report progress updated.", "success")
     return redirect(request.referrer or url_for("admin.admin_panel"))
 
 

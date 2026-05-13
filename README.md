@@ -140,6 +140,32 @@ Current coverage includes:
 - Admin comment deletion.
 - Model helpers such as `reporter_label`, `can_be_managed_by`, and `can_be_viewed_by`.
 
+## Running Selenium Browser Tests
+
+Selenium tests start the Flask app against an isolated SQLite database and drive the main workflows in a real browser. Selenium 4 uses Selenium Manager to locate or download a compatible browser driver.
+
+Install dependencies first:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+Run only the browser tests:
+
+```powershell
+python -m pytest -m selenium
+```
+
+By default the tests use Chrome in headless mode. You can override this with environment variables:
+
+```powershell
+$env:SELENIUM_BROWSER="edge"
+$env:SELENIUM_HEADLESS="0"
+python -m pytest -m selenium
+```
+
+Supported `SELENIUM_BROWSER` values are `chrome`, `edge`, and `firefox`. Selenium Manager handles browser driver discovery automatically. If Selenium cannot start the selected browser locally, the Selenium tests are skipped with a clear reason.
+
 ## Database Notes
 
 Local SQLite database files are ignored by Git:
