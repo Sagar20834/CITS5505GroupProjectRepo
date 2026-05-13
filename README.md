@@ -15,7 +15,8 @@ The app uses server-side rendered Jinja templates, Flask-Login authentication, F
 - Dashboard analytics for issue counts, status counts, hotspots, and monthly trends
 - AJAX street address suggestions without reloading the page
 - Perth timezone display for posted and updated times
-- Automated tests with pytest
+- Automated unit/integration tests with pytest
+- Selenium WebDriver browser tests
 
 ## Requirements
 
@@ -141,7 +142,9 @@ Install dependencies first, then run:
 python -m pytest
 ```
 
-Current tests cover:
+This runs both the Flask test-client tests and the Selenium WebDriver browser tests.
+
+Current Flask/pytest tests cover:
 
 - Server-rendered home page
 - User registration and Flask-Login session behavior
@@ -154,6 +157,16 @@ Current tests cover:
 - Comments and issue confirmations
 - Perth timezone display
 - AJAX address suggestions JSON response
+
+Current Selenium tests cover:
+
+- Navbar navigation in a real browser
+- User registration through the browser UI
+- Report filtering through the browser UI
+- Logged-in report submission through the browser UI
+- AJAX address suggestions updating without a page reload
+
+Selenium uses a headless Chrome browser first, then falls back to headless Microsoft Edge. Selenium Manager handles browser driver setup automatically when the browser is installed. If neither browser/driver is available, the Selenium tests are skipped with a clear message.
 
 ## Useful Commands
 
