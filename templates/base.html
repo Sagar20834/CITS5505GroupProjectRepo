@@ -74,6 +74,89 @@
     <p class="mt-1 text-sm text-slate-300">&copy; {{ current_year }} RoadWatch Perth</p>
   </footer>
 
+  <div id="toast-container" class="fixed top-4 right-4 z-[60] flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-2"></div>
+
+  <script>
+    (function () {
+      const container = document.getElementById('toast-container');
+
+      function showToast(message, kind) {
+        if (!container) return;
+        const palette = kind === 'error'
+          ? 'border-red-200 bg-red-50 text-red-800'
+          : 'border-green-200 bg-green-50 text-green-800';
+        const toast = document.createElement('div');
+        toast.className = 'rounded-2xl border px-5 py-4 text-base shadow-sm transition-opacity duration-300 ' + palette;
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(function () {
+          toast.style.opacity = '0';
+          setTimeout(function () { toast.remove(); }, 300);
+        }, 3000);
+      }
+
+      function applyButtonState(btn, confirmed) {
+        const onClasses = (btn.dataset.classesOn || '').split(/\s+/).filter(Boolean);
+        const offClasses = (btn.dataset.classesOff || '').split(/\s+/).filter(Boolean);
+        if (confirmed) {
+          offClasses.forEach(function (c) { btn.classList.remove(c); });
+          onClasses.forEach(function (c) { btn.classList.add(c); });
+          if (btn.dataset.labelOn) btn.textContent = btn.dataset.labelOn;
+        } else {
+          onClasses.forEach(function (c) { btn.classList.remove(c); });
+          offClasses.forEach(function (c) { btn.classList.add(c); });
+          if (btn.dataset.labelOff) btn.textContent = btn.dataset.labelOff;
+        }
+      }
+
+      document.addEventListener('submit', function (event) {
+        const form = event.target.closest('[data-confirm-form]');
+        if (!form) return;
+        event.preventDefault();
+
+        const btn = form.querySelector('[data-confirm-btn]');
+        if (btn) btn.disabled = true;
+
+        fetch(form.action, {
+          method: 'POST',
+          headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+          body: new FormData(form),
+          credentials: 'same-origin',
+        })
+          .then(function (response) {
+            return response.json().then(function (data) { return { status: response.status, data: data }; });
+          })
+          .then(function (result) {
+            if (result.status === 401 && result.data && result.data.login_url) {
+              window.location = result.data.login_url;
+              return;
+            }
+            if (!result.data || !result.data.ok) {
+              showToast('Something went wrong, please try again.', 'error');
+              return;
+            }
+            const scopeId = form.dataset.confirmScope;
+            const scopes = document.querySelectorAll('[data-confirm-scope="' + scopeId + '"]');
+            scopes.forEach(function (scope) {
+              const countEl = scope.querySelector('[data-confirm-count]');
+              if (countEl) countEl.textContent = result.data.count;
+              const pluralEl = scope.querySelector('[data-confirm-plural]');
+              if (pluralEl) pluralEl.textContent = result.data.count !== 1 ? 's' : '';
+              const scopeBtn = scope.querySelector('[data-confirm-btn]');
+              if (scopeBtn) applyButtonState(scopeBtn, result.data.confirmed);
+            });
+            showToast(result.data.message, 'success');
+          })
+          .catch(function () {
+            showToast('Something went wrong, please try again.', 'error');
+          })
+          .finally(function () {
+            if (btn) btn.disabled = false;
+          });
+      });
+    })();
+  </script>
+
   {% block scripts %}{% endblock %}
 </body>
 

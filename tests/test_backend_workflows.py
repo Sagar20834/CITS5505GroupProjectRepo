@@ -328,6 +328,51 @@ def test_logged_in_user_can_comment_and_confirm_report(client, app):
         assert Confirmation.query.filter_by(report_id=report_id, user_id=user_id).count() == 1
 
 
+def test_ajax_confirm_returns_json_and_does_not_redirect(client, app):
+    with app.app_context():
+        user = make_user()
+        report = create_report(reporter=user)
+        report_id = report.id
+        user_id = user.id
+
+    login(client)
+    details_page = client.get(f"/reports/{report_id}")
+    token = csrf_token(details_page)
+
+    response = client.post(
+        f"/reports/{report_id}/confirm",
+        data={"csrf_token": token},
+        headers={"X-Requested-With": "XMLHttpRequest"},
+    )
+
+    assert response.status_code == 200
+    assert response.is_json
+    payload = response.get_json()
+    assert payload["ok"] is True
+    assert payload["confirmed"] is True
+    assert payload["count"] == 1
+    assert "confirmed" in payload["message"].lower()
+
+    with app.app_context():
+        assert Confirmation.query.filter_by(report_id=report_id, user_id=user_id).count() == 1
+
+    response = client.post(
+        f"/reports/{report_id}/confirm",
+        data={"csrf_token": token},
+        headers={"X-Requested-With": "XMLHttpRequest"},
+    )
+
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["ok"] is True
+    assert payload["confirmed"] is False
+    assert payload["count"] == 0
+    assert "removed" in payload["message"].lower()
+
+    with app.app_context():
+        assert Confirmation.query.filter_by(report_id=report_id, user_id=user_id).count() == 0
+
+
 def test_model_helper_methods(app):
     with app.app_context():
         admin = make_user(username="admin", email="admin@example.com", is_admin=True)
