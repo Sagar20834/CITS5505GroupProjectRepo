@@ -1,9 +1,11 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 import sys
+from zoneinfo import ZoneInfo
 
 import click
 from flask import Flask, render_template
+from flask_wtf.csrf import CSRFError, generate_csrf
 from sqlalchemy import inspect
 from sqlalchemy.schema import CreateIndex
 
@@ -11,11 +13,10 @@ from .admin import admin_bp
 from .auth import auth_bp
 from .cli import reset_demo_command, seed_demo_command
 from .config import Config
-from .extensions import db, login_manager, migrate
+from .extensions import csrf, db, login_manager, migrate
 from .main import main_bp
 from .models import Report, User
 from .reports import reports_bp
-from .security import generate_csrf_token, validate_csrf
 
 STATUS_STYLES = {
     "Reported": "bg-amber-100 text-amber-800",
@@ -34,6 +35,7 @@ SEVERITY_STYLES = {
     "High": "bg-orange-100 text-orange-800",
     "Urgent": "bg-red-100 text-red-800",
 }
+LOCAL_TIMEZONE = ZoneInfo("Australia/Perth")
 
 
 def _sql_literal(value):
@@ -128,6 +130,7 @@ def create_app(config_class=Config):
 
     Path(app.instance_path).mkdir(parents=True, exist_ok=True)
 
+    csrf.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
@@ -153,15 +156,11 @@ def create_app(config_class=Config):
     def load_user(user_id):
         return db.session.get(User, int(user_id))
 
-    @app.before_request
-    def protect_forms():
-        validate_csrf()
-
     @app.context_processor
     def inject_template_globals():
         return {
-            "csrf_token": generate_csrf_token,
-            "current_year": datetime.now().year,
+            "csrf_token": generate_csrf,
+            "current_year": datetime.now(LOCAL_TIMEZONE).year,
             "issue_types": Report.ISSUE_TYPES,
             "report_statuses": Report.STATUSES,
             "report_severities": Report.SEVERITIES,
@@ -175,7 +174,21 @@ def create_app(config_class=Config):
     def datetime_label(value):
         if value is None:
             return "Unknown"
-        return value.strftime("%d %b %Y, %I:%M %p")
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
+        return value.astimezone(LOCAL_TIMEZONE).strftime("%d %b %Y, %I:%M %p")
+
+    @app.errorhandler(CSRFError)
+    def csrf_error(error):
+        return (
+            render_template(
+                "error.html",
+                title="Invalid Request",
+                heading="The submitted request could not be processed.",
+                message="Please refresh the page and try again.",
+            ),
+            400,
+        )
 
     @app.errorhandler(400)
     def bad_request(error):
