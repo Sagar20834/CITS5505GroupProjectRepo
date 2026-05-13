@@ -143,6 +143,7 @@ class Report(db.Model):
             return True
         return bool(user and user.is_authenticated and (user.is_admin or self.reporter_id == user.id))
 
+    @property
     def confirmation_count(self):
         return len(self.confirmations)
 

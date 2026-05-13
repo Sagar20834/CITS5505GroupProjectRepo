@@ -8,22 +8,22 @@
     <h1 class="mb-3 text-4xl font-bold text-slate-900">All Reports</h1>
     <p class="mb-8 text-lg leading-8 text-slate-600">Search, filter, and review road issues submitted by the community.</p>
 
-    <form method="get" class="mb-8 grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-5 md:grid-cols-2 xl:grid-cols-[1fr,0.95fr,0.7fr,0.9fr,0.8fr,auto]">
+    <form method="get" class="mb-6 grid gap-4 rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-blue-50 p-6 shadow-sm md:grid-cols-2 xl:grid-cols-[1fr,0.95fr,0.7fr,0.9fr,0.8fr,auto]">
       <div>
         <label for="street_address" class="mb-2 block text-sm font-semibold text-slate-600">Street address</label>
-        <input id="street_address" name="street_address" value="{{ filters.street_address }}" class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="e.g. Hay Street">
+        <input id="street_address" name="street_address" value="{{ filters.street_address }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100" placeholder="e.g. Hay Street">
       </div>
       <div>
         <label for="suburb" class="mb-2 block text-sm font-semibold text-slate-600">Suburb</label>
-        <input id="suburb" name="suburb" value="{{ filters.suburb }}" class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="e.g. Perth CBD">
+        <input id="suburb" name="suburb" value="{{ filters.suburb }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100" placeholder="e.g. Perth CBD">
       </div>
       <div>
         <label for="postcode" class="mb-2 block text-sm font-semibold text-slate-600">Postcode</label>
-        <input id="postcode" name="postcode" value="{{ filters.postcode }}" class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="e.g. 6000" inputmode="numeric" pattern="[0-9]{4}" maxlength="4">
+        <input id="postcode" name="postcode" value="{{ filters.postcode }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100" placeholder="e.g. 6000" inputmode="numeric" pattern="[0-9]{4}" maxlength="4">
       </div>
       <div>
         <label for="issue_type" class="mb-2 block text-sm font-semibold text-slate-600">Issue type</label>
-        <select id="issue_type" name="issue_type" class="w-full rounded-xl border border-slate-300 px-4 py-3">
+        <select id="issue_type" name="issue_type" class="w-full rounded-xl border border-slate-300 px-4 py-3 transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100">
           <option value="">All issue types</option>
           {% for issue_type in issue_types %}
             <option value="{{ issue_type }}" {% if filters.issue_type == issue_type %}selected{% endif %}>{{ issue_type }}</option>
@@ -32,7 +32,7 @@
       </div>
       <div>
         <label for="status" class="mb-2 block text-sm font-semibold text-slate-600">Status</label>
-        <select id="status" name="status" class="w-full rounded-xl border border-slate-300 px-4 py-3">
+        <select id="status" name="status" class="w-full rounded-xl border border-slate-300 px-4 py-3 transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100">
           <option value="">All statuses</option>
           {% for status in report_statuses %}
             <option value="{{ status }}" {% if filters.status == status %}selected{% endif %}>{{ status }}</option>
@@ -46,14 +46,30 @@
             Show only my linked reports
           </label>
         {% endif %}
-        <button type="submit" class="rounded-xl bg-blue-500 px-5 py-3 font-semibold text-white hover:bg-blue-600">Apply filters</button>
+        <div class="flex flex-wrap gap-3">
+          <button type="submit" class="rounded-xl bg-blue-500 px-5 py-3 font-semibold text-white shadow-lg shadow-blue-200 transition hover:-translate-y-0.5 hover:bg-blue-600">Apply filters</button>
+          <a href="{{ url_for('reports.list_reports') }}" class="rounded-xl border border-slate-300 px-5 py-3 font-semibold text-slate-700 no-underline transition hover:bg-white">Clear filters</a>
+        </div>
       </div>
     </form>
+
+    {% set has_filters = filters.street_address or filters.suburb or filters.postcode or filters.issue_type or filters.status or filters.mine %}
+    {% if has_filters %}
+      <div class="mb-8 flex flex-wrap items-center gap-3">
+        <span class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Active filters</span>
+        {% if filters.street_address %}<span class="rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700">Street: {{ filters.street_address }}</span>{% endif %}
+        {% if filters.suburb %}<span class="rounded-full bg-sky-50 px-4 py-2 text-sm font-medium text-sky-700">Suburb: {{ filters.suburb }}</span>{% endif %}
+        {% if filters.postcode %}<span class="rounded-full bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700">Postcode: {{ filters.postcode }}</span>{% endif %}
+        {% if filters.issue_type %}<span class="rounded-full bg-violet-50 px-4 py-2 text-sm font-medium text-violet-700">Issue: {{ filters.issue_type }}</span>{% endif %}
+        {% if filters.status %}<span class="rounded-full bg-amber-50 px-4 py-2 text-sm font-medium text-amber-700">Status: {{ filters.status }}</span>{% endif %}
+        {% if filters.mine %}<span class="rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700">My linked reports</span>{% endif %}
+      </div>
+    {% endif %}
 
     {% if reports %}
       <div class="space-y-5">
         {% for report in reports %}
-          <article class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
+          <article class="rounded-3xl border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-slate-100 p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
             <div class="grid gap-5 md:grid-cols-[220px,1fr]">
               <div class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-200">
                 {% if report.image_url %}
@@ -97,7 +113,7 @@
                   {% if current_user.is_authenticated %}
                     <form method="post" action="{{ url_for('reports.toggle_confirmation', report_id=report.id) }}">
                       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                      <button type="submit" class="rounded-xl border px-4 py-2 font-medium {% if report.is_confirmed_by(current_user) %}border-green-500 text-green-700 hover:bg-green-50{% else %}border-slate-300 text-slate-700 hover:bg-slate-100{% endif %}">
+                      <button type="submit" class="rounded-xl border px-4 py-2 font-medium transition {% if report.is_confirmed_by(current_user) %}border-green-500 text-green-700 hover:bg-green-50{% else %}border-slate-300 text-slate-700 hover:bg-slate-100{% endif %}">
                         {% if report.is_confirmed_by(current_user) %}Confirmed{% else %}Confirm Issue{% endif %}
                       </button>
                     </form>
@@ -107,7 +123,7 @@
                   <a href="{{ url_for('reports.report_details', report_id=report.id) }}" class="rounded-xl border border-blue-500 px-4 py-2 font-medium text-blue-600 no-underline hover:bg-blue-50">View</a>
                   {% if report.can_be_managed_by(current_user) %}
                     <a href="{{ url_for('reports.edit_report', report_id=report.id) }}" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100">Edit</a>
-                    <form method="post" action="{{ url_for('reports.delete_report', report_id=report.id) }}">
+                    <form method="post" action="{{ url_for('reports.delete_report', report_id=report.id) }}" onsubmit="return confirm('Delete this report permanently?');">
                       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                       <button type="submit" class="rounded-xl border border-red-500 px-4 py-2 font-medium text-red-600 hover:bg-red-50">Delete</button>
                     </form>
@@ -119,8 +135,9 @@
         {% endfor %}
       </div>
     {% else %}
-      <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center">
-        <p class="text-lg text-slate-600">No reports matched the current filters.</p>
+      <div class="rounded-3xl border border-dashed border-slate-300 bg-gradient-to-br from-slate-50 to-white p-12 text-center">
+        <p class="mb-3 text-lg font-semibold text-slate-700">No reports matched the current filters.</p>
+        <p class="text-slate-500">Try clearing one or two filters to broaden the results.</p>
       </div>
     {% endif %}
   </section>

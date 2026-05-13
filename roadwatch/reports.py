@@ -1,4 +1,6 @@
 import json
+import uuid
+from pathlib import Path
 from urllib.error import URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -6,11 +8,13 @@ from urllib.request import Request, urlopen
 from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user
 from sqlalchemy import or_
+from werkzeug.utils import secure_filename
 
 from .extensions import db
 from .models import Confirmation, Report
 
 reports_bp = Blueprint("reports", __name__, url_prefix="/reports")
+ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
 
 
 def _local_address_suggestions(query_text):
@@ -75,10 +79,6 @@ def _mapbox_address_suggestions(query_text):
 
 
 def _build_form_data(report=None):
-    image_url = request.form.get("image_url")
-    if image_url is None and report is not None:
-        image_url = report.image_url
-
     return {
         "issue_type": request.form.get("issue_type", report.issue_type if report else ""),
         "street_address": request.form.get(
@@ -89,9 +89,40 @@ def _build_form_data(report=None):
         "postcode": request.form.get("postcode", report.postcode if report else ""),
         "severity": request.form.get("severity", report.severity if report else "Medium"),
         "description": request.form.get("description", report.description if report else ""),
-        "image_url": (image_url or "").strip(),
+        "existing_image_url": report.image_url if report else None,
         "is_anonymous": request.form.get("is_anonymous", "on" if report and report.is_anonymous else "") == "on",
     }
+
+
+def _is_local_report_upload(image_url):
+    prefix = current_app.config["REPORT_UPLOAD_URL_PREFIX"]
+    return bool(image_url and image_url.startswith(prefix))
+
+
+def _delete_local_report_upload(image_url):
+    if not _is_local_report_upload(image_url):
+        return
+
+    relative_path = image_url.removeprefix(current_app.config["REPORT_UPLOAD_URL_PREFIX"])
+    file_path = Path(current_app.config["REPORT_UPLOAD_DIR"]) / relative_path
+    if file_path.exists():
+        file_path.unlink()
+
+
+def _store_uploaded_report_image(file_storage):
+    if not file_storage or not file_storage.filename:
+        return None, None
+
+    original_name = secure_filename(file_storage.filename)
+    extension = Path(original_name).suffix.lower()
+    if extension not in ALLOWED_IMAGE_EXTENSIONS:
+        return None, "Please upload a JPG, PNG, GIF, or WEBP image."
+
+    file_name = f"{uuid.uuid4().hex}{extension}"
+    upload_dir = Path(current_app.config["REPORT_UPLOAD_DIR"])
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    file_storage.save(upload_dir / file_name)
+    return f"{current_app.config['REPORT_UPLOAD_URL_PREFIX']}{file_name}", None
 
 
 def _validate_report_form(form_data):
@@ -189,9 +220,12 @@ def create_report():
 
     if request.method == "POST":
         validation_error = _validate_report_form(form_data)
+        uploaded_image_url, upload_error = _store_uploaded_report_image(request.files.get("image_file"))
 
         if validation_error:
             flash(validation_error, "error")
+        elif upload_error:
+            flash(upload_error, "error")
         elif not current_user.is_authenticated and not form_data["is_anonymous"]:
             flash("Log in if you want the report linked to your account, or submit it anonymously.", "warning")
         else:
@@ -202,7 +236,7 @@ def create_report():
                 postcode=form_data["postcode"],
                 severity=form_data["severity"],
                 description=form_data["description"],
-                image_url=form_data["image_url"] or None,
+                image_url=uploaded_image_url,
                 moderation_status=Report.PENDING_APPROVAL,
                 is_anonymous=form_data["is_anonymous"],
                 reporter_id=current_user.id if current_user.is_authenticated else None,
@@ -271,8 +305,11 @@ def edit_report(report_id):
 
     if request.method == "POST":
         validation_error = _validate_report_form(form_data)
+        uploaded_image_url, upload_error = _store_uploaded_report_image(request.files.get("image_file"))
         if validation_error:
             flash(validation_error, "error")
+        elif upload_error:
+            flash(upload_error, "error")
         else:
             report.issue_type = form_data["issue_type"]
             report.street_address = form_data["street_address"]
@@ -280,7 +317,9 @@ def edit_report(report_id):
             report.postcode = form_data["postcode"]
             report.severity = form_data["severity"]
             report.description = form_data["description"]
-            report.image_url = form_data["image_url"] or None
+            if uploaded_image_url:
+                _delete_local_report_upload(report.image_url)
+                report.image_url = uploaded_image_url
             report.is_anonymous = form_data["is_anonymous"]
             if not current_user.is_admin:
                 report.moderation_status = Report.PENDING_APPROVAL
@@ -311,6 +350,7 @@ def delete_report(report_id):
         flash("Only the report owner or an admin can delete this report.", "error")
         return redirect(url_for("reports.report_details", report_id=report.id))
 
+    _delete_local_report_upload(report.image_url)
     db.session.delete(report)
     db.session.commit()
     flash("Report deleted.", "success")

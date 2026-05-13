@@ -1,89 +1,174 @@
 {% extends "base.html" %}
 
-{% block title %}Admin | RoadWatch Perth{% endblock %}
+{% block title %}Report Management | RoadWatch Perth{% endblock %}
 
 {% block content %}
-  <section class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg">
-    <p class="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700">Admin Access</p>
-    <h1 class="mb-3 text-4xl font-bold text-slate-900">Admin Report Management</h1>
-    <p class="mb-8 text-lg leading-8 text-slate-600">Approve or reject newly submitted reports before they go live, then manage their repair status or remove them if needed. Analytics remain on the separate dashboard page.</p>
+  <section class="space-y-8">
+    <div class="rounded-3xl border border-slate-200 bg-white p-8 shadow-lg">
+      <p class="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700">Report Management</p>
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div class="max-w-3xl">
+          <h1 class="mb-3 text-4xl font-bold text-slate-900">Moderation Queue</h1>
+          <p class="text-lg leading-8 text-slate-600">Review new road issue reports first, then update repair progress and severity only when needed. This page is designed to help admins decide quickly what needs attention right now.</p>
+        </div>
+        <a href="{{ url_for('main.dashboard') }}" class="rounded-2xl border border-slate-300 px-5 py-3 font-semibold text-slate-700 no-underline transition hover:bg-slate-50">Open Dashboard</a>
+      </div>
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <article class="rounded-3xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
+        <p class="text-sm font-semibold uppercase tracking-[0.2em] text-amber-700">Needs review</p>
+        <p class="mt-4 text-4xl font-bold text-amber-900">{{ report_counts.pending }}</p>
+        <p class="mt-2 text-sm text-amber-800/80">Reports waiting for an admin decision.</p>
+      </article>
+      <article class="rounded-3xl border border-green-200 bg-green-50 p-6 shadow-sm">
+        <p class="text-sm font-semibold uppercase tracking-[0.2em] text-green-700">Approved</p>
+        <p class="mt-4 text-4xl font-bold text-green-900">{{ report_counts.approved }}</p>
+        <p class="mt-2 text-sm text-green-800/80">Reports already visible to the public.</p>
+      </article>
+      <article class="rounded-3xl border border-red-200 bg-red-50 p-6 shadow-sm">
+        <p class="text-sm font-semibold uppercase tracking-[0.2em] text-red-700">Rejected</p>
+        <p class="mt-4 text-4xl font-bold text-red-900">{{ report_counts.rejected }}</p>
+        <p class="mt-2 text-sm text-red-800/80">Reports that were not approved.</p>
+      </article>
+      <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">All reports</p>
+        <p class="mt-4 text-4xl font-bold text-slate-900">{{ report_counts.total }}</p>
+        <p class="mt-2 text-sm text-slate-500">Every report currently in the system.</p>
+      </article>
+    </div>
+
+    <div class="rounded-3xl border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-blue-50 p-6 shadow-sm">
+      <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-900">Queue View</h2>
+          <p class="text-slate-500">Pending reports open by default so the most urgent moderation work appears first.</p>
+        </div>
+        <a href="{{ url_for('admin.admin_panel', scope='pending') }}" class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 no-underline transition hover:bg-white">Reset to pending</a>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <a href="{{ url_for('admin.admin_panel', scope='pending') }}" class="rounded-full px-4 py-2 text-sm font-semibold no-underline {% if selected_scope == 'pending' %}bg-slate-900 text-white{% else %}bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50{% endif %}">Pending</a>
+        <a href="{{ url_for('admin.admin_panel', scope='approved') }}" class="rounded-full px-4 py-2 text-sm font-semibold no-underline {% if selected_scope == 'approved' %}bg-slate-900 text-white{% else %}bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50{% endif %}">Approved</a>
+        <a href="{{ url_for('admin.admin_panel', scope='rejected') }}" class="rounded-full px-4 py-2 text-sm font-semibold no-underline {% if selected_scope == 'rejected' %}bg-slate-900 text-white{% else %}bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50{% endif %}">Rejected</a>
+        <a href="{{ url_for('admin.admin_panel', scope='all') }}" class="rounded-full px-4 py-2 text-sm font-semibold no-underline {% if selected_scope == 'all' %}bg-slate-900 text-white{% else %}bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50{% endif %}">All Reports</a>
+      </div>
+    </div>
 
     {% if reports %}
       <div class="space-y-5">
         {% for report in reports %}
-          <article class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
-            <div class="grid gap-5 lg:grid-cols-[220px,1fr]">
-              <div class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-200">
-                {% if report.image_url %}
-                  <img src="{{ report.image_url }}" alt="{{ report.issue_type }} image" class="h-full min-h-[180px] w-full object-cover">
-                {% else %}
-                  <div class="flex min-h-[180px] items-center justify-center bg-slate-200 px-6 text-center text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
-                    No image provided
-                  </div>
-                {% endif %}
+          <article class="rounded-3xl border p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg {% if report.moderation_status == 'Pending Approval' %}border-amber-200 bg-gradient-to-br from-amber-50 via-white to-white{% elif report.moderation_status == 'Rejected' %}border-red-200 bg-gradient-to-br from-red-50 via-white to-white{% else %}border-slate-200 bg-gradient-to-br from-white via-slate-50 to-slate-100{% endif %}">
+            <div class="grid gap-6 xl:grid-cols-[240px,1fr]">
+              <div class="space-y-4">
+                <div class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-200">
+                  {% if report.image_url %}
+                    <img src="{{ report.image_url }}" alt="{{ report.issue_type }} image" class="h-full min-h-[180px] w-full object-cover">
+                  {% else %}
+                    <div class="flex min-h-[180px] items-center justify-center bg-slate-200 px-6 text-center text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
+                      No image provided
+                    </div>
+                  {% endif %}
+                </div>
+                <a href="{{ url_for('reports.report_details', report_id=report.id) }}" class="block rounded-2xl border border-blue-500 px-4 py-3 text-center font-semibold text-blue-600 no-underline transition hover:bg-blue-50">Open Full Report</a>
               </div>
 
-              <div>
-                <div class="mb-4 flex items-start justify-between gap-4">
-                  <div>
-                    <h2 class="mb-1 text-2xl font-bold text-sky-900">{{ report.issue_type }}</h2>
-                    <p class="text-base text-slate-500">{{ report.location }}</p>
-                    <p class="mt-1 text-sm text-slate-500">Submitted by {{ report.reporter_label }} on {{ report.created_at|datetime_label }}</p>
-                  </div>
-                  <div class="flex flex-wrap gap-2">
-                    <span class="rounded-full px-3 py-1 text-sm font-bold {{ severity_styles[report.severity] }}">{{ report.severity }}</span>
-                    <span class="rounded-full px-3 py-1 text-sm font-bold {{ status_styles[report.status] }}">{{ report.status }}</span>
-                    <span class="rounded-full px-3 py-1 text-sm font-bold {{ moderation_styles[report.moderation_status] }}">{{ report.moderation_status }}</span>
+              <div class="space-y-5">
+                <div class="flex flex-wrap items-start justify-between gap-4">
+                  <div class="max-w-3xl">
+                    <div class="mb-3 flex flex-wrap gap-2">
+                      {% if report.moderation_status == "Pending Approval" %}
+                        <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-amber-800">Review needed</span>
+                      {% endif %}
+                      <span class="rounded-full px-3 py-1 text-sm font-bold {{ severity_styles[report.severity] }}">{{ report.severity }}</span>
+                      <span class="rounded-full px-3 py-1 text-sm font-bold {{ status_styles[report.status] }}">{{ report.status }}</span>
+                      <span class="rounded-full px-3 py-1 text-sm font-bold {{ moderation_styles[report.moderation_status] }}">{{ report.moderation_status }}</span>
+                    </div>
+                    <h2 class="text-2xl font-bold text-sky-900">{{ report.issue_type }}</h2>
+                    <p class="mt-1 text-base text-slate-500">{{ report.location }}</p>
                   </div>
                 </div>
 
-                <p class="mb-5 text-lg leading-8 text-slate-600">{{ report.description }}</p>
+                <div class="grid gap-4 lg:grid-cols-[1.2fr,0.8fr]">
+                  <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <p class="text-sm font-semibold uppercase tracking-[0.16em] text-slate-400">Report summary</p>
+                    <p class="mt-3 text-base leading-7 text-slate-600">{{ report.description }}</p>
+                  </div>
 
-                <div class="flex flex-wrap items-end gap-3">
-                  <form method="post" action="{{ url_for('admin.update_report_approval', report_id=report.id) }}" class="flex flex-wrap items-end gap-3">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <div>
-                      <label for="moderation-status-{{ report.id }}" class="mb-2 block text-sm font-semibold text-slate-600">Approval status</label>
-                      <select id="moderation-status-{{ report.id }}" name="moderation_status" class="rounded-xl border border-slate-300 px-4 py-3">
-                        {% for moderation_status in moderation_statuses %}
-                          <option value="{{ moderation_status }}" {% if report.moderation_status == moderation_status %}selected{% endif %}>{{ moderation_status }}</option>
-                        {% endfor %}
-                      </select>
+                  <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <p class="text-sm font-semibold uppercase tracking-[0.16em] text-slate-400">Quick details</p>
+                    <div class="mt-3 grid gap-3 sm:grid-cols-2">
+                      <div class="rounded-xl bg-slate-50 px-3 py-3">
+                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Submitted by</p>
+                        <p class="mt-1 text-sm font-medium text-slate-700">{{ report.reporter_label }}</p>
+                      </div>
+                      <div class="rounded-xl bg-slate-50 px-3 py-3">
+                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Submitted</p>
+                        <p class="mt-1 text-sm font-medium text-slate-700">{{ report.created_at|datetime_label }}</p>
+                      </div>
+                      <div class="rounded-xl bg-slate-50 px-3 py-3">
+                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Confirmations</p>
+                        <p class="mt-1 text-sm font-medium text-slate-700">{{ report.confirmation_count }} confirmation{% if report.confirmation_count != 1 %}s{% endif %}</p>
+                      </div>
+                      <div class="rounded-xl bg-slate-50 px-3 py-3">
+                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Public status</p>
+                        <p class="mt-1 text-sm font-medium text-slate-700">{{ report.moderation_status }}</p>
+                      </div>
                     </div>
-                    <button type="submit" class="rounded-2xl bg-amber-500 px-5 py-3 font-semibold text-slate-900 hover:bg-amber-400">Save Approval</button>
+                  </div>
+                </div>
+
+                <div class="grid gap-4 xl:grid-cols-3">
+                  <form method="post" action="{{ url_for('admin.update_report_approval', report_id=report.id) }}" class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <p class="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Step 1</p>
+                    <h3 class="text-lg font-bold text-slate-900">Approve Report</h3>
+                    <p class="mt-1 text-sm text-slate-500">Choose whether this report should be public.</p>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <label for="moderation-status-{{ report.id }}" class="mb-2 mt-4 block text-sm font-semibold text-slate-600">Approval decision</label>
+                    <select id="moderation-status-{{ report.id }}" name="moderation_status" class="w-full rounded-xl border border-slate-300 px-4 py-3">
+                      {% for moderation_status in moderation_statuses %}
+                        <option value="{{ moderation_status }}" {% if report.moderation_status == moderation_status %}selected{% endif %}>{{ moderation_status }}</option>
+                      {% endfor %}
+                    </select>
+                    <button type="submit" class="mt-4 w-full rounded-xl bg-amber-500 px-4 py-3 font-semibold text-slate-900 transition hover:bg-amber-400">Save Approval</button>
                   </form>
-                  <form method="post" action="{{ url_for('admin.update_report_status', report_id=report.id) }}" class="flex flex-wrap items-end gap-3">
+
+                  <form method="post" action="{{ url_for('admin.update_report_status', report_id=report.id) }}" class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <p class="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Step 2</p>
+                    <h3 class="text-lg font-bold text-slate-900">Update Repair Status</h3>
+                    <p class="mt-1 text-sm text-slate-500">Track what stage the road issue is in.</p>
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <div>
-                      <label for="status-{{ report.id }}" class="mb-2 block text-sm font-semibold text-slate-600">Update status</label>
-                      <select id="status-{{ report.id }}" name="status" class="rounded-xl border border-slate-300 px-4 py-3">
-                        {% for status in report_statuses %}
-                          <option value="{{ status }}" {% if report.status == status %}selected{% endif %}>{{ status }}</option>
-                        {% endfor %}
-                      </select>
-                    </div>
-                    <div class="min-w-[260px] flex-1">
-                      <label for="status-note-{{ report.id }}" class="mb-2 block text-sm font-semibold text-slate-600">Status note</label>
-                      <input id="status-note-{{ report.id }}" name="status_note" maxlength="500" class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="Optional admin update">
-                    </div>
-                    <button type="submit" class="rounded-2xl bg-blue-500 px-5 py-3 font-semibold text-white hover:bg-blue-600">Save Status</button>
+                    <label for="status-{{ report.id }}" class="mb-2 mt-4 block text-sm font-semibold text-slate-600">Repair stage</label>
+                    <select id="status-{{ report.id }}" name="status" class="w-full rounded-xl border border-slate-300 px-4 py-3">
+                      {% for status in report_statuses %}
+                        <option value="{{ status }}" {% if report.status == status %}selected{% endif %}>{{ status }}</option>
+                      {% endfor %}
+                    </select>
+                    <label for="status-note-{{ report.id }}" class="mb-2 mt-4 block text-sm font-semibold text-slate-600">Optional note</label>
+                    <input id="status-note-{{ report.id }}" name="status_note" maxlength="500" class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="Short update for the report history">
+                    <button type="submit" class="mt-4 w-full rounded-xl bg-blue-500 px-4 py-3 font-semibold text-white transition hover:bg-blue-600">Save Status</button>
                   </form>
-                  <form method="post" action="{{ url_for('admin.update_report_severity', report_id=report.id) }}" class="flex flex-wrap items-end gap-3">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                  <div class="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                     <div>
-                      <label for="severity-{{ report.id }}" class="mb-2 block text-sm font-semibold text-slate-600">Update severity</label>
-                      <select id="severity-{{ report.id }}" name="severity" class="rounded-xl border border-slate-300 px-4 py-3">
+                      <p class="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Step 3</p>
+                      <h3 class="text-lg font-bold text-slate-900">Set Severity</h3>
+                      <p class="mt-1 text-sm text-slate-500">Adjust urgency if the report needs re-prioritising.</p>
+                    </div>
+                    <form method="post" action="{{ url_for('admin.update_report_severity', report_id=report.id) }}">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <label for="severity-{{ report.id }}" class="mb-2 block text-sm font-semibold text-slate-600">Severity level</label>
+                      <select id="severity-{{ report.id }}" name="severity" class="w-full rounded-xl border border-slate-300 px-4 py-3">
                         {% for severity in report_severities %}
                           <option value="{{ severity }}" {% if report.severity == severity %}selected{% endif %}>{{ severity }}</option>
                         {% endfor %}
                       </select>
-                    </div>
-                    <button type="submit" class="rounded-2xl bg-slate-700 px-5 py-3 font-semibold text-white hover:bg-slate-800">Save Severity</button>
-                  </form>
-                  <form method="post" action="{{ url_for('admin.delete_report', report_id=report.id) }}">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <button type="submit" class="rounded-2xl bg-red-500 px-5 py-3 font-semibold text-white hover:bg-red-600">Delete Report</button>
-                  </form>
+                      <button type="submit" class="mt-4 w-full rounded-xl bg-slate-800 px-4 py-3 font-semibold text-white transition hover:bg-slate-900">Save Severity</button>
+                    </form>
+                    <form method="post" action="{{ url_for('admin.delete_report', report_id=report.id) }}" onsubmit="return confirm('Delete this report from the system?');">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button type="submit" class="w-full rounded-xl border border-red-500 px-4 py-3 font-semibold text-red-600 transition hover:bg-red-50">Delete Report</button>
+                    </form>
+                  </div>
                 </div>
               </div>
             </div>
@@ -91,8 +176,9 @@
         {% endfor %}
       </div>
     {% else %}
-      <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center">
-        <p class="text-lg text-slate-600">No reports are available yet.</p>
+      <div class="rounded-3xl border border-dashed border-slate-300 bg-gradient-to-br from-slate-50 to-white p-12 text-center">
+        <p class="mb-3 text-lg font-semibold text-slate-700">No reports match the current queue view.</p>
+        <p class="text-slate-500">Switch to another queue view or go back to pending reports.</p>
       </div>
     {% endif %}
   </section>

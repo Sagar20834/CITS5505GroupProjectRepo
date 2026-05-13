@@ -3,34 +3,99 @@
 {% block title %}Dashboard | RoadWatch Perth{% endblock %}
 
 {% block content %}
-  <section class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg md:p-10">
-    <p class="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700">Reports Dashboard</p>
-    <h1 class="mb-3 text-5xl font-bold text-slate-900">Dashboard</h1>
-    <p class="mb-8 text-xl leading-9 text-slate-600">Analytics only: totals and charts for approved public reports. Report approval and management now live on the separate admin page.</p>
-
-    <div class="mb-8 max-w-sm">
-      <div class="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
-        <div class="mb-2 text-base text-slate-500">Total Reports</div>
-        <div class="text-4xl font-bold text-blue-600">{{ summary.total }}</div>
+  <section class="space-y-8">
+    <div class="rounded-3xl border border-slate-200 bg-white p-8 shadow-lg md:p-10">
+      <p class="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700">Reports Dashboard</p>
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 class="mb-3 text-5xl font-bold text-slate-900">Dashboard</h1>
+          <p class="max-w-3xl text-xl leading-9 text-slate-600">Public-report analytics for approved issues across Perth, with quick visibility into what is new, active, and already fixed.</p>
+        </div>
+        <a href="{{ url_for('reports.list_reports') }}" class="rounded-2xl border border-slate-300 px-5 py-3 font-semibold text-slate-700 no-underline transition hover:bg-slate-50">Browse Reports</a>
       </div>
     </div>
 
-    <div class="grid gap-6 lg:grid-cols-2">
-      <div class="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
-        <h2 class="mb-2 text-3xl font-bold text-sky-900">Reports by Type</h2>
-        <p class="mb-5 text-lg text-slate-500">Counts generated from persisted report data.</p>
-        <div class="relative h-[360px]">
-          <canvas id="barChart"></canvas>
+    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Total approved</p>
+        <p class="mt-4 text-4xl font-bold text-blue-600">{{ summary.total }}</p>
+        <p class="mt-2 text-sm text-slate-500">Reports visible to the public right now.</p>
+      </article>
+      <article class="rounded-3xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
+        <p class="text-sm font-semibold uppercase tracking-[0.2em] text-amber-700">Reported</p>
+        <p class="mt-4 text-4xl font-bold text-amber-900">{{ summary.reported }}</p>
+        <p class="mt-2 text-sm text-amber-800/80">New issues that still need action.</p>
+      </article>
+      <article class="rounded-3xl border border-blue-200 bg-blue-50 p-6 shadow-sm">
+        <p class="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">Under review</p>
+        <p class="mt-4 text-4xl font-bold text-blue-900">{{ summary.under_review }}</p>
+        <p class="mt-2 text-sm text-blue-800/80">Reports currently being assessed or managed.</p>
+      </article>
+      <article class="rounded-3xl border border-green-200 bg-green-50 p-6 shadow-sm">
+        <p class="text-sm font-semibold uppercase tracking-[0.2em] text-green-700">Fixed</p>
+        <p class="mt-4 text-4xl font-bold text-green-900">{{ summary.fixed }}</p>
+        <p class="mt-2 text-sm text-green-800/80">Issues marked as resolved.</p>
+      </article>
+    </div>
+
+    <div class="grid gap-6 xl:grid-cols-[1.35fr,1fr]">
+      <div class="grid gap-6">
+        <div class="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
+          <div class="mb-5 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 class="text-3xl font-bold text-sky-900">Reports by Type</h2>
+              <p class="mt-2 text-lg text-slate-500">See which road issue categories are most common in the approved public feed.</p>
+            </div>
+            <span class="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-600">Live project data</span>
+          </div>
+          <div class="relative h-[360px]">
+            <canvas id="barChart"></canvas>
+          </div>
+        </div>
+
+        <div class="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
+          <h2 class="text-3xl font-bold text-sky-900">Status Distribution</h2>
+          <p class="mb-5 mt-2 text-lg text-slate-500">A quick view of how many approved reports are still open compared with those already fixed.</p>
+          <div class="relative h-[360px]">
+            <canvas id="pieChart"></canvas>
+          </div>
         </div>
       </div>
 
-      <div class="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
-        <h2 class="mb-2 text-3xl font-bold text-sky-900">Status Distribution</h2>
-        <p class="mb-5 text-lg text-slate-500">Shows how the current reports are progressing.</p>
-        <div class="relative h-[360px]">
-          <canvas id="pieChart"></canvas>
+      <aside class="space-y-6">
+        <div class="rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 to-blue-950 p-7 text-white shadow-lg">
+          <p class="text-sm font-semibold uppercase tracking-[0.2em] text-blue-200">At a glance</p>
+          <h2 class="mt-3 text-3xl font-bold">Where repeated issues are building up</h2>
+          <p class="mt-3 text-base leading-7 text-blue-100/90">Recurring locations help the team spot priority maintenance areas and explain why road reporting matters.</p>
         </div>
-      </div>
+
+        <div class="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
+          <div class="mb-5 flex items-center justify-between gap-3">
+            <h2 class="text-2xl font-bold text-slate-900">Recurring Hotspots</h2>
+            <span class="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-blue-700">Top 3</span>
+          </div>
+
+          {% if hotspots %}
+            <div class="space-y-4">
+              {% for hotspot in hotspots %}
+                <article class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <div class="flex items-start justify-between gap-3">
+                    <div>
+                      <h3 class="text-lg font-semibold text-slate-900">{{ hotspot.location }}</h3>
+                      <p class="mt-1 text-sm text-slate-500">{{ hotspot.reporter_count }} unique reporter{% if hotspot.reporter_count != 1 %}s{% endif %}</p>
+                    </div>
+                    <span class="rounded-full bg-amber-100 px-3 py-1 text-sm font-bold text-amber-800">{{ hotspot.report_count }} reports</span>
+                  </div>
+                </article>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
+              <p class="text-slate-600">No repeat hotspots are available yet.</p>
+            </div>
+          {% endif %}
+        </div>
+      </aside>
     </div>
   </section>
 {% endblock %}
@@ -46,27 +111,59 @@
         datasets: [{
           label: "Issue Reports",
           data: chartData.issueValues,
+          borderRadius: 14,
           backgroundColor: ["#10b981", "#ef4444", "#3b82f6", "#0f766e", "#f59e0b", "#7c3aed"]
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        animation: {
+          duration: 900,
+          easing: "easeOutQuart"
+        },
         plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true } }
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: "rgba(148, 163, 184, 0.18)" }
+          },
+          x: {
+            grid: { display: false }
+          }
+        }
       }
     });
 
     new Chart(document.getElementById("pieChart"), {
-      type: "pie",
+      type: "doughnut",
       data: {
         labels: chartData.statusLabels,
         datasets: [{
           data: chartData.statusValues,
-          backgroundColor: ["#f59e0b", "#3b82f6", "#10b981"]
+          backgroundColor: ["#f59e0b", "#3b82f6", "#10b981"],
+          borderWidth: 0,
+          hoverOffset: 8
         }]
       },
-      options: { responsive: true, maintainAspectRatio: false }
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: "62%",
+        animation: {
+          duration: 900,
+          easing: "easeOutQuart"
+        },
+        plugins: {
+          legend: {
+            position: "bottom",
+            labels: {
+              usePointStyle: true,
+              padding: 18
+            }
+          }
+        }
+      }
     });
   </script>
 {% endblock %}

@@ -1,5 +1,6 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user
+from sqlalchemy import case
 
 from .extensions import db
 from .models import Report, ReportStatusNote, User
@@ -11,8 +12,39 @@ admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 @admin_bp.get("/")
 @admin_required
 def admin_panel():
-    reports = Report.query.order_by(Report.created_at.desc()).all()
-    return render_template("admin.html", reports=reports)
+    scope = request.args.get("scope", "").strip().lower()
+    selected_scope = scope if scope in {"pending", "approved", "rejected", "all"} else "pending"
+
+    query = Report.query
+    if selected_scope == "pending":
+        query = query.filter(Report.moderation_status == Report.PENDING_APPROVAL)
+    elif selected_scope == "approved":
+        query = query.filter(Report.moderation_status == Report.APPROVED)
+    elif selected_scope == "rejected":
+        query = query.filter(Report.moderation_status == Report.REJECTED)
+
+    reports = query.order_by(
+        case(
+            (Report.moderation_status == Report.PENDING_APPROVAL, 0),
+            (Report.moderation_status == Report.REJECTED, 1),
+            else_=2,
+        ),
+        Report.created_at.desc(),
+    ).all()
+
+    report_counts = {
+        "total": Report.query.count(),
+        "pending": Report.query.filter(Report.moderation_status == Report.PENDING_APPROVAL).count(),
+        "approved": Report.query.filter(Report.moderation_status == Report.APPROVED).count(),
+        "rejected": Report.query.filter(Report.moderation_status == Report.REJECTED).count(),
+    }
+
+    return render_template(
+        "admin.html",
+        reports=reports,
+        selected_scope=selected_scope,
+        report_counts=report_counts,
+    )
 
 
 @admin_bp.post("/reports/<int:report_id>/approval")

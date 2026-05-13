@@ -9,28 +9,39 @@
   {% block extra_head %}{% endblock %}
 </head>
 <body class="min-h-screen bg-slate-100 text-slate-800">
-  <nav class="bg-slate-900">
-    <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-5">
-      <a href="{{ url_for('main.index') }}" class="text-4xl font-bold text-white no-underline">RoadWatch Perth</a>
-      <div class="flex flex-wrap items-center gap-4 text-base text-white md:text-lg">
-        <a href="{{ url_for('main.index') }}" class="{% if request.endpoint == 'main.index' %}text-amber-400{% else %}hover:text-amber-400{% endif %}">Home</a>
-        <a href="{{ url_for('main.dashboard') }}" class="{% if request.endpoint == 'main.dashboard' %}text-amber-400{% else %}hover:text-amber-400{% endif %}">Dashboard</a>
-        <a href="{{ url_for('reports.list_reports') }}" class="{% if request.endpoint == 'reports.list_reports' or request.endpoint == 'reports.report_details' %}text-amber-400{% else %}hover:text-amber-400{% endif %}">Reports</a>
-        <a href="{{ url_for('reports.create_report') }}" class="{% if request.endpoint == 'reports.create_report' or request.endpoint == 'reports.edit_report' %}text-amber-400{% else %}hover:text-amber-400{% endif %}">Report Issue</a>
+  <nav class="border-b border-slate-500/30 bg-[#355c7d] shadow-lg shadow-slate-900/10 backdrop-blur">
+    <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 px-6 py-5">
+      <a href="{{ url_for('main.index') }}" class="flex items-center gap-3 text-[#f8f1df] no-underline">
+        <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#f3d9a5] to-[#eab676] text-lg font-black text-[#27445d] shadow-lg shadow-slate-900/15">RW</span>
+        <span class="text-3xl font-bold tracking-tight md:text-4xl">RoadWatch Perth</span>
+      </a>
+
+      <div class="flex flex-1 flex-wrap items-center justify-end gap-3 lg:gap-4">
+        <div class="flex flex-wrap items-center gap-2 rounded-full border border-white/10 bg-[#27445d]/70 p-1.5 text-sm font-medium text-[#f8f1df] md:text-base">
+          <a href="{{ url_for('main.index') }}" class="inline-flex min-h-[44px] items-center rounded-full px-4 py-2 no-underline transition {% if request.endpoint == 'main.index' %}bg-[#f8f1df] text-[#27445d] shadow-sm{% else %}hover:bg-white/10 hover:text-white{% endif %}">Home</a>
+          <a href="{{ url_for('reports.list_reports') }}" class="inline-flex min-h-[44px] items-center rounded-full px-4 py-2 no-underline transition {% if request.endpoint == 'reports.list_reports' or request.endpoint == 'reports.report_details' %}bg-[#f8f1df] text-[#27445d] shadow-sm{% else %}hover:bg-white/10 hover:text-white{% endif %}">Reports</a>
+          <a href="{{ url_for('main.dashboard') }}" class="inline-flex min-h-[44px] items-center rounded-full px-4 py-2 no-underline transition {% if request.endpoint == 'main.dashboard' %}bg-[#f8f1df] text-[#27445d] shadow-sm{% else %}hover:bg-white/10 hover:text-white{% endif %}">Dashboard</a>
+        </div>
+
+        {% if current_user.is_authenticated and current_user.is_admin %}
+          <a href="{{ url_for('admin.admin_panel') }}" class="inline-flex min-h-[44px] items-center rounded-full border px-4 py-2 text-sm font-semibold no-underline transition md:text-base {% if request.endpoint == 'admin.admin_panel' %}border-[#f3d9a5] bg-[#f3d9a5] text-[#27445d] shadow-lg shadow-slate-900/15{% else %}border-white/15 bg-[#27445d]/80 text-[#f8f1df] hover:border-[#f3d9a5] hover:text-white{% endif %}">Report Management</a>
+        {% endif %}
+
+        <a href="{{ url_for('reports.create_report') }}" class="inline-flex min-h-[44px] items-center rounded-full bg-gradient-to-r from-[#f3d9a5] to-[#eab676] px-5 py-2.5 text-sm font-bold text-[#27445d] no-underline shadow-lg shadow-slate-900/15 transition hover:-translate-y-0.5 hover:from-[#f7e2b8] hover:to-[#efc48d] md:text-base {% if request.endpoint == 'reports.create_report' or request.endpoint == 'reports.edit_report' %}ring-4 ring-[#f3d9a5]/35{% endif %}">Report Issue</a>
+
         {% if current_user.is_authenticated %}
           {% if current_user.is_admin %}
-            <a href="{{ url_for('admin.admin_panel') }}" class="{% if request.endpoint == 'admin.admin_panel' %}text-amber-400{% else %}hover:text-amber-400{% endif %}">Admin</a>
+            <span class="inline-flex min-h-[44px] items-center rounded-full border border-white/15 bg-[#27445d]/80 px-4 py-2 text-sm font-semibold uppercase tracking-[0.18em] text-[#f8f1df]">Admin</span>
+          {% else %}
+            <span class="inline-flex min-h-[44px] items-center rounded-full border border-white/15 bg-[#27445d]/80 px-4 py-2 text-sm font-medium text-[#f8f1df]">{{ current_user.username }}</span>
           {% endif %}
-          <span class="rounded-full bg-slate-800 px-3 py-1 text-sm text-slate-200">
-            {{ current_user.username }}{% if current_user.is_admin %} | admin{% endif %}
-          </span>
           <form method="post" action="{{ url_for('auth.logout') }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="rounded-lg bg-slate-700 px-4 py-2 font-semibold text-white hover:bg-slate-600">Logout</button>
+            <button type="submit" class="inline-flex min-h-[44px] items-center rounded-full border border-white/15 bg-[#27445d]/80 px-5 py-2.5 text-sm font-semibold text-[#f8f1df] transition hover:border-white/30 hover:bg-[#27445d] md:text-base">Logout</button>
           </form>
         {% else %}
-          <a href="{{ url_for('auth.login') }}" class="{% if request.endpoint == 'auth.login' %}text-amber-400{% else %}rounded-lg bg-blue-500 px-5 py-2.5 font-semibold text-white no-underline hover:bg-blue-600{% endif %}">Login</a>
-          <a href="{{ url_for('auth.register') }}" class="{% if request.endpoint == 'auth.register' %}text-amber-400{% else %}rounded-lg bg-green-500 px-5 py-2.5 font-semibold text-white no-underline hover:bg-green-600{% endif %}">Register</a>
+          <a href="{{ url_for('auth.login') }}" class="inline-flex min-h-[44px] items-center rounded-full border px-5 py-2.5 text-sm font-semibold no-underline transition md:text-base {% if request.endpoint == 'auth.login' %}border-[#f8f1df] bg-[#f8f1df] text-[#27445d]{% else %}border-white/15 bg-[#27445d]/80 text-[#f8f1df] hover:border-white/30 hover:bg-[#27445d]{% endif %}">Login</a>
+          <a href="{{ url_for('auth.register') }}" class="inline-flex min-h-[44px] items-center rounded-full bg-[#f3d9a5] px-5 py-2.5 text-sm font-semibold text-[#27445d] no-underline transition hover:-translate-y-0.5 hover:bg-[#f7e2b8] md:text-base {% if request.endpoint == 'auth.register' %}ring-4 ring-[#f3d9a5]/35{% endif %}">Register</a>
         {% endif %}
       </div>
     </div>

@@ -9,7 +9,7 @@
       <h1 class="mb-3 text-4xl font-bold text-slate-900">{{ heading }}</h1>
       <p class="mb-8 text-xl leading-9 text-slate-600">Submit enough detail for other users and administrators to understand, prioritise, and manage the issue.</p>
 
-      <form method="post" action="{{ form_action }}" class="space-y-5">
+      <form method="post" action="{{ form_action }}" enctype="multipart/form-data" class="space-y-5">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         <div>
@@ -23,25 +23,28 @@
         </div>
 
         <div class="grid gap-5 md:grid-cols-2">
-          <div class="md:col-span-2">
+          <div class="relative md:col-span-2">
             <label for="street_address" class="mb-2 block text-sm font-semibold text-slate-600">Street address</label>
-            <input id="street_address" name="street_address" value="{{ form_data.street_address }}" list="street-address-suggestions" autocomplete="off" class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="e.g. Hay Street near William Street" required>
-            <datalist id="street-address-suggestions"></datalist>
+            <div class="relative">
+              <input id="street_address" name="street_address" value="{{ form_data.street_address }}" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="street-address-suggestions" class="w-full rounded-xl border border-slate-300 px-4 py-3 pr-12 transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100" placeholder="e.g. Hay Street near William Street" required>
+              <div id="street-address-loading" class="pointer-events-none absolute inset-y-0 right-4 hidden items-center text-sm font-medium text-slate-400">...</div>
+            </div>
+            <div id="street-address-suggestions" class="absolute z-20 mt-2 hidden w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"></div>
             <p class="mt-2 text-sm text-slate-500">Start typing to see street suggestions. If live map autocomplete is configured, it will be used first; otherwise saved report data is used.</p>
           </div>
           <div>
             <label for="suburb" class="mb-2 block text-sm font-semibold text-slate-600">Suburb</label>
-            <input id="suburb" name="suburb" value="{{ form_data.suburb }}" class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="e.g. Perth CBD" required>
+            <input id="suburb" name="suburb" value="{{ form_data.suburb }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100" placeholder="e.g. Perth CBD" required>
           </div>
           <div>
             <label for="postcode" class="mb-2 block text-sm font-semibold text-slate-600">Postcode</label>
-            <input id="postcode" name="postcode" value="{{ form_data.postcode }}" class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="e.g. 6000" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required>
+            <input id="postcode" name="postcode" value="{{ form_data.postcode }}" class="w-full rounded-xl border border-slate-300 px-4 py-3 transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100" placeholder="e.g. 6000" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required>
           </div>
         </div>
 
         <div>
           <label for="severity" class="mb-2 block text-sm font-semibold text-slate-600">Severity</label>
-          <select id="severity" name="severity" class="w-full rounded-xl border border-slate-300 px-4 py-3" required>
+          <select id="severity" name="severity" class="w-full rounded-xl border border-slate-300 px-4 py-3 transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100" required>
             {% for severity in report_severities %}
               <option value="{{ severity }}" {% if form_data.severity == severity %}selected{% endif %}>{{ severity }}</option>
             {% endfor %}
@@ -50,12 +53,25 @@
 
         <div>
           <label for="description" class="mb-2 block text-sm font-semibold text-slate-600">Description</label>
-          <textarea id="description" name="description" class="min-h-[170px] w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="Describe the hazard, who it affects, and any urgency details." required>{{ form_data.description }}</textarea>
+          <textarea id="description" name="description" class="min-h-[170px] w-full rounded-xl border border-slate-300 px-4 py-3 transition focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100" placeholder="Describe the hazard, who it affects, and any urgency details." required>{{ form_data.description }}</textarea>
         </div>
 
         <div>
-          <label for="image_url" class="mb-2 block text-sm font-semibold text-slate-600">Image URL</label>
-          <input id="image_url" name="image_url" value="{{ form_data.image_url }}" class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="https://example.com/road-issue.jpg">
+          <label for="image_file" class="mb-2 block text-sm font-semibold text-slate-600">Upload image</label>
+          <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5">
+            <input id="image_file" name="image_file" type="file" accept="image/*" capture="environment" class="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-700 file:mr-4 file:rounded-lg file:border-0 file:bg-blue-500 file:px-4 file:py-2 file:font-semibold file:text-white hover:file:bg-blue-600">
+            <p class="mt-3 text-sm text-slate-500">Choose a file from your device or take a photo directly on mobile. Supported formats: JPG, PNG, GIF, WEBP. Maximum size: 5 MB.</p>
+            {% if form_data.existing_image_url %}
+              <div class="mt-4">
+                <p class="mb-2 text-sm font-semibold text-slate-600">Current image</p>
+                <img src="{{ form_data.existing_image_url }}" alt="Current report image" class="max-h-52 rounded-2xl border border-slate-200 object-cover">
+              </div>
+            {% endif %}
+            <div id="image-preview-wrapper" class="mt-4 hidden">
+              <p class="mb-2 text-sm font-semibold text-slate-600">Selected image preview</p>
+              <img id="image-preview" alt="Selected upload preview" class="max-h-52 rounded-2xl border border-slate-200 object-cover">
+            </div>
+          </div>
         </div>
 
         <label class="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -67,7 +83,7 @@
         </label>
 
         <div class="flex flex-wrap gap-4">
-          <button type="submit" class="rounded-2xl bg-blue-500 px-7 py-4 text-lg font-semibold text-white hover:bg-blue-600">{{ submit_label }}</button>
+          <button type="submit" class="rounded-2xl bg-blue-500 px-7 py-4 text-lg font-semibold text-white shadow-lg shadow-blue-200 transition hover:-translate-y-0.5 hover:bg-blue-600">{{ submit_label }}</button>
           <a href="{{ url_for('reports.list_reports') }}" class="rounded-2xl border border-slate-300 px-7 py-4 text-lg font-semibold text-slate-700 no-underline hover:bg-slate-50">Cancel</a>
         </div>
       </form>
@@ -87,7 +103,7 @@
       <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
         <h2 class="mb-4 text-2xl font-bold text-slate-900">What happens next</h2>
         <p class="text-base leading-8 text-slate-600">
-          New reports are first sent to the admin for approval. They only become public after approval, and then administrators can continue updating their repair status through the admin page.
+          New reports are first sent to the admin for approval. They only become public after approval, and then administrators can continue updating their repair status through the Report Management page.
         </p>
         {% if not current_user.is_authenticated %}
           <p class="mt-4 text-base leading-8 text-slate-600">
@@ -103,20 +119,80 @@
   <script>
     (() => {
       const input = document.getElementById("street_address");
-      const dataList = document.getElementById("street-address-suggestions");
+      const panel = document.getElementById("street-address-suggestions");
+      const loading = document.getElementById("street-address-loading");
+      const imageInput = document.getElementById("image_file");
+      const imagePreview = document.getElementById("image-preview");
+      const imagePreviewWrapper = document.getElementById("image-preview-wrapper");
 
-      if (!input || !dataList) {
+      if (!input || !panel || !loading) {
         return;
       }
 
       let activeRequest = null;
+      let activeSuggestions = [];
+      let highlightedIndex = -1;
 
-      const renderSuggestions = (items) => {
-        dataList.innerHTML = "";
-        items.forEach((item) => {
-          const option = document.createElement("option");
-          option.value = item;
-          dataList.appendChild(option);
+      const escapeHtml = (value) => value
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;");
+
+      const highlightMatch = (value, query) => {
+        const lowerValue = value.toLowerCase();
+        const lowerQuery = query.toLowerCase();
+        const matchIndex = lowerValue.indexOf(lowerQuery);
+
+        if (matchIndex === -1 || !query) {
+          return escapeHtml(value);
+        }
+
+        return `${escapeHtml(value.slice(0, matchIndex))}<span class="font-semibold text-slate-900">${escapeHtml(value.slice(matchIndex, matchIndex + query.length))}</span>${escapeHtml(value.slice(matchIndex + query.length))}`;
+      };
+
+      const closeSuggestions = () => {
+        panel.innerHTML = "";
+        panel.classList.add("hidden");
+        input.setAttribute("aria-expanded", "false");
+        highlightedIndex = -1;
+      };
+
+      const selectSuggestion = (value) => {
+        input.value = value;
+        closeSuggestions();
+      };
+
+      const renderSuggestions = (items, query) => {
+        activeSuggestions = items;
+        highlightedIndex = -1;
+
+        if (!items.length) {
+          closeSuggestions();
+          return;
+        }
+
+        panel.innerHTML = items.map((item, index) => `
+          <button type="button" data-index="${index}" class="flex w-full items-center justify-between gap-4 border-b border-slate-100 px-4 py-3 text-left text-sm text-slate-600 transition hover:bg-blue-50 last:border-b-0">
+            <span>${highlightMatch(item, query)}</span>
+            <span class="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Street</span>
+          </button>
+        `).join("");
+
+        panel.classList.remove("hidden");
+        input.setAttribute("aria-expanded", "true");
+
+        panel.querySelectorAll("button").forEach((button) => {
+          button.addEventListener("mousedown", (event) => {
+            event.preventDefault();
+            selectSuggestion(activeSuggestions[Number(button.dataset.index)]);
+          });
+        });
+      };
+
+      const updateHighlight = () => {
+        const buttons = Array.from(panel.querySelectorAll("button"));
+        buttons.forEach((button, index) => {
+          button.classList.toggle("bg-blue-50", index === highlightedIndex);
         });
       };
 
@@ -124,7 +200,7 @@
         const query = event.target.value.trim();
 
         if (query.length < 2) {
-          renderSuggestions([]);
+          closeSuggestions();
           return;
         }
 
@@ -133,6 +209,8 @@
         }
 
         activeRequest = new AbortController();
+        loading.classList.remove("hidden");
+        loading.classList.add("flex");
 
         try {
           const response = await fetch(`{{ url_for('reports.address_suggestions') }}?q=${encodeURIComponent(query)}`, {
@@ -143,18 +221,60 @@
           });
 
           if (!response.ok) {
-            renderSuggestions([]);
+            closeSuggestions();
             return;
           }
 
           const suggestions = await response.json();
-          renderSuggestions(Array.isArray(suggestions) ? suggestions : []);
+          renderSuggestions(Array.isArray(suggestions) ? suggestions : [], query);
         } catch (error) {
           if (error.name !== "AbortError") {
-            renderSuggestions([]);
+            closeSuggestions();
           }
+        } finally {
+          loading.classList.add("hidden");
+          loading.classList.remove("flex");
         }
       });
+
+      input.addEventListener("keydown", (event) => {
+        if (panel.classList.contains("hidden") || !activeSuggestions.length) {
+          return;
+        }
+
+        if (event.key === "ArrowDown") {
+          event.preventDefault();
+          highlightedIndex = (highlightedIndex + 1) % activeSuggestions.length;
+          updateHighlight();
+        } else if (event.key === "ArrowUp") {
+          event.preventDefault();
+          highlightedIndex = highlightedIndex <= 0 ? activeSuggestions.length - 1 : highlightedIndex - 1;
+          updateHighlight();
+        } else if (event.key === "Enter" && highlightedIndex >= 0) {
+          event.preventDefault();
+          selectSuggestion(activeSuggestions[highlightedIndex]);
+        } else if (event.key === "Escape") {
+          closeSuggestions();
+        }
+      });
+
+      input.addEventListener("blur", () => {
+        window.setTimeout(closeSuggestions, 120);
+      });
+
+      if (imageInput && imagePreview && imagePreviewWrapper) {
+        imageInput.addEventListener("change", () => {
+          const [file] = imageInput.files || [];
+          if (!file) {
+            imagePreviewWrapper.classList.add("hidden");
+            imagePreview.removeAttribute("src");
+            return;
+          }
+
+          imagePreview.src = URL.createObjectURL(file);
+          imagePreviewWrapper.classList.remove("hidden");
+        });
+      }
     })();
   </script>
 {% endblock %}

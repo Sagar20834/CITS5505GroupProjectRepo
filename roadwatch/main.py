@@ -57,4 +57,5 @@ def dashboard():
         "dashboard.html",
         summary=build_summary_cards(reports),
         chart_data=chart_data,
+        hotspots=build_hotspots(limit=3),
     )

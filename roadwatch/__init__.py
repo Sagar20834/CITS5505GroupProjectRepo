@@ -120,6 +120,7 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
 
     Path(app.instance_path).mkdir(parents=True, exist_ok=True)
+    Path(app.config["REPORT_UPLOAD_DIR"]).mkdir(parents=True, exist_ok=True)
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -206,6 +207,18 @@ def create_app(config_class=Config):
                 message="The link may be outdated, or the report may have been removed.",
             ),
             404,
+        )
+
+    @app.errorhandler(413)
+    def payload_too_large(error):
+        return (
+            render_template(
+                "error.html",
+                title="File Too Large",
+                heading="The selected image is too large.",
+                message="Please choose an image that is 5 MB or smaller and try again.",
+            ),
+            413,
         )
 
     return app
