@@ -75,7 +75,7 @@ python -m pip install -r requirements.txt
 Apply migrations:
 
 ```powershell
-flask --app app db upgrade
+python -m flask --app app db upgrade
 ```
 
 The app also includes a lightweight schema sync during normal app startup, but running migrations is the preferred setup process.
@@ -85,7 +85,7 @@ The app also includes a lightweight schema sync during normal app startup, but r
 Load sample users, reports, comments, confirmations, and status notes:
 
 ```powershell
-flask --app app seed-demo
+python -m flask --app app seed-demo
 ```
 
 Demo accounts:
@@ -102,15 +102,15 @@ Demo accounts:
 To clear existing local data and reload the demo dataset:
 
 ```powershell
-flask --app app reset-demo
-flask --app app seed-demo
+python -m flask --app app reset-demo
+python -m flask --app app seed-demo
 ```
 
 To skip the reset confirmation prompt:
 
 ```powershell
-flask --app app reset-demo --yes
-flask --app app seed-demo
+python -m flask --app app reset-demo --yes
+python -m flask --app app seed-demo
 ```
 
 ## Run The Application
@@ -118,7 +118,7 @@ flask --app app seed-demo
 Start the Flask development server:
 
 ```powershell
-flask --app app run
+python -m flask --app app run
 ```
 
 Open the app in your browser:
@@ -130,7 +130,7 @@ http://127.0.0.1:5000
 For debug mode:
 
 ```powershell
-flask --app app run --debug
+python -m flask --app app run --debug
 ```
 
 ## Run Tests
@@ -172,8 +172,8 @@ python -m pytest -v
 Create a migration after model changes:
 
 ```powershell
-flask --app app db migrate -m "Describe the change"
-flask --app app db upgrade
+python -m flask --app app db migrate -m "Describe the change"
+python -m flask --app app db upgrade
 ```
 
 ## Project Structure
