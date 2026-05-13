@@ -38,7 +38,7 @@ def admin_panel():
 @admin_bp.post("/reports/<int:report_id>/approval")
 @admin_required
 def update_report_approval(report_id):
-    report = Report.query.get_or_404(report_id)
+    report = db.get_or_404(Report, report_id)
     new_moderation_status = request.form.get("moderation_status", "").strip()
 
     if new_moderation_status not in Report.MODERATION_STATUSES:
@@ -61,7 +61,7 @@ def update_report_approval(report_id):
 @admin_bp.post("/reports/<int:report_id>/status")
 @admin_required
 def update_report_status(report_id):
-    report = Report.query.get_or_404(report_id)
+    report = db.get_or_404(Report, report_id)
     new_status = request.form.get("status", "").strip()
     note_text = request.form.get("status_note", "").strip()
 
@@ -90,7 +90,7 @@ def update_report_status(report_id):
 @admin_bp.post("/reports/<int:report_id>/severity")
 @admin_required
 def update_report_severity(report_id):
-    report = Report.query.get_or_404(report_id)
+    report = db.get_or_404(Report, report_id)
     new_severity = request.form.get("severity", "").strip()
 
     if new_severity not in Report.SEVERITIES:
@@ -106,7 +106,7 @@ def update_report_severity(report_id):
 @admin_bp.post("/reports/<int:report_id>/delete")
 @admin_required
 def delete_report(report_id):
-    report = Report.query.get_or_404(report_id)
+    report = db.get_or_404(Report, report_id)
     db.session.delete(report)
     db.session.commit()
     flash("Report removed from the system.", "success")
@@ -116,7 +116,7 @@ def delete_report(report_id):
 @admin_bp.post("/comments/<int:comment_id>/delete")
 @admin_required
 def delete_comment(comment_id):
-    comment = Comment.query.get_or_404(comment_id)
+    comment = db.get_or_404(Comment, comment_id)
     report_id = comment.report_id
     db.session.delete(comment)
     db.session.commit()
@@ -127,7 +127,7 @@ def delete_comment(comment_id):
 @admin_bp.post("/users/<int:user_id>/toggle-active")
 @admin_required
 def toggle_user_active(user_id):
-    user = User.query.get_or_404(user_id)
+    user = db.get_or_404(User, user_id)
 
     if user.id == current_user.id:
         flash("You cannot disable your own admin account.", "error")

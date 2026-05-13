@@ -147,6 +147,12 @@ Current tests cover:
 - User registration and Flask-Login session behavior
 - CSRF rejection for POST requests without tokens
 - Authenticated report creation using SQLAlchemy
+- Report validation errors
+- Admin-only access controls
+- Admin report approval
+- Pending report visibility rules
+- Comments and issue confirmations
+- Perth timezone display
 - AJAX address suggestions JSON response
 
 ## Useful Commands

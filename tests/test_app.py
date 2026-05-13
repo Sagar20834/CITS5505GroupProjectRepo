@@ -1,5 +1,7 @@
+from datetime import datetime, timezone
+
 from roadwatch.extensions import db
-from roadwatch.models import Report, User
+from roadwatch.models import Comment, Confirmation, Report, User
 
 from conftest import extract_csrf_token
 
@@ -10,6 +12,32 @@ def create_user(username="resident", email="resident@example.com", password="pas
     db.session.add(user)
     db.session.commit()
     return user
+
+
+def create_report(
+    *,
+    reporter=None,
+    street_address="123 Hay Street",
+    moderation_status=Report.APPROVED,
+    status="Reported",
+    created_at=None,
+):
+    report = Report(
+        issue_type="Pothole",
+        street_address=street_address,
+        suburb="Perth",
+        postcode="6000",
+        severity="High",
+        status=status,
+        moderation_status=moderation_status,
+        description="Large pothole affecting the left lane near the intersection.",
+        reporter=reporter,
+        created_at=created_at or datetime(2026, 5, 13, 1, 30, tzinfo=timezone.utc),
+        updated_at=created_at or datetime(2026, 5, 13, 1, 30, tzinfo=timezone.utc),
+    )
+    db.session.add(report)
+    db.session.commit()
+    return report
 
 
 def login(client, identifier="resident", password="password123"):
@@ -95,6 +123,121 @@ def test_authenticated_user_can_create_report(client):
     assert report is not None
     assert report.reporter.username == "resident"
     assert report.moderation_status == Report.PENDING_APPROVAL
+
+
+def test_invalid_report_form_shows_validation_error(client):
+    create_user()
+    login(client)
+    form_page = client.get("/reports/new")
+    token = extract_csrf_token(form_page)
+
+    response = client.post(
+        "/reports/new",
+        data={
+            "csrf_token": token,
+            "issue_type": "Pothole",
+            "street_address": "Hay",
+            "suburb": "P",
+            "postcode": "abc",
+            "severity": "High",
+            "description": "Too short",
+            "image_url": "",
+        },
+    )
+
+    assert response.status_code == 200
+    assert b"Street address should be at least 5 characters long." in response.data
+    assert Report.query.count() == 0
+
+
+def test_admin_page_requires_login(client):
+    response = client.get("/admin/")
+
+    assert response.status_code == 302
+    assert "/login" in response.headers["Location"]
+
+
+def test_non_admin_cannot_access_admin_page(client):
+    create_user()
+    login(client)
+
+    response = client.get("/admin/")
+
+    assert response.status_code == 403
+
+
+def test_admin_can_approve_pending_report(client):
+    admin = create_user(
+        username="admin",
+        email="admin@example.com",
+        password="adminpass123",
+        is_admin=True,
+    )
+    report = create_report(reporter=admin, moderation_status=Report.PENDING_APPROVAL)
+    login(client, identifier="admin", password="adminpass123")
+    admin_page = client.get("/admin/")
+    token = extract_csrf_token(admin_page)
+
+    response = client.post(
+        f"/admin/reports/{report.id}/approval",
+        data={"csrf_token": token, "moderation_status": Report.APPROVED},
+        follow_redirects=True,
+    )
+
+    db.session.refresh(report)
+    assert response.status_code == 200
+    assert report.moderation_status == Report.APPROVED
+    assert b"Report approved and published." in response.data
+
+
+def test_pending_report_is_visible_to_owner_but_not_public(client):
+    owner = create_user()
+    report = create_report(reporter=owner, moderation_status=Report.PENDING_APPROVAL)
+
+    public_response = client.get(f"/reports/{report.id}", follow_redirects=True)
+    assert b"This report is waiting for admin approval and is not public yet." in public_response.data
+
+    login(client)
+    owner_response = client.get(f"/reports/{report.id}")
+
+    assert owner_response.status_code == 200
+    assert b"123 Hay Street" in owner_response.data
+
+
+def test_logged_in_user_can_comment_and_confirm_report(client):
+    user = create_user()
+    report = create_report(reporter=user, moderation_status=Report.APPROVED)
+    login(client)
+    details_page = client.get(f"/reports/{report.id}")
+    token = extract_csrf_token(details_page)
+
+    comment_response = client.post(
+        f"/reports/{report.id}/comments",
+        data={"csrf_token": token, "body": "I saw this issue this morning."},
+        follow_redirects=True,
+    )
+
+    details_page = client.get(f"/reports/{report.id}")
+    token = extract_csrf_token(details_page)
+    confirm_response = client.post(
+        f"/reports/{report.id}/confirm",
+        data={"csrf_token": token},
+        follow_redirects=True,
+    )
+
+    assert comment_response.status_code == 200
+    assert confirm_response.status_code == 200
+    assert Comment.query.filter_by(report_id=report.id, author_id=user.id).count() == 1
+    assert Confirmation.query.filter_by(report_id=report.id, user_id=user.id).count() == 1
+
+
+def test_datetime_filter_displays_perth_time(client):
+    report = create_report(created_at=datetime(2026, 5, 13, 1, 30, tzinfo=timezone.utc))
+
+    response = client.get(f"/reports/{report.id}")
+
+    assert response.status_code == 200
+    assert b"13 May 2026, 09:30 AM" in response.data
 
 
 def test_address_suggestions_endpoint_returns_json(client, monkeypatch):
