@@ -105,7 +105,7 @@
                 <h3 class="text-2xl font-bold text-sky-900">{{ report.issue_type }}</h3>
                 <p class="text-base text-slate-500">{{ report.location }}</p>
               </div>
-              <span class="rounded-full px-3 py-1 text-sm font-bold {{ status_styles[report.status] }}">{{ report.status }}</span>
+              <span class="rounded-full px-3 py-1 text-sm font-bold {{ status_styles[report.status] }}">Progress: {{ report.status }}</span>
             </div>
             <p class="mb-3 text-base leading-7 text-slate-600">{{ report.description[:170] }}{% if report.description|length > 170 %}...{% endif %}</p>
             <div class="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500">

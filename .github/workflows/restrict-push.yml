@@ -1,8 +1,12 @@
-name: Restrict Push to Main
+name: Restrict Push
 on:
   push:
     branches:
       - main
+      - sagar
+      - dipta-test
+      - harshil
+      - ziqi_branch
 
 jobs:
   restrict:
@@ -14,13 +18,36 @@ jobs:
 
       - name: Check push permissions
         run: |
-          USER=${{ github.actor }}
-          ALLOWED_USER="Sagar20834"
+          USER="${{ github.actor }}"
+          BRANCH="${{ github.ref_name }}"
 
-          if [[ "$USER" != "$ALLOWED_USER" ]]; then
-            echo "❌ Error: User '$USER' is not allowed to push directly to main."
-            echo "Only '$ALLOWED_USER' can push to main. Please use a pull request instead."
+          echo "User: $USER"
+          echo "Branch: $BRANCH"
+
+          # Define allowed branches per user
+          case "$USER" in
+            Sagar20834)
+              ALLOWED="main|sagar"
+              ;;
+            diptadg)
+              ALLOWED="dipta-test"
+              ;;
+            Harshil8802)
+              ALLOWED="harshil"
+              ;;
+            Jiongge390)
+              ALLOWED="ziqi_branch"
+              ;;
+            *)
+              echo "❌ Error: Unknown user '$USER' is not allowed to push to any protected branch."
+              exit 1
+              ;;
+          esac
+
+          if echo "$BRANCH" | grep -qE "^($ALLOWED)$"; then
+            echo "✅ User '$USER' is allowed to push to '$BRANCH'."
+          else
+            echo "❌ Error: User '$USER' is not allowed to push to '$BRANCH'."
+            echo "   Your allowed branch(es): $ALLOWED"
             exit 1
           fi
-
-          echo "✅ Push by '$USER' is allowed."

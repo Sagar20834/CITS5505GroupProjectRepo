@@ -6,81 +6,248 @@
   <section class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg">
     <p class="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700">Admin Access</p>
     <h1 class="mb-3 text-4xl font-bold text-slate-900">Admin Report Management</h1>
-    <p class="mb-8 text-lg leading-8 text-slate-600">Manage reports here only: update status or delete reports. Analytics remain on the separate dashboard page.</p>
+    <p class="mb-8 text-lg leading-8 text-slate-600">Review pending reports before they go public, then manage approved or rejected reports separately.</p>
 
-    {% if reports %}
-      <div class="space-y-5">
-        {% for report in reports %}
-          <article class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
-            <div class="grid gap-5 lg:grid-cols-[220px,1fr]">
-              <div class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-200">
-                {% if report.image_url %}
-                  <img src="{{ report.image_url }}" alt="{{ report.issue_type }} image" class="h-full min-h-[180px] w-full object-cover">
+    <div id="pending-reports" class="mb-10">
+      <div class="mb-5 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p class="mb-2 text-sm font-bold uppercase tracking-[0.24em] text-blue-700">Review Queue</p>
+          <h2 class="text-3xl font-bold text-slate-900">Pending Approval</h2>
+        </div>
+        <span class="rounded-full bg-amber-100 px-4 py-2 text-sm font-semibold text-amber-800">
+          {{ pending_pagination.total }} pending
+        </span>
+      </div>
+
+      {% if pending_reports %}
+        <div class="mb-5 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500">
+          <span>
+            Showing {{ pending_pagination.first }}-{{ pending_pagination.last }} of {{ pending_pagination.total }} pending report{% if pending_pagination.total != 1 %}s{% endif %}
+          </span>
+          <span>Page {{ pending_pagination.page }} of {{ pending_pagination.pages }}</span>
+        </div>
+
+        <div class="space-y-5">
+          {% for report in pending_reports %}
+            <article class="rounded-2xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
+              <div class="grid gap-5 lg:grid-cols-[220px,1fr]">
+                <div class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-200">
+                  {% if report.image_url %}
+                    <img src="{{ report.image_url }}" alt="{{ report.issue_type }} image" class="h-full min-h-[180px] w-full object-cover">
+                  {% else %}
+                    <div class="flex min-h-[180px] items-center justify-center bg-slate-200 px-6 text-center text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
+                      No image provided
+                    </div>
+                  {% endif %}
+                </div>
+
+                <div>
+                  <div class="mb-4 flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                      <h3 class="mb-1 text-2xl font-bold text-sky-900">{{ report.issue_type }}</h3>
+                      <p class="text-base text-slate-500">{{ report.location }}</p>
+                      <p class="mt-1 text-sm text-slate-500">Submitted by {{ report.reporter_label }} on {{ report.created_at|datetime_label }}</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                      <span class="rounded-full px-3 py-1 text-sm font-bold {{ severity_styles[report.severity] }}">Severity: {{ report.severity }}</span>
+                      <span class="rounded-full px-3 py-1 text-sm font-bold {{ moderation_styles[report.moderation_status] }}">Approval: {{ report.moderation_status }}</span>
+                    </div>
+                  </div>
+
+                  <p class="mb-5 text-lg leading-8 text-slate-600">{{ report.description }}</p>
+
+                  <div class="flex flex-wrap gap-3">
+                    <form method="post" action="{{ url_for('admin.update_report_approval', report_id=report.id) }}">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <input type="hidden" name="moderation_status" value="{{ report.APPROVED }}">
+                      <button type="submit" class="rounded-2xl bg-green-500 px-5 py-3 font-semibold text-white hover:bg-green-600">Approve</button>
+                    </form>
+                    <form method="post" action="{{ url_for('admin.update_report_approval', report_id=report.id) }}">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <input type="hidden" name="moderation_status" value="{{ report.REJECTED }}">
+                      <button type="submit" class="rounded-2xl border border-red-500 px-5 py-3 font-semibold text-red-600 hover:bg-red-50">Reject</button>
+                    </form>
+                    <form method="post" action="{{ url_for('admin.delete_report', report_id=report.id) }}">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button type="submit" class="rounded-2xl bg-red-500 px-5 py-3 font-semibold text-white hover:bg-red-600">Delete</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+
+        {% if pending_pagination.pages > 1 %}
+          <nav class="mt-8 flex flex-wrap items-center justify-center gap-2" aria-label="Pending report pages">
+            {% if pending_pagination.has_prev %}
+              <a href="{{ url_for('admin.admin_panel', pending_page=pending_pagination.prev_num, reviewed_page=reviewed_pagination.page) }}#pending-reports" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100">Previous</a>
+            {% else %}
+              <span class="rounded-xl border border-slate-200 px-4 py-2 font-medium text-slate-300">Previous</span>
+            {% endif %}
+
+            {% for page_number in pending_pagination.iter_pages(left_edge=1, left_current=1, right_current=2, right_edge=1) %}
+              {% if page_number %}
+                {% if page_number == pending_pagination.page %}
+                  <span class="rounded-xl bg-blue-500 px-4 py-2 font-semibold text-white">{{ page_number }}</span>
                 {% else %}
-                  <div class="flex min-h-[180px] items-center justify-center bg-slate-200 px-6 text-center text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
-                    No image provided
-                  </div>
+                  <a href="{{ url_for('admin.admin_panel', pending_page=page_number, reviewed_page=reviewed_pagination.page) }}#pending-reports" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100">{{ page_number }}</a>
                 {% endif %}
-              </div>
+              {% else %}
+                <span class="px-2 text-slate-400">...</span>
+              {% endif %}
+            {% endfor %}
 
-              <div>
-                <div class="mb-4 flex items-start justify-between gap-4">
-                  <div>
-                    <h2 class="mb-1 text-2xl font-bold text-sky-900">{{ report.issue_type }}</h2>
-                    <p class="text-base text-slate-500">{{ report.location }}</p>
-                    <p class="mt-1 text-sm text-slate-500">Submitted by {{ report.reporter_label }} on {{ report.created_at|datetime_label }}</p>
-                  </div>
-                  <div class="flex flex-wrap gap-2">
-                    <span class="rounded-full px-3 py-1 text-sm font-bold {{ severity_styles[report.severity] }}">{{ report.severity }}</span>
-                    <span class="rounded-full px-3 py-1 text-sm font-bold {{ status_styles[report.status] }}">{{ report.status }}</span>
-                  </div>
+            {% if pending_pagination.has_next %}
+              <a href="{{ url_for('admin.admin_panel', pending_page=pending_pagination.next_num, reviewed_page=reviewed_pagination.page) }}#pending-reports" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100">Next</a>
+            {% else %}
+              <span class="rounded-xl border border-slate-200 px-4 py-2 font-medium text-slate-300">Next</span>
+            {% endif %}
+          </nav>
+        {% endif %}
+      {% else %}
+        <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center">
+          <p class="text-lg text-slate-600">No reports are currently waiting for approval.</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <div id="reviewed-reports">
+      <div class="mb-5 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p class="mb-2 text-sm font-bold uppercase tracking-[0.24em] text-blue-700">Processed Reports</p>
+          <h2 class="text-3xl font-bold text-slate-900">Approved And Rejected Reports</h2>
+        </div>
+        <span class="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">
+          {{ reviewed_pagination.total }} reviewed
+        </span>
+      </div>
+
+      {% if reviewed_reports %}
+        <div class="mb-5 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500">
+          <span>
+            Showing {{ reviewed_pagination.first }}-{{ reviewed_pagination.last }} of {{ reviewed_pagination.total }} reviewed report{% if reviewed_pagination.total != 1 %}s{% endif %}
+          </span>
+          <span>Page {{ reviewed_pagination.page }} of {{ reviewed_pagination.pages }}</span>
+        </div>
+
+        <div class="space-y-5">
+          {% for report in reviewed_reports %}
+            <article class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
+              <div class="grid gap-5 lg:grid-cols-[220px,1fr]">
+                <div class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-200">
+                  {% if report.image_url %}
+                    <img src="{{ report.image_url }}" alt="{{ report.issue_type }} image" class="h-full min-h-[180px] w-full object-cover">
+                  {% else %}
+                    <div class="flex min-h-[180px] items-center justify-center bg-slate-200 px-6 text-center text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
+                      No image provided
+                    </div>
+                  {% endif %}
                 </div>
 
-                <p class="mb-5 text-lg leading-8 text-slate-600">{{ report.description }}</p>
+                <div>
+                  <div class="mb-4 flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                      <h3 class="mb-1 text-2xl font-bold text-sky-900">{{ report.issue_type }}</h3>
+                      <p class="text-base text-slate-500">{{ report.location }}</p>
+                      <p class="mt-1 text-sm text-slate-500">Submitted by {{ report.reporter_label }} on {{ report.created_at|datetime_label }}</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                      <span class="rounded-full px-3 py-1 text-sm font-bold {{ severity_styles[report.severity] }}">Severity: {{ report.severity }}</span>
+                      <span class="rounded-full px-3 py-1 text-sm font-bold {{ status_styles[report.status] }}">Progress: {{ report.status }}</span>
+                      <span class="rounded-full px-3 py-1 text-sm font-bold {{ moderation_styles[report.moderation_status] }}">Approval: {{ report.moderation_status }}</span>
+                    </div>
+                  </div>
 
-                <div class="flex flex-wrap items-end gap-3">
-                  <form method="post" action="{{ url_for('admin.update_report_status', report_id=report.id) }}" class="flex flex-wrap items-end gap-3">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <div>
-                      <label for="status-{{ report.id }}" class="mb-2 block text-sm font-semibold text-slate-600">Update status</label>
-                      <select id="status-{{ report.id }}" name="status" class="rounded-xl border border-slate-300 px-4 py-3">
-                        {% for status in report_statuses %}
-                          <option value="{{ status }}" {% if report.status == status %}selected{% endif %}>{{ status }}</option>
-                        {% endfor %}
-                      </select>
-                    </div>
-                    <div class="min-w-[260px] flex-1">
-                      <label for="status-note-{{ report.id }}" class="mb-2 block text-sm font-semibold text-slate-600">Status note</label>
-                      <input id="status-note-{{ report.id }}" name="status_note" maxlength="500" class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="Optional admin update">
-                    </div>
-                    <button type="submit" class="rounded-2xl bg-blue-500 px-5 py-3 font-semibold text-white hover:bg-blue-600">Save Status</button>
-                  </form>
-                  <form method="post" action="{{ url_for('admin.update_report_severity', report_id=report.id) }}" class="flex flex-wrap items-end gap-3">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <div>
-                      <label for="severity-{{ report.id }}" class="mb-2 block text-sm font-semibold text-slate-600">Update severity</label>
-                      <select id="severity-{{ report.id }}" name="severity" class="rounded-xl border border-slate-300 px-4 py-3">
-                        {% for severity in report_severities %}
-                          <option value="{{ severity }}" {% if report.severity == severity %}selected{% endif %}>{{ severity }}</option>
-                        {% endfor %}
-                      </select>
-                    </div>
-                    <button type="submit" class="rounded-2xl bg-slate-700 px-5 py-3 font-semibold text-white hover:bg-slate-800">Save Severity</button>
-                  </form>
-                  <form method="post" action="{{ url_for('admin.delete_report', report_id=report.id) }}">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <button type="submit" class="rounded-2xl bg-red-500 px-5 py-3 font-semibold text-white hover:bg-red-600">Delete Report</button>
-                  </form>
+                  <p class="mb-5 text-lg leading-8 text-slate-600">{{ report.description }}</p>
+
+                  <div class="flex flex-wrap items-end gap-3">
+                    <form method="post" action="{{ url_for('admin.update_report_approval', report_id=report.id) }}" class="flex flex-wrap items-end gap-3">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <div>
+                        <label for="moderation-status-{{ report.id }}" class="mb-2 block text-sm font-semibold text-slate-600">Approval status</label>
+                        <select id="moderation-status-{{ report.id }}" name="moderation_status" class="rounded-xl border border-slate-300 px-4 py-3">
+                          {% for moderation_status in moderation_statuses %}
+                            <option value="{{ moderation_status }}" {% if report.moderation_status == moderation_status %}selected{% endif %}>{{ moderation_status }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <button type="submit" class="rounded-2xl bg-amber-500 px-5 py-3 font-semibold text-slate-900 hover:bg-amber-400">Save Approval</button>
+                    </form>
+
+                    <form method="post" action="{{ url_for('admin.update_report_status', report_id=report.id) }}" class="flex flex-wrap items-end gap-3">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <div>
+                        <label for="status-{{ report.id }}" class="mb-2 block text-sm font-semibold text-slate-600">Update progress</label>
+                        <select id="status-{{ report.id }}" name="status" class="rounded-xl border border-slate-300 px-4 py-3">
+                          {% for status in report_statuses %}
+                            <option value="{{ status }}" {% if report.status == status %}selected{% endif %}>{{ status }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <div class="min-w-[260px] flex-1">
+                        <label for="status-note-{{ report.id }}" class="mb-2 block text-sm font-semibold text-slate-600">Status note</label>
+                        <input id="status-note-{{ report.id }}" name="status_note" maxlength="500" class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="Optional admin update">
+                      </div>
+                      <button type="submit" class="rounded-2xl bg-blue-500 px-5 py-3 font-semibold text-white hover:bg-blue-600">Save Progress</button>
+                    </form>
+
+                    <form method="post" action="{{ url_for('admin.update_report_severity', report_id=report.id) }}" class="flex flex-wrap items-end gap-3">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <div>
+                        <label for="severity-{{ report.id }}" class="mb-2 block text-sm font-semibold text-slate-600">Update severity</label>
+                        <select id="severity-{{ report.id }}" name="severity" class="rounded-xl border border-slate-300 px-4 py-3">
+                          {% for severity in report_severities %}
+                            <option value="{{ severity }}" {% if report.severity == severity %}selected{% endif %}>{{ severity }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <button type="submit" class="rounded-2xl bg-slate-700 px-5 py-3 font-semibold text-white hover:bg-slate-800">Save Severity</button>
+                    </form>
+
+                    <form method="post" action="{{ url_for('admin.delete_report', report_id=report.id) }}">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button type="submit" class="rounded-2xl bg-red-500 px-5 py-3 font-semibold text-white hover:bg-red-600">Delete Report</button>
+                    </form>
+                  </div>
                 </div>
               </div>
-            </div>
-          </article>
-        {% endfor %}
-      </div>
-    {% else %}
-      <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center">
-        <p class="text-lg text-slate-600">No reports are available yet.</p>
-      </div>
-    {% endif %}
+            </article>
+          {% endfor %}
+        </div>
+
+        {% if reviewed_pagination.pages > 1 %}
+          <nav class="mt-8 flex flex-wrap items-center justify-center gap-2" aria-label="Reviewed report pages">
+            {% if reviewed_pagination.has_prev %}
+              <a href="{{ url_for('admin.admin_panel', pending_page=pending_pagination.page, reviewed_page=reviewed_pagination.prev_num) }}#reviewed-reports" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100">Previous</a>
+            {% else %}
+              <span class="rounded-xl border border-slate-200 px-4 py-2 font-medium text-slate-300">Previous</span>
+            {% endif %}
+
+            {% for page_number in reviewed_pagination.iter_pages(left_edge=1, left_current=1, right_current=2, right_edge=1) %}
+              {% if page_number %}
+                {% if page_number == reviewed_pagination.page %}
+                  <span class="rounded-xl bg-blue-500 px-4 py-2 font-semibold text-white">{{ page_number }}</span>
+                {% else %}
+                  <a href="{{ url_for('admin.admin_panel', pending_page=pending_pagination.page, reviewed_page=page_number) }}#reviewed-reports" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100">{{ page_number }}</a>
+                {% endif %}
+              {% else %}
+                <span class="px-2 text-slate-400">...</span>
+              {% endif %}
+            {% endfor %}
+
+            {% if reviewed_pagination.has_next %}
+              <a href="{{ url_for('admin.admin_panel', pending_page=pending_pagination.page, reviewed_page=reviewed_pagination.next_num) }}#reviewed-reports" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100">Next</a>
+            {% else %}
+              <span class="rounded-xl border border-slate-200 px-4 py-2 font-medium text-slate-300">Next</span>
+            {% endif %}
+          </nav>
+        {% endif %}
+      {% else %}
+        <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center">
+          <p class="text-lg text-slate-600">No reviewed reports are available yet.</p>
+        </div>
+      {% endif %}
+    </div>
   </section>
 {% endblock %}

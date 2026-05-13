@@ -21,14 +21,14 @@ STATUS_COLORS = {
 
 
 def build_issue_counts(reports):
-    counts = OrderedDict((issue_type, 0) for issue_type in Report.ISSUE_TYPES)
+    counts: OrderedDict[str, int] = OrderedDict((issue_type, 0) for issue_type in Report.ISSUE_TYPES)
     for report in reports:
         counts[report.issue_type] = counts.get(report.issue_type, 0) + 1
     return counts
 
 
 def build_status_counts(reports):
-    counts = OrderedDict((status, 0) for status in Report.STATUSES)
+    counts: OrderedDict[str, int] = OrderedDict((status, 0) for status in Report.STATUSES)
     for report in reports:
         counts[report.status] = counts.get(report.status, 0) + 1
     return counts
@@ -36,7 +36,7 @@ def build_status_counts(reports):
 
 def build_monthly_issue_matrix(reports, year=None):
     selected_year = year or datetime.now(timezone.utc).year
-    matrix = OrderedDict((issue_type, [0] * 12) for issue_type in Report.ISSUE_TYPES)
+    matrix: OrderedDict[str, list[int]] = OrderedDict((issue_type, [0] * 12) for issue_type in Report.ISSUE_TYPES)
 
     for report in reports:
         if report.created_at.year != selected_year:
@@ -55,7 +55,11 @@ def build_hotspots(limit=5):
             db.func.count(Report.id).label("report_count"),
             db.func.count(db.func.distinct(Report.reporter_id)).label("reporter_count"),
         )
-        .filter(Report.location_key.isnot(None), Report.location_key != "")
+        .filter(
+            Report.location_key.isnot(None),
+            Report.location_key != "",
+            Report.moderation_status == Report.APPROVED,
+        )
         .group_by(Report.location_key)
         .having(db.func.count(Report.id) > 1)
         .order_by(db.desc("report_count"), db.asc("location"))
