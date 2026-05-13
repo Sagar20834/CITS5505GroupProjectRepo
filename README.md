@@ -46,11 +46,14 @@ Reports are stored in SQLite through SQLAlchemy models. New reports enter a pend
 - Flask-Login
 - Flask-SQLAlchemy
 - Flask-Migrate
+- Flask-WTF
 - SQLite
 - Jinja templates
 - Tailwind CSS
 - Chart.js
 - pytest
+- Selenium
+- tzdata
 
 ## Project Structure
 
@@ -186,3 +189,5 @@ To inspect the current migration head:
 ```powershell
 flask --app app db heads
 ```
+
+Timestamps are stored in UTC and displayed in Perth local time through the app's `datetime_label` template filter. The `tzdata` package is included so timezone conversion works reliably on Windows.

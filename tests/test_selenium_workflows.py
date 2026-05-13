@@ -170,6 +170,15 @@ def test_browser_user_registration(browser, live_server, app):
         assert user.email == "seleniumnew@example.com"
 
 
+def test_browser_navbar_opens_reports_page(browser, live_server):
+    browser.get(live_server)
+
+    browser.find_element(By.LINK_TEXT, "Reports").click()
+
+    wait_for_text(browser, "All Reports")
+    assert "/reports" in browser.current_url
+
+
 def test_browser_login_and_logout(browser, live_server):
     login_through_browser(browser, live_server, "browseruser", "UserPass123")
     wait_for_text(browser, "browseruser")
@@ -207,6 +216,38 @@ def test_browser_filter_reports(browser, live_server):
 
     wait_for_text(browser, "Selenium Search Road")
     assert "Browser searchable approved report" in browser.find_element(By.TAG_NAME, "body").text
+
+
+def test_browser_address_suggestions_update_without_page_reload(browser, live_server, monkeypatch):
+    import roadwatch.reports as reports_module
+
+    monkeypatch.setattr(
+        reports_module,
+        "_photon_address_suggestions",
+        lambda query_text: [
+            {
+                "street_address": "Hay Street",
+                "suburb": "Perth",
+                "postcode": "6000",
+                "label": "Hay Street, Perth 6000",
+            }
+        ],
+    )
+
+    browser.get(f"{live_server}/reports/new")
+    original_url = browser.current_url
+    browser.find_element(By.ID, "street_address").send_keys("Ha")
+
+    WebDriverWait(browser, 5).until(
+        lambda driver: driver.execute_script(
+            "return document.querySelectorAll('#street-address-suggestions option').length"
+        )
+        > 0
+    )
+
+    option_value = browser.execute_script("return document.querySelector('#street-address-suggestions option').value")
+    assert option_value == "Hay Street"
+    assert browser.current_url == original_url
 
 
 def test_browser_open_report_detail(browser, live_server):
