@@ -249,7 +249,7 @@ def create_report():
 
 @reports_bp.route("/<int:report_id>", methods=["GET"])
 def report_details(report_id):
-    report = Report.query.get_or_404(report_id)
+    report = db.get_or_404(Report, report_id)
 
     if not report.can_be_viewed_by(current_user):
         flash("This report is waiting for admin approval and is not public yet.", "warning")
@@ -261,7 +261,7 @@ def report_details(report_id):
 
 @reports_bp.post("/<int:report_id>/confirm")
 def toggle_confirmation(report_id):
-    report = Report.query.get_or_404(report_id)
+    report = db.get_or_404(Report, report_id)
 
     if not report.can_be_viewed_by(current_user):
         abort(404)
@@ -289,7 +289,7 @@ def toggle_confirmation(report_id):
 
 @reports_bp.post("/<int:report_id>/comments")
 def create_comment(report_id):
-    report = Report.query.get_or_404(report_id)
+    report = db.get_or_404(Report, report_id)
 
     if not report.can_be_viewed_by(current_user):
         abort(404)
@@ -317,7 +317,7 @@ def create_comment(report_id):
 
 @reports_bp.route("/<int:report_id>/edit", methods=["GET", "POST"])
 def edit_report(report_id):
-    report = Report.query.get_or_404(report_id)
+    report = db.get_or_404(Report, report_id)
 
     if not report.can_be_managed_by(current_user):
         flash("Only the report owner or an admin can edit this report.", "error")
@@ -361,7 +361,7 @@ def edit_report(report_id):
 
 @reports_bp.post("/<int:report_id>/delete")
 def delete_report(report_id):
-    report = Report.query.get_or_404(report_id)
+    report = db.get_or_404(Report, report_id)
 
     if not report.can_be_managed_by(current_user):
         flash("Only the report owner or an admin can delete this report.", "error")
