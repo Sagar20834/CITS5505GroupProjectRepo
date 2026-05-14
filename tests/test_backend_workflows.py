@@ -1,3 +1,5 @@
+import io
+import json
 from datetime import datetime, timezone
 
 from conftest import csrf_token, login, logout, make_user, report_form_data
@@ -509,3 +511,41 @@ def test_address_suggestions_endpoint_returns_json(client, monkeypatch):
     assert response.status_code == 200
     assert response.is_json
     assert response.get_json()[0]["street_address"] == "Hay Street"
+
+
+def test_photon_address_suggestions_normalize_address_fields(app, monkeypatch):
+    import roadwatch.reports as reports_module
+
+    class FakeResponse:
+        def __enter__(self):
+            payload = {
+                "features": [
+                    {
+                        "properties": {
+                            "country": "Australia",
+                            "housenumber": "12",
+                            "street": "Hay Street",
+                            "suburb": "Perth",
+                            "postcode": 6000,
+                        }
+                    }
+                ]
+            }
+            return io.BytesIO(json.dumps(payload).encode("utf-8"))
+
+        def __exit__(self, exc_type, exc, traceback):
+            return False
+
+    monkeypatch.setattr(reports_module, "urlopen", lambda request, timeout: FakeResponse())
+
+    with app.app_context():
+        suggestions = reports_module._photon_address_suggestions("hay")
+
+    assert suggestions == [
+        {
+            "street_address": "12 Hay Street",
+            "suburb": "Perth",
+            "postcode": "6000",
+            "label": "12 Hay Street, Perth 6000",
+        }
+    ]

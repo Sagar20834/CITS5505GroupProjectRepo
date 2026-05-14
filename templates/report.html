@@ -25,7 +25,10 @@
         <div class="grid gap-5 md:grid-cols-2">
           <div class="md:col-span-2">
             <label for="street_address" class="mb-2 block text-sm font-semibold text-slate-600 dark:text-slate-300">Street address</label>
-            <input id="street_address" name="street_address" value="{{ form_data.street_address }}" list="street-address-suggestions" autocomplete="off" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500" placeholder="e.g. Hay Street near William Street" required>
+            <div class="relative">
+              <input id="street_address" name="street_address" value="{{ form_data.street_address }}" list="street-address-suggestions" autocomplete="off" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500" placeholder="e.g. Hay Street near William Street" required>
+              <div id="street-address-suggestion-panel" class="absolute left-0 right-0 top-full z-40 mt-2 hidden overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800"></div>
+            </div>
             <datalist id="street-address-suggestions"></datalist>
             <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Start typing to see OpenStreetMap suggestions. If the public lookup service is unavailable, saved approved report locations are used as a fallback.</p>
           </div>
@@ -106,16 +109,35 @@
       const suburbInput = document.getElementById("suburb");
       const postcodeInput = document.getElementById("postcode");
       const dataList = document.getElementById("street-address-suggestions");
+      const suggestionPanel = document.getElementById("street-address-suggestion-panel");
 
-      if (!input || !dataList) {
+      if (!input || !dataList || !suggestionPanel) {
         return;
       }
 
       let activeRequest = null;
       let currentSuggestions = [];
 
+      const hideSuggestionPanel = () => {
+        suggestionPanel.classList.add("hidden");
+      };
+
+      const selectSuggestion = (suggestion) => {
+        input.value = suggestion.street_address;
+
+        if (suburbInput && suggestion.suburb) {
+          suburbInput.value = suggestion.suburb;
+        }
+        if (postcodeInput && suggestion.postcode) {
+          postcodeInput.value = suggestion.postcode;
+        }
+
+        hideSuggestionPanel();
+      };
+
       const renderSuggestions = (items) => {
         dataList.innerHTML = "";
+        suggestionPanel.innerHTML = "";
         currentSuggestions = items
           .map((item) => {
             if (typeof item === "string") {
@@ -135,22 +157,35 @@
           option.value = item.street_address;
           option.label = item.label;
           dataList.appendChild(option);
+
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "block w-full px-4 py-3 text-left text-sm text-slate-700 hover:bg-blue-50 dark:text-slate-200 dark:hover:bg-slate-700";
+          button.textContent = item.label;
+          button.addEventListener("mousedown", (event) => {
+            event.preventDefault();
+            selectSuggestion(item);
+          });
+          suggestionPanel.appendChild(button);
         });
+
+        suggestionPanel.classList.toggle("hidden", currentSuggestions.length === 0 || document.activeElement !== input);
       };
 
       input.addEventListener("change", () => {
         const selectedSuggestion = currentSuggestions.find((item) => item.street_address === input.value);
 
-        if (!selectedSuggestion) {
-          return;
-        }
+        if (selectedSuggestion) selectSuggestion(selectedSuggestion);
+      });
 
-        if (suburbInput && selectedSuggestion.suburb) {
-          suburbInput.value = selectedSuggestion.suburb;
+      input.addEventListener("focus", () => {
+        if (currentSuggestions.length > 0) {
+          suggestionPanel.classList.remove("hidden");
         }
-        if (postcodeInput && selectedSuggestion.postcode) {
-          postcodeInput.value = selectedSuggestion.postcode;
-        }
+      });
+
+      input.addEventListener("blur", () => {
+        window.setTimeout(hideSuggestionPanel, 150);
       });
 
       input.addEventListener("input", async (event) => {

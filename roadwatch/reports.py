@@ -25,9 +25,9 @@ class MailDeliveryError(RuntimeError):
 
 
 def _format_address_suggestion(street_address, suburb="", postcode=""):
-    street_address = " ".join((street_address or "").split())
-    suburb = " ".join((suburb or "").split())
-    postcode = " ".join((postcode or "").split())
+    street_address = " ".join(str(street_address or "").split())
+    suburb = " ".join(str(suburb or "").split())
+    postcode = " ".join(str(postcode or "").split())
 
     if not street_address:
         return None
@@ -87,24 +87,29 @@ def _photon_address_suggestions(query_text):
 
     features = payload.get("features", [])
     normalized = []
+    seen_labels = set()
 
     for feature in features:
         properties = feature.get("properties") or {}
         if properties.get("country") and properties.get("country") != "Australia":
             continue
 
-        street_address = properties.get("street") or properties.get("name") or ""
+        street_name = properties.get("street") or properties.get("name") or ""
+        house_number = properties.get("housenumber") or properties.get("house_number") or ""
+        street_address = " ".join(part for part in (house_number, street_name) if part)
         suburb = (
-            properties.get("district")
-            or properties.get("suburb")
+            properties.get("suburb")
+            or properties.get("district")
+            or properties.get("neighbourhood")
             or properties.get("city")
             or properties.get("locality")
             or ""
         )
         postcode = properties.get("postcode") or ""
         suggestion = _format_address_suggestion(street_address, suburb, postcode)
-        if suggestion and suggestion["label"] not in {item["label"] for item in normalized}:
+        if suggestion and suggestion["label"] not in seen_labels:
             normalized.append(suggestion)
+            seen_labels.add(suggestion["label"])
 
     return normalized
 
