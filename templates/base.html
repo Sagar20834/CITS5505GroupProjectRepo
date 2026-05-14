@@ -45,21 +45,28 @@
           <button id="account-menu-button" type="button"
             class="flex items-center gap-2 rounded-full bg-slate-800 px-2 py-1.5 text-sm font-semibold text-slate-100 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400"
             aria-haspopup="true" aria-expanded="false">
-            <span class="flex h-9 w-9 items-center justify-center rounded-full bg-amber-400 text-base font-bold uppercase text-slate-900">
+            <span
+              class="flex h-9 w-9 items-center justify-center rounded-full bg-amber-400 text-base font-bold uppercase text-slate-900">
               {{ current_user.username[:1] }}
             </span>
             <span class="max-w-[10rem] truncate text-left">
-              {{ current_user.username }}{% if current_user.is_admin %} <span class="text-xs font-medium text-slate-300">admin</span>{% endif %}
+              {{ current_user.username }}{% if current_user.is_admin %} <span
+                class="text-xs font-medium text-slate-300"></span>{% endif %}
             </span>
           </button>
           <div id="account-menu-panel"
             class="absolute right-0 top-full z-[70] hidden w-56 overflow-hidden rounded-xl border border-slate-200 bg-white py-2 text-sm text-slate-700 shadow-xl group-hover:block dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
-            <a href="{{ url_for('auth.profile') }}" class="block px-4 py-2 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">View Profile</a>
-            <a href="{{ url_for('auth.change_password') }}" class="block px-4 py-2 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">Change Password</a>
-            <a href="{{ url_for('reports.list_reports', mine='1') }}" class="block px-4 py-2 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">My Reports</a>
-            <form method="post" action="{{ url_for('auth.logout') }}" class="border-t border-slate-200 dark:border-slate-700">
+            <a href="{{ url_for('auth.profile') }}"
+              class="block px-4 py-2 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">View Profile</a>
+            <a href="{{ url_for('auth.change_password') }}"
+              class="block px-4 py-2 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">Change Password</a>
+            <a href="{{ url_for('reports.list_reports', mine='1') }}"
+              class="block px-4 py-2 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">My Reports</a>
+            <form method="post" action="{{ url_for('auth.logout') }}"
+              class="border-t border-slate-200 dark:border-slate-700">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <button type="submit" class="block w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-900">Logout</button>
+              <button type="submit"
+                class="block w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-900">Logout</button>
             </form>
           </div>
         </div>
@@ -76,10 +83,12 @@
             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3 6.5 6.5 0 0 0 21 12.8Z"></path>
           </svg>
-          <svg id="theme-icon-sun" class="hidden h-5 w-5" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <svg id="theme-icon-sun" class="hidden h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="4"></circle>
-            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+            <path
+              d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41">
+            </path>
           </svg>
         </button>
       </div>
