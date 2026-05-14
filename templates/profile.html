@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Profile | RoadWatch Perth{% endblock %}
+
+{% block content %}
+  <section class="mx-auto max-w-4xl rounded-2xl border border-slate-200 bg-white p-8 shadow-lg dark:border-slate-700 dark:bg-slate-800">
+    <p class="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700 dark:text-blue-300">Account</p>
+    <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h1 class="mb-2 text-4xl font-bold text-slate-900 dark:text-slate-100">Profile</h1>
+        <p class="text-lg text-slate-600 dark:text-slate-300">View your account details and activity.</p>
+      </div>
+      <a href="{{ url_for('auth.change_password') }}" class="rounded-2xl bg-blue-500 px-5 py-3 font-semibold text-white no-underline hover:bg-blue-600 dark:bg-blue-600">Change Password</a>
+    </div>
+
+    <div class="grid gap-5 md:grid-cols-2">
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-900">
+        <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Username</p>
+        <p class="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100">{{ current_user.username }}</p>
+      </div>
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-900">
+        <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Email</p>
+        <p class="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100">{{ current_user.email }}</p>
+      </div>
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-900">
+        <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Role</p>
+        <p class="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100">{% if current_user.is_admin %}Admin{% else %}Resident{% endif %}</p>
+      </div>
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-900">
+        <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Joined</p>
+        <p class="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100">{{ current_user.created_at|datetime_label }}</p>
+      </div>
+    </div>
+
+    <div class="mt-6 grid gap-5 md:grid-cols-3">
+      <a href="{{ url_for('reports.list_reports', mine='1') }}" class="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-center no-underline hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-700">
+        <p class="text-3xl font-bold text-blue-600 dark:text-blue-300">{{ linked_report_count }}</p>
+        <p class="mt-1 text-sm font-semibold text-slate-600 dark:text-slate-300">Linked reports</p>
+      </a>
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-center dark:border-slate-700 dark:bg-slate-900">
+        <p class="text-3xl font-bold text-blue-600 dark:text-blue-300">{{ comment_count }}</p>
+        <p class="mt-1 text-sm font-semibold text-slate-600 dark:text-slate-300">Comments</p>
+      </div>
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-center dark:border-slate-700 dark:bg-slate-900">
+        <p class="text-3xl font-bold text-blue-600 dark:text-blue-300">{{ confirmation_count }}</p>
+        <p class="mt-1 text-sm font-semibold text-slate-600 dark:text-slate-300">Confirmations</p>
+      </div>
+    </div>
+  </section>
+{% endblock %}
