@@ -1,10 +1,10 @@
 from urllib.parse import urlsplit
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
 from .extensions import db
-from .models import User
+from .models import Notification, User
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -118,3 +118,11 @@ def change_password():
             return redirect(url_for("auth.profile"))
 
     return render_template("change_password.html")
+
+
+@auth_bp.post("/notifications/read")
+@login_required
+def mark_notifications_read():
+    Notification.query.filter_by(user_id=current_user.id, is_read=False).update({"is_read": True})
+    db.session.commit()
+    return jsonify({"ok": True})

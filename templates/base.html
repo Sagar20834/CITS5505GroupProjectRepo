@@ -45,9 +45,15 @@
           <button id="account-menu-button" type="button"
             class="flex items-center gap-2 rounded-full bg-slate-800 px-2 py-1.5 text-sm font-semibold text-slate-100 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400"
             aria-haspopup="true" aria-expanded="false">
-            <span
-              class="flex h-9 w-9 items-center justify-center rounded-full bg-amber-400 text-base font-bold uppercase text-slate-900">
-              {{ current_user.username[:1] }}
+            <span class="relative">
+              <span
+                class="flex h-9 w-9 items-center justify-center rounded-full bg-amber-400 text-base font-bold uppercase text-slate-900">
+                {{ current_user.username[:1] }}
+              </span>
+              <span id="notification-count-badge"
+                class="{% if unread_notification_count == 0 %}hidden {% endif %}absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-xs font-bold text-white">
+                {{ unread_notification_count if unread_notification_count < 10 else "9+" }}
+              </span>
             </span>
             <span class="max-w-[10rem] truncate text-left">
               {{ current_user.username }}{% if current_user.is_admin %} <span
@@ -62,6 +68,31 @@
               class="block px-4 py-2 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">Change Password</a>
             <a href="{{ url_for('reports.list_reports', mine='1') }}"
               class="block px-4 py-2 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">My Reports</a>
+            <div class="border-t border-slate-200 px-4 py-3 dark:border-slate-700">
+              <button id="notification-clear-button" type="button"
+                class="mb-2 flex w-full items-center justify-between gap-3 text-left font-semibold text-slate-700 dark:text-slate-200"
+                data-clear-url="{{ url_for('auth.mark_notifications_read') }}"
+                data-csrf-token="{{ csrf_token() }}">
+                <span>Notifications</span>
+                <span id="notification-menu-count"
+                  class="{% if unread_notification_count == 0 %}hidden {% endif %}rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold text-red-700">
+                  {{ unread_notification_count if unread_notification_count < 10 else "9+" }}
+                </span>
+              </button>
+              <div id="notification-list" class="space-y-2">
+                {% if recent_notifications %}
+                  {% for notification in recent_notifications %}
+                    <a href="{{ notification.link_url or url_for('auth.profile') }}"
+                      class="block rounded-lg px-2 py-2 text-xs leading-5 no-underline {% if notification.is_read %}text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700{% else %}bg-blue-50 font-semibold text-slate-800 hover:bg-blue-100 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-700{% endif %}"
+                      data-notification-link>
+                      {{ notification.message }}
+                    </a>
+                  {% endfor %}
+                {% else %}
+                  <p class="px-2 py-2 text-xs text-slate-500 dark:text-slate-400">No notifications yet.</p>
+                {% endif %}
+              </div>
+            </div>
             <form method="post" action="{{ url_for('auth.logout') }}"
               class="border-t border-slate-200 dark:border-slate-700">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -123,6 +154,9 @@
       const accountMenuButton = document.getElementById('account-menu-button');
       const accountMenuPanel = document.getElementById('account-menu-panel');
       const accountMenu = document.getElementById('account-menu');
+      const notificationClearButton = document.getElementById('notification-clear-button');
+      const notificationCountBadge = document.getElementById('notification-count-badge');
+      const notificationMenuCount = document.getElementById('notification-menu-count');
 
       function updateThemeToggle() {
         const isDark = document.documentElement.classList.contains('dark');
@@ -202,6 +236,36 @@
         document.addEventListener('click', closeAccountMenu);
         document.addEventListener('keydown', function (event) {
           if (event.key === 'Escape') closeAccountMenu();
+        });
+      }
+
+      function clearNotificationBadges() {
+        if (notificationCountBadge) notificationCountBadge.classList.add('hidden');
+        if (notificationMenuCount) notificationMenuCount.classList.add('hidden');
+      }
+
+      function markNotificationsRead() {
+        if (!notificationClearButton || notificationClearButton.dataset.cleared === 'true') return;
+        notificationClearButton.dataset.cleared = 'true';
+        clearNotificationBadges();
+
+        fetch(notificationClearButton.dataset.clearUrl, {
+          method: 'POST',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+            'X-CSRFToken': notificationClearButton.dataset.csrfToken,
+          },
+          credentials: 'same-origin',
+        }).catch(function () {
+          notificationClearButton.dataset.cleared = 'false';
+        });
+      }
+
+      if (notificationClearButton) {
+        notificationClearButton.addEventListener('click', markNotificationsRead);
+        document.querySelectorAll('[data-notification-link]').forEach(function (link) {
+          link.addEventListener('click', markNotificationsRead);
         });
       }
 
