@@ -373,6 +373,56 @@ def test_ajax_confirm_returns_json_and_does_not_redirect(client, app):
         assert Confirmation.query.filter_by(report_id=report_id, user_id=user_id).count() == 0
 
 
+def test_report_can_be_shared_by_email(client, app, monkeypatch):
+    with app.app_context():
+        report = create_report()
+        report_id = report.id
+
+    sent = {}
+
+    def fake_send(report, recipient_email):
+        sent["report_id"] = report.id
+        sent["recipient_email"] = recipient_email
+
+    monkeypatch.setattr("roadwatch.reports._send_report_share_email", fake_send)
+    reports_page = client.get("/reports/")
+    token = csrf_token(reports_page)
+
+    response = client.post(
+        f"/reports/{report_id}/share/email",
+        data={"csrf_token": token, "email": "neighbour@example.com"},
+        headers={"X-Requested-With": "XMLHttpRequest"},
+    )
+
+    assert response.status_code == 200
+    assert response.is_json
+    assert response.get_json()["ok"] is True
+    assert sent == {"report_id": report_id, "recipient_email": "neighbour@example.com"}
+
+
+def test_report_email_share_rejects_invalid_email(client, app, monkeypatch):
+    with app.app_context():
+        report = create_report()
+        report_id = report.id
+
+    def fake_send(report, recipient_email):
+        raise AssertionError("Invalid email should not be sent")
+
+    monkeypatch.setattr("roadwatch.reports._send_report_share_email", fake_send)
+    reports_page = client.get("/reports/")
+    token = csrf_token(reports_page)
+
+    response = client.post(
+        f"/reports/{report_id}/share/email",
+        data={"csrf_token": token, "email": "not-an-email"},
+        headers={"X-Requested-With": "XMLHttpRequest"},
+    )
+
+    assert response.status_code == 400
+    assert response.is_json
+    assert response.get_json()["ok"] is False
+
+
 def test_model_helper_methods(app):
     with app.app_context():
         admin = make_user(username="admin", email="admin@example.com", is_admin=True)
