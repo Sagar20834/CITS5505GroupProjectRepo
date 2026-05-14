@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 
 from conftest import csrf_token, login, logout, make_user, report_form_data
 from roadwatch.extensions import db
-from roadwatch.models import Comment, Confirmation, Report, ReportStatusNote, User
+from roadwatch.models import Comment, Confirmation, Notification, Report, ReportStatusNote, User
 
 
 def create_report(*, reporter=None, moderation_status=Report.APPROVED, created_at=None):
@@ -151,6 +151,57 @@ def test_logged_in_report_submission(client, app):
         assert report.reporter_id == user_id
         assert report.is_anonymous is False
         assert report.moderation_status == Report.PENDING_APPROVAL
+
+
+def test_report_notifications_are_created_and_marked_read(client, app):
+    with app.app_context():
+        make_user(username="admin", email="admin@example.com", is_admin=True)
+        user = make_user()
+        user_id = user.id
+
+    login(client)
+    response = submit_report(client)
+    assert response.status_code in (302, 303)
+
+    with app.app_context():
+        report = Report.query.one()
+        report_id = report.id
+        admin = User.query.filter_by(username="admin").one()
+        user_notifications = Notification.query.filter_by(user_id=user_id, is_read=False).all()
+        admin_notifications = Notification.query.filter_by(user_id=admin.id, is_read=False).all()
+        assert any("waiting for admin approval" in notification.message for notification in user_notifications)
+        assert any("New report awaiting approval" in notification.message for notification in admin_notifications)
+
+    logout(client)
+    login(client, identifier="admin")
+    admin_page = client.get("/admin/")
+    token = csrf_token(admin_page)
+    response = client.post(
+        f"/admin/reports/{report_id}/approval",
+        data={"csrf_token": token, "moderation_status": Report.APPROVED},
+        follow_redirects=False,
+    )
+    assert response.status_code in (302, 303)
+
+    with app.app_context():
+        approved_notifications = Notification.query.filter_by(user_id=user_id, is_read=False).all()
+        assert any("approved and published" in notification.message for notification in approved_notifications)
+
+    logout(client)
+    login(client)
+    profile_page = client.get("/profile")
+    token = csrf_token(profile_page)
+    response = client.post(
+        "/notifications/read",
+        data={"csrf_token": token},
+        headers={"X-Requested-With": "XMLHttpRequest"},
+    )
+    assert response.status_code == 200
+    assert response.is_json
+    assert response.get_json()["ok"] is True
+
+    with app.app_context():
+        assert Notification.query.filter_by(user_id=user_id, is_read=False).count() == 0
 
 
 def test_invalid_report_form_shows_validation_error(client, app):

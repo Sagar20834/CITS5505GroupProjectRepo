@@ -3,6 +3,7 @@ from flask_login import current_user
 
 from .extensions import db
 from .models import Comment, Report, ReportStatusNote, User
+from .notifications import create_notification
 from .security import admin_required
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -40,12 +41,26 @@ def admin_panel():
 def update_report_approval(report_id):
     report = db.get_or_404(Report, report_id)
     new_moderation_status = request.form.get("moderation_status", "").strip()
+    old_moderation_status = report.moderation_status
 
     if new_moderation_status not in Report.MODERATION_STATUSES:
         flash("Please select a valid approval status.", "error")
         return redirect(request.referrer or url_for("admin.admin_panel"))
 
     report.moderation_status = new_moderation_status
+    if report.reporter and old_moderation_status != new_moderation_status:
+        if new_moderation_status == Report.APPROVED:
+            message = "Your report has been approved and published."
+        elif new_moderation_status == Report.REJECTED:
+            message = "Your report was rejected and removed from public view."
+        else:
+            message = "Your report is waiting for admin approval."
+        create_notification(
+            report.reporter,
+            message,
+            report=report,
+            link_url=url_for("reports.report_details", report_id=report.id),
+        )
     db.session.commit()
 
     if new_moderation_status == Report.APPROVED:

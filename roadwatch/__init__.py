@@ -5,6 +5,7 @@ from zoneinfo import ZoneInfo
 
 import click
 from flask import Flask, redirect, render_template, url_for
+from flask_login import current_user
 from flask_wtf.csrf import CSRFError, generate_csrf
 from sqlalchemy import inspect
 from sqlalchemy.schema import CreateIndex
@@ -15,7 +16,7 @@ from .cli import reset_demo_command, seed_demo_command
 from .config import Config
 from .extensions import csrf, db, login_manager, migrate
 from .main import main_bp
-from .models import Report, User
+from .models import Notification, Report, User
 from .reports import reports_bp
 
 STATUS_STYLES = {
@@ -162,6 +163,17 @@ def create_app(config_class=Config):
 
     @app.context_processor
     def inject_template_globals():
+        unread_notifications = []
+        unread_notification_count = 0
+        if current_user.is_authenticated:
+            unread_notification_count = Notification.query.filter_by(user_id=current_user.id, is_read=False).count()
+            unread_notifications = (
+                Notification.query.filter_by(user_id=current_user.id)
+                .order_by(Notification.created_at.desc())
+                .limit(5)
+                .all()
+            )
+
         return {
             "csrf_token": generate_csrf,
             "current_year": datetime.now(LOCAL_TIMEZONE).year,
@@ -172,6 +184,8 @@ def create_app(config_class=Config):
             "moderation_statuses": Report.MODERATION_STATUSES,
             "moderation_styles": MODERATION_STYLES,
             "severity_styles": SEVERITY_STYLES,
+            "unread_notification_count": unread_notification_count,
+            "recent_notifications": unread_notifications,
         }
 
     @app.template_filter("datetime_label")

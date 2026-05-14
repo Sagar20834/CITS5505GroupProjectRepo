@@ -11,6 +11,7 @@ from flask_login import current_user
 
 from .extensions import db
 from .models import Comment, Confirmation, Report
+from .notifications import create_admin_notifications, create_notification
 
 reports_bp = Blueprint("reports", __name__, url_prefix="/reports")
 REPORTS_PER_PAGE = 10
@@ -305,6 +306,20 @@ def create_report():
             report.is_anonymous = form_data["is_anonymous"]
             report.reporter_id = current_user.id if current_user.is_authenticated else None
             db.session.add(report)
+            db.session.commit()
+            report_url = url_for("reports.report_details", report_id=report.id)
+            if current_user.is_authenticated:
+                create_notification(
+                    current_user,
+                    "Your report is waiting for admin approval.",
+                    report=report,
+                    link_url=report_url,
+                )
+            create_admin_notifications(
+                f"New report awaiting approval: {report.issue_type} at {report.location}.",
+                report=report,
+                link_url=url_for("admin.admin_panel", _anchor="pending-reports"),
+            )
             db.session.commit()
             flash("Your report is waiting for admin approval.", "success")
             if current_user.is_authenticated:

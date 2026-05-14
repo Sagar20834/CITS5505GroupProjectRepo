@@ -51,6 +51,12 @@ class User(db.Model):
         cascade="all, delete-orphan",
         lazy="dynamic",
     )
+    notifications = db.relationship(
+        "Notification",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="dynamic",
+    )
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -149,6 +155,11 @@ class Report(db.Model):
         back_populates="report",
         cascade="all, delete-orphan",
     )
+    notifications = db.relationship(
+        "Notification",
+        back_populates="report",
+        cascade="all, delete-orphan",
+    )
 
     @property
     def reporter_label(self):
@@ -240,6 +251,24 @@ class Confirmation(db.Model):
 
     def __repr__(self):
         return f"<Confirmation user={self.user_id} report={self.report_id}>"
+
+
+class Notification(db.Model):
+    __tablename__ = "notifications"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    report_id = db.Column(db.Integer, db.ForeignKey("reports.id", ondelete="CASCADE"), nullable=True, index=True)
+    message = db.Column(db.String(255), nullable=False)
+    link_url = db.Column(db.String(500), nullable=False, default="")
+    is_read = db.Column(db.Boolean, nullable=False, default=False, index=True)
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow, index=True)
+
+    user = db.relationship("User", back_populates="notifications")
+    report = db.relationship("Report", back_populates="notifications")
+
+    def __repr__(self):
+        return f"<Notification {self.id} user={self.user_id} read={self.is_read}>"
 
 
 @event.listens_for(Report, "before_insert")
