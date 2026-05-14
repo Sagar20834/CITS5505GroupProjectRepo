@@ -3,37 +3,37 @@
 {% block title %}RoadWatch Perth{% endblock %}
 
 {% block content %}
-  <section class="mb-8 rounded-2xl border border-slate-200 bg-white p-8 shadow-lg md:p-10">
+  <section class="mb-8 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8 shadow-lg md:p-10">
     <div class="grid gap-8 lg:grid-cols-[1.2fr,0.8fr] lg:items-center">
       <div>
-        <p class="mb-4 text-sm font-bold uppercase tracking-[0.28em] text-blue-700">Safer Streets Through Community Reporting</p>
-        <h1 class="mb-6 text-5xl font-bold leading-tight text-slate-900 md:text-6xl">Report road hazards across Perth before they become bigger problems.</h1>
-        <p class="mb-8 max-w-3xl text-xl leading-9 text-slate-600">
+        <p class="mb-4 text-sm font-bold uppercase tracking-[0.28em] text-blue-700 dark:text-blue-300">Safer Streets Through Community Reporting</p>
+        <h1 class="mb-6 text-5xl font-bold leading-tight text-slate-900 dark:text-slate-100 md:text-6xl">Report road hazards across Perth before they become bigger problems.</h1>
+        <p class="mb-8 max-w-3xl text-xl leading-9 text-slate-600 dark:text-slate-300">
           RoadWatch Perth helps residents report unsafe roads, track recurring issues,
           and surface hotspots that may need faster maintenance attention.
         </p>
         <div class="flex flex-wrap gap-4">
-          <a href="{{ url_for('reports.create_report') }}" class="rounded-2xl bg-amber-500 px-7 py-4 text-xl font-semibold text-slate-900 no-underline hover:bg-amber-400">Report an Issue</a>
-          <a href="{{ url_for('reports.list_reports') }}" class="rounded-2xl bg-blue-500 px-7 py-4 text-xl font-semibold text-white no-underline hover:bg-blue-600">View Reports</a>
-          <a href="{{ url_for('main.dashboard') }}" class="rounded-2xl border border-slate-300 px-7 py-4 text-xl font-semibold text-slate-700 no-underline hover:bg-slate-50">Dashboard</a>
+          <a href="{{ url_for('reports.create_report') }}" class="rounded-2xl bg-amber-500 dark:bg-amber-400 px-7 py-4 text-xl font-semibold text-slate-900 no-underline hover:bg-amber-400">Report an Issue</a>
+          <a href="{{ url_for('reports.list_reports') }}" class="rounded-2xl bg-blue-500 dark:bg-blue-600 px-7 py-4 text-xl font-semibold text-white no-underline hover:bg-blue-600">View Reports</a>
+          <a href="{{ url_for('main.dashboard') }}" class="rounded-2xl border border-slate-300 dark:border-slate-600 px-7 py-4 text-xl font-semibold text-slate-700 dark:text-slate-200 no-underline hover:bg-slate-50 dark:hover:bg-slate-700">Dashboard</a>
         </div>
       </div>
 
       <div class="grid gap-4 sm:grid-cols-2">
-        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
-          <p class="text-sm uppercase tracking-[0.2em] text-slate-500">Total reports</p>
-          <p class="mt-3 text-4xl font-bold text-slate-900">{{ summary.total }}</p>
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
+          <p class="text-sm uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Total reports</p>
+          <p class="mt-3 text-4xl font-bold text-slate-900 dark:text-slate-100">{{ summary.total }}</p>
         </div>
-        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
-          <p class="text-sm uppercase tracking-[0.2em] text-slate-500">Reported</p>
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
+          <p class="text-sm uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Reported</p>
           <p class="mt-3 text-4xl font-bold text-amber-600">{{ summary.reported }}</p>
         </div>
-        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
-          <p class="text-sm uppercase tracking-[0.2em] text-slate-500">Under review</p>
-          <p class="mt-3 text-4xl font-bold text-blue-600">{{ summary.under_review }}</p>
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
+          <p class="text-sm uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Under review</p>
+          <p class="mt-3 text-4xl font-bold text-blue-600 dark:text-blue-300">{{ summary.under_review }}</p>
         </div>
-        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
-          <p class="text-sm uppercase tracking-[0.2em] text-slate-500">Fixed</p>
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
+          <p class="text-sm uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Fixed</p>
           <p class="mt-3 text-4xl font-bold text-green-600">{{ summary.fixed }}</p>
         </div>
       </div>
@@ -41,10 +41,10 @@
   </section>
 
   <section class="mb-8 grid gap-6 lg:grid-cols-[1.1fr,0.9fr]">
-    <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-      <p class="mb-3 text-sm font-bold uppercase tracking-[0.24em] text-blue-700">Analytics Overview</p>
-      <h2 class="mb-2 text-3xl font-bold text-slate-900">Issue trends this year</h2>
-      <p class="mb-6 text-lg leading-8 text-slate-600">This chart now uses persisted report data rendered with Chart.js, which fits the clarified non-core library allowance for graphing.</p>
+    <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8 shadow-sm">
+      <p class="mb-3 text-sm font-bold uppercase tracking-[0.24em] text-blue-700 dark:text-blue-300">Analytics Overview</p>
+      <h2 class="mb-2 text-3xl font-bold text-slate-900 dark:text-slate-100">Issue trends this year</h2>
+      <p class="mb-6 text-lg leading-8 text-slate-600 dark:text-slate-300">This chart now uses persisted report data rendered with Chart.js, which fits the clarified non-core library allowance for graphing.</p>
 
       <div class="relative h-[360px]">
         <canvas id="homepageChart"></canvas>
@@ -52,34 +52,34 @@
     </div>
 
     <div class="space-y-6">
-      <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-        <h2 class="mb-4 text-3xl font-bold text-slate-900">Repeated Locations</h2>
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8 shadow-sm">
+        <h2 class="mb-4 text-3xl font-bold text-slate-900 dark:text-slate-100">Repeated Locations</h2>
         {% if hotspots %}
           <div class="space-y-4">
             {% for hotspot in hotspots %}
-              <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-5">
                 <div class="flex items-start justify-between gap-4">
                   <div>
-                    <p class="text-xl font-semibold text-sky-900">{{ hotspot.location }}</p>
-                    <p class="text-sm text-slate-500">{{ hotspot.reporter_count }} distinct linked reporter{% if hotspot.reporter_count != 1 %}s{% endif %}</p>
+                    <p class="text-xl font-semibold text-sky-900 dark:text-sky-300">{{ hotspot.location }}</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">{{ hotspot.reporter_count }} distinct linked reporter{% if hotspot.reporter_count != 1 %}s{% endif %}</p>
                   </div>
-                  <span class="rounded-full bg-amber-100 px-3 py-1 text-sm font-bold text-amber-800">{{ hotspot.report_count }} reports</span>
+                  <span class="rounded-full bg-amber-100 px-3 py-1 text-sm font-bold text-amber-800 dark:text-amber-200">{{ hotspot.report_count }} reports</span>
                 </div>
               </div>
             {% endfor %}
           </div>
         {% else %}
-          <p class="text-lg leading-8 text-slate-600">Hotspots will appear here once the same location has been reported more than once.</p>
+          <p class="text-lg leading-8 text-slate-600 dark:text-slate-300">Hotspots will appear here once the same location has been reported more than once.</p>
         {% endif %}
       </div>
 
-      <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-        <h2 class="mb-4 text-3xl font-bold text-slate-900">Issue Types</h2>
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8 shadow-sm">
+        <h2 class="mb-4 text-3xl font-bold text-slate-900 dark:text-slate-100">Issue Types</h2>
         <div class="space-y-3">
           {% for issue_type, count in issue_counts.items() %}
-            <div class="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3">
-              <span class="font-medium text-slate-700">{{ issue_type }}</span>
-              <span class="text-lg font-bold text-sky-900">{{ count }}</span>
+            <div class="flex items-center justify-between rounded-xl bg-slate-50 dark:bg-slate-900 px-4 py-3">
+              <span class="font-medium text-slate-700 dark:text-slate-200">{{ issue_type }}</span>
+              <span class="text-lg font-bold text-sky-900 dark:text-sky-300">{{ count }}</span>
             </div>
           {% endfor %}
         </div>
@@ -87,40 +87,40 @@
     </div>
   </section>
 
-  <section class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+  <section class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8 shadow-sm">
     <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div>
-        <p class="mb-2 text-sm font-bold uppercase tracking-[0.24em] text-blue-700">Community Reports</p>
-        <h2 class="text-3xl font-bold text-slate-900">Latest submissions</h2>
+        <p class="mb-2 text-sm font-bold uppercase tracking-[0.24em] text-blue-700 dark:text-blue-300">Community Reports</p>
+        <h2 class="text-3xl font-bold text-slate-900 dark:text-slate-100">Latest submissions</h2>
       </div>
-      <a href="{{ url_for('reports.list_reports') }}" class="rounded-xl border border-blue-500 px-4 py-2 font-medium text-blue-600 no-underline hover:bg-blue-50">Browse all reports</a>
+      <a href="{{ url_for('reports.list_reports') }}" class="rounded-xl border border-blue-500 px-4 py-2 font-medium text-blue-600 dark:text-blue-300 no-underline hover:bg-blue-50 dark:hover:bg-blue-900">Browse all reports</a>
     </div>
 
     {% if recent_reports %}
       <div class="grid gap-5 lg:grid-cols-2">
         {% for report in recent_reports %}
-          <article class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
+          <article class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
             <div class="mb-3 flex items-start justify-between gap-4">
               <div>
-                <h3 class="text-2xl font-bold text-sky-900">{{ report.issue_type }}</h3>
-                <p class="text-base text-slate-500">{{ report.location }}</p>
+                <h3 class="text-2xl font-bold text-sky-900 dark:text-sky-300">{{ report.issue_type }}</h3>
+                <p class="text-base text-slate-500 dark:text-slate-400">{{ report.location }}</p>
               </div>
               <span class="rounded-full px-3 py-1 text-sm font-bold {{ status_styles[report.status] }}">Progress: {{ report.status }}</span>
             </div>
-            <p class="mb-3 text-base leading-7 text-slate-600">{{ report.description[:170] }}{% if report.description|length > 170 %}...{% endif %}</p>
-            <div class="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500">
+            <p class="mb-3 text-base leading-7 text-slate-600 dark:text-slate-300">{{ report.description[:170] }}{% if report.description|length > 170 %}...{% endif %}</p>
+            <div class="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500 dark:text-slate-400">
               <span>Submitted by {{ report.reporter_label }}</span>
               <span>{{ report.created_at|datetime_label }}</span>
             </div>
             <div class="mt-5">
-              <a href="{{ url_for('reports.report_details', report_id=report.id) }}" class="rounded-xl bg-blue-500 px-4 py-2 font-medium text-white no-underline hover:bg-blue-600">View details</a>
+              <a href="{{ url_for('reports.report_details', report_id=report.id) }}" class="rounded-xl bg-blue-500 dark:bg-blue-600 px-4 py-2 font-medium text-white no-underline hover:bg-blue-600">View details</a>
             </div>
           </article>
         {% endfor %}
       </div>
     {% else %}
-      <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
-        <p class="text-lg text-slate-600">No reports have been submitted yet.</p>
+      <div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 p-8 text-center">
+        <p class="text-lg text-slate-600 dark:text-slate-300">No reports have been submitted yet.</p>
       </div>
     {% endif %}
   </section>

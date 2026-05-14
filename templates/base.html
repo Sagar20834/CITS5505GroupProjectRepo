@@ -7,10 +7,6 @@
   <title>{% block title %}RoadWatch Perth{% endblock %}</title>
   <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
   <script>
-    window.tailwind = window.tailwind || {};
-    window.tailwind.config = { darkMode: 'class' };
-  </script>
-  <script>
     (function () {
       const storedTheme = localStorage.getItem('roadwatch-theme');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -19,133 +15,14 @@
     })();
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    .dark body {
-      background-color: #0f172a;
-      color: #e2e8f0;
-    }
-
-    .dark .bg-white {
-      background-color: #1e293b !important;
-    }
-
-    .dark .bg-slate-50,
-    .dark .bg-slate-100 {
-      background-color: #0f172a !important;
-    }
-
-    .dark .bg-slate-200 {
-      background-color: #334155 !important;
-    }
-
-    .dark .bg-amber-50 {
-      background-color: #451a03 !important;
-    }
-
-    .dark .bg-blue-50 {
-      background-color: #172554 !important;
-    }
-
-    .dark .bg-green-50 {
-      background-color: #052e16 !important;
-    }
-
-    .dark .bg-red-50 {
-      background-color: #450a0a !important;
-    }
-
-    .dark .border-slate-200,
-    .dark .border-slate-300 {
-      border-color: #334155 !important;
-    }
-
-    .dark .border-amber-200 {
-      border-color: #92400e !important;
-    }
-
-    .dark .text-slate-900,
-    .dark .text-slate-800,
-    .dark .text-slate-700 {
-      color: #e2e8f0 !important;
-    }
-
-    .dark .text-slate-600,
-    .dark .text-slate-500,
-    .dark .text-slate-400 {
-      color: #cbd5e1 !important;
-    }
-
-    .dark .text-sky-900,
-    .dark .text-blue-700,
-    .dark .text-blue-600 {
-      color: #93c5fd !important;
-    }
-
-    .dark .text-amber-800 {
-      color: #fde68a !important;
-    }
-
-    .dark .text-green-800,
-    .dark .text-green-700 {
-      color: #bbf7d0 !important;
-    }
-
-    .dark .text-red-800,
-    .dark .text-red-600 {
-      color: #fecaca !important;
-    }
-
-    .dark .bg-amber-100.text-amber-800 {
-      color: #92400e !important;
-    }
-
-    .dark .bg-green-100.text-green-800 {
-      color: #166534 !important;
-    }
-
-    .dark .bg-red-100.text-red-800 {
-      color: #991b1b !important;
-    }
-
-    .dark .bg-amber-500.text-slate-900 {
-      color: #0f172a !important;
-    }
-
-    .dark input,
-    .dark select,
-    .dark textarea {
-      background-color: #0f172a;
-      border-color: #475569;
-      color: #e2e8f0;
-    }
-
-    .dark input::placeholder,
-    .dark textarea::placeholder {
-      color: #94a3b8;
-    }
-
-    .dark .hover\:bg-slate-50:hover,
-    .dark .hover\:bg-slate-100:hover {
-      background-color: #334155 !important;
-    }
-
-    .dark .hover\:bg-blue-50:hover {
-      background-color: #1e3a8a !important;
-    }
-
-    .dark .hover\:bg-green-50:hover {
-      background-color: #14532d !important;
-    }
-
-    .dark .hover\:bg-red-50:hover {
-      background-color: #7f1d1d !important;
-    }
-  </style>
   {% block extra_head %}{% endblock %}
 </head>
 
-<body class="min-h-screen bg-slate-100 text-slate-800">
+<body class="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
   <nav class="bg-slate-900 sticky top-0 z-50">
     <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-5">
       <a href="{{ url_for('main.index') }}" class="text-4xl font-bold text-white no-underline">RoadWatch Perth</a>
@@ -159,11 +36,6 @@
         <a href="{{ url_for('reports.create_report') }}"
           class="{% if request.endpoint == 'reports.create_report' or request.endpoint == 'reports.edit_report' %}text-amber-400{% else %}hover:text-amber-400{% endif %}">Report
           Issue</a>
-        <button id="theme-toggle" type="button"
-          class="rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm font-semibold text-slate-100 hover:bg-slate-700"
-          aria-label="Switch theme">
-          <span id="theme-toggle-label">Dark</span>
-        </button>
         {% if current_user.is_authenticated %}
         {% if current_user.is_admin %}
         <a href="{{ url_for('admin.admin_panel') }}"
@@ -179,10 +51,23 @@
         </form>
         {% else %}
         <a href="{{ url_for('auth.login') }}"
-          class="{% if request.endpoint == 'auth.login' %}text-amber-400{% else %}rounded-lg bg-blue-500 px-5 py-2.5 font-semibold text-white no-underline hover:bg-blue-600{% endif %}">Login</a>
+          class="{% if request.endpoint == 'auth.login' %}text-amber-400{% else %}rounded-lg bg-blue-500 dark:bg-blue-600 px-5 py-2.5 font-semibold text-white no-underline hover:bg-blue-600{% endif %}">Login</a>
         <a href="{{ url_for('auth.register') }}"
-          class="{% if request.endpoint == 'auth.register' %}text-amber-400{% else %}rounded-lg bg-green-500 px-5 py-2.5 font-semibold text-white no-underline hover:bg-green-600{% endif %}">Register</a>
+          class="{% if request.endpoint == 'auth.register' %}text-amber-400{% else %}rounded-lg bg-green-500 dark:bg-green-600 px-5 py-2.5 font-semibold text-white no-underline hover:bg-green-600{% endif %}">Register</a>
         {% endif %}
+        <button id="theme-toggle" type="button"
+          class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-600 bg-slate-800 text-slate-100 transition hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400"
+          aria-label="Switch theme">
+          <svg id="theme-icon-moon" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3 6.5 6.5 0 0 0 21 12.8Z"></path>
+          </svg>
+          <svg id="theme-icon-sun" class="hidden h-5 w-5" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+          </svg>
+        </button>
       </div>
     </div>
   </nav>
@@ -210,12 +95,14 @@
       const container = document.getElementById('toast-container');
       const flashedMessages = document.getElementById('flashed-messages');
       const themeToggle = document.getElementById('theme-toggle');
-      const themeToggleLabel = document.getElementById('theme-toggle-label');
+      const moonIcon = document.getElementById('theme-icon-moon');
+      const sunIcon = document.getElementById('theme-icon-sun');
 
       function updateThemeToggle() {
         const isDark = document.documentElement.classList.contains('dark');
-        if (themeToggleLabel) themeToggleLabel.textContent = isDark ? 'Light' : 'Dark';
         if (themeToggle) themeToggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+        if (moonIcon) moonIcon.classList.toggle('hidden', isDark);
+        if (sunIcon) sunIcon.classList.toggle('hidden', !isDark);
       }
 
       function applyChartTheme() {
@@ -249,10 +136,10 @@
       applyChartTheme();
 
       const palettes = {
-        success: 'border-green-200 bg-green-50 text-green-800',
-        warning: 'border-amber-200 bg-amber-50 text-amber-800',
-        error: 'border-red-200 bg-red-50 text-red-800',
-        message: 'border-slate-200 bg-white text-slate-700',
+        success: 'border-green-200 bg-green-50 dark:bg-green-950 text-green-800 dark:text-green-200',
+        warning: 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-amber-200',
+        error: 'border-red-200 bg-red-50 dark:bg-red-950 text-red-800 dark:text-red-200',
+        message: 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200',
       };
 
       function showToast(message, kind) {
