@@ -247,6 +247,13 @@ def test_browser_address_suggestions_update_without_page_reload(browser, live_se
 
     option_value = browser.execute_script("return document.querySelector('#street-address-suggestions option').value")
     assert option_value == "Hay Street"
+
+    suggestion_button = browser.find_element(By.CSS_SELECTOR, "#street-address-suggestion-panel button")
+    assert suggestion_button.is_displayed()
+    suggestion_button.click()
+    assert browser.find_element(By.ID, "street_address").get_attribute("value") == "Hay Street"
+    assert browser.find_element(By.ID, "suburb").get_attribute("value") == "Perth"
+    assert browser.find_element(By.ID, "postcode").get_attribute("value") == "6000"
     assert browser.current_url == original_url
 
 
