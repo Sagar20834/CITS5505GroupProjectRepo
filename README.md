@@ -1,231 +1,193 @@
 # RoadWatch Perth
 
-RoadWatch Perth is a Flask web application for reporting and tracking road issues around Perth, such as potholes, cracks, flooding, broken roads, and missing signs.
+RoadWatch Perth is a Flask web application for reporting, reviewing, and tracking community road hazards around Perth. Users can submit road issue reports, browse approved community reports, confirm recurring issues, and discuss reports through comments. Admin users can review new reports before publication and manage progress updates.
 
-The app uses server-side rendered Jinja templates, Flask-Login authentication, Flask-SQLAlchemy models, Flask-WTF CSRF protection, admin moderation, analytics dashboards, comments, confirmations, and an AJAX address suggestion endpoint.
+## Purpose, Design, and Use
+
+The purpose of RoadWatch Perth is to help local residents, commuters, and road authorities identify unsafe road conditions before they become larger problems. The application supports community reporting for issues such as potholes, cracked roads, flooding, missing signs, and other road hazards.
+
+The application is designed around three main workflows:
+
+- Public users can browse approved road reports, search by location, view report details, and see issue trends.
+- Registered users can submit reports, track their own reports, comment on reports, and confirm that they have seen the same issue.
+- Admin users can review new reports before they become public, approve or reject submissions, update repair progress, change severity, remove inappropriate content, and manage users.
+
+Reports are stored in SQLite through SQLAlchemy models. New reports enter a pending approval state, public pages show approved reports only, and dashboard charts are generated from persisted report data. The interface is built with Flask routes, Jinja templates, Tailwind CSS, and small JavaScript enhancements such as address autocomplete and Chart.js analytics.
+
+## Group Members
+
+
+| UWA ID | Name | GitHub username |
+| --- | --- | --- |
+| TODO | Dipta Datta Gupta | diptadg |
+| TODO | Sagar Kumar Sah Kanu | Sagar20834 |
+| TODO | Harshil Patel | Harshil8802 |
+| TODO | Ziqi Meng | TODO |
+| TODO | Jiongge | Jiongge |
 
 ## Features
 
-- User registration, login, logout, and password hashing
-- Anonymous or account-linked report submission
-- Admin approval workflow before reports become public
-- Report search/filtering by location, issue type, status, and ownership
-- Report details page with comments and issue confirmations
-- Admin controls for approval, status, severity, deletion, and user blocking
-- Dashboard analytics for issue counts, status counts, hotspots, and monthly trends
-- AJAX street address suggestions without reloading the page
-- Perth timezone display for posted and updated times
-- Automated unit/integration tests with pytest
-- Selenium WebDriver browser tests
+- User registration, login, logout, and account-linked reports.
+- Anonymous report submission for guests and signed-in users.
+- Report creation with issue type, severity, structured location, description, and optional image URL.
+- No-token address autocomplete using OpenStreetMap data through Photon, with saved approved report locations as fallback.
+- Admin approval workflow: pending, approved, and rejected reports.
+- Public report list showing approved reports only.
+- Search and filter reports by street address, suburb, postcode, issue type, and progress.
+- Pagination for public reports and admin report management.
+- Report confirmations so users can mark that they have seen the same issue.
+- Comment threads on report detail pages.
+- Admin actions for approval, progress updates, severity updates, comment deletion, report deletion, and user blocking.
+- Dashboard analytics using persisted report data and Chart.js.
 
-## Requirements
+## Technology Stack
 
-- Python 3.11 or newer
-- pip
-- A terminal such as PowerShell, Command Prompt, Git Bash, or macOS/Linux shell
+- Flask
+- Flask-Login
+- Flask-SQLAlchemy
+- Flask-Migrate
+- Flask-WTF
+- SQLite
+- Jinja templates
+- Tailwind CSS
+- Chart.js
+- pytest
+- Selenium
+- tzdata
 
-## Setup On Windows
+## Project Structure
 
-From the project root:
-
-```powershell
-cd D:\CITS5508GroupProjectRepo
+```text
+app.py                  Flask app entry point
+roadwatch/              Application package
+templates/              Jinja templates
+migrations/             Alembic/Flask-Migrate database migrations
+tests/                  pytest backend workflow tests
+documentation/          Project brief and user stories
 ```
 
-Create a virtual environment:
-
-```powershell
-python -m venv venv
-```
-
-Activate it:
-
-```powershell
-.\venv\Scripts\activate
-```
-
-Install dependencies:
-
-```powershell
-python -m pip install -r requirements.txt
-```
-
-## Setup On macOS Or Linux
-
-From the project root:
-
-```bash
-cd /path/to/CITS5508GroupProjectRepo
-```
+## Launching the Application
 
 Create and activate a virtual environment:
 
-```bash
-python3 -m venv venv
-source venv/bin/activate
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 ```
 
 Install dependencies:
 
-```bash
+```powershell
 python -m pip install -r requirements.txt
 ```
 
-## Database Setup
-
-Apply migrations:
+Apply database migrations:
 
 ```powershell
-python -m flask --app app db upgrade
+flask --app app db upgrade
 ```
 
-The app also includes a lightweight schema sync during normal app startup, but running migrations is the preferred setup process.
-
-## Seed Demo Data
-
-Load sample users, reports, comments, confirmations, and status notes:
+Optionally load demo users and reports:
 
 ```powershell
-python -m flask --app app seed-demo
+flask --app app seed-demo
 ```
 
-Demo accounts:
-
-| Username | Password |
-| --- | --- |
-| `admin` | `AdminPass123` |
-| `perthresident` | `ResidentPass123` |
-| `citycommuter` | `CommuterPass123` |
-| `perthcyclist` | `CyclistPass123` |
-
-## Reset Demo Data
-
-To clear existing local data and reload the demo dataset:
+Run the app:
 
 ```powershell
-python -m flask --app app reset-demo
-python -m flask --app app seed-demo
+flask --app app run
 ```
 
-To skip the reset confirmation prompt:
+Then open `http://127.0.0.1:5000`.
 
-```powershell
-python -m flask --app app reset-demo --yes
-python -m flask --app app seed-demo
-```
+## Demo Data
 
-## Run The Application
+The demo seed command creates users, reports, comments, confirmations, status notes, structured locations, and a mix of approval states.
 
-Start the Flask development server:
-
-```powershell
-python -m flask --app app run
-```
-
-Open the app in your browser:
+Default demo accounts:
 
 ```text
-http://127.0.0.1:5000
+admin / AdminPass123
+perthresident / ResidentPass123
+citycommuter / CommuterPass123
+perthcyclist / CyclistPass123
 ```
 
-For debug mode:
+To reset local demo data:
 
 ```powershell
-python -m flask --app app run --debug
+flask --app app reset-demo --yes
 ```
 
-## Run Tests
+## Running Tests
 
-Install dependencies first, then run:
+The backend test suite uses pytest and isolated temporary SQLite databases under the ignored `instance/` directory. Tests do not modify the development database.
+
+Run:
 
 ```powershell
 python -m pytest
 ```
 
-This runs both the Flask test-client tests and the Selenium WebDriver browser tests.
+`pytest.ini` enables verbose output by default, so each test is listed with its pass/fail status.
 
-Current Flask/pytest tests cover:
+Current coverage includes:
 
-- Server-rendered home page
-- User registration and Flask-Login session behavior
-- CSRF rejection for POST requests without tokens
-- Authenticated report creation using SQLAlchemy
-- Report validation errors
-- Admin-only access controls
-- Admin report approval
-- Pending report visibility rules
-- Comments and issue confirmations
-- Perth timezone display
-- AJAX address suggestions JSON response
+- User registration.
+- User login and logout.
+- Anonymous report submission.
+- Logged-in report submission.
+- Report edit and delete permissions.
+- Admin-only progress and severity updates.
+- Admin comment deletion.
+- Model helpers such as `reporter_label`, `can_be_managed_by`, and `can_be_viewed_by`.
 
-Current Selenium tests cover:
+## Running Selenium Browser Tests
 
-- Navbar navigation in a real browser
-- User registration through the browser UI
-- Report filtering through the browser UI
-- Logged-in report submission through the browser UI
-- AJAX address suggestions updating without a page reload
+Selenium tests start the Flask app against an isolated SQLite database and drive the main workflows in a real browser. Selenium 4 uses Selenium Manager to locate or download a compatible browser driver.
 
-Selenium uses a headless Chrome browser first, then falls back to headless Microsoft Edge. Selenium Manager handles browser driver setup automatically when the browser is installed. If neither browser/driver is available, the Selenium tests are skipped with a clear message.
-
-## Useful Commands
-
-Check installed packages:
+Install dependencies first:
 
 ```powershell
-python -m pip list
+python -m pip install -r requirements.txt
 ```
 
-Run tests with more detail:
+Run only the browser tests:
 
 ```powershell
-python -m pytest -v
+python -m pytest -m selenium
 ```
 
-Create a migration after model changes:
+By default the tests use Chrome in headless mode. You can override this with environment variables:
 
 ```powershell
-python -m flask --app app db migrate -m "Describe the change"
-python -m flask --app app db upgrade
+$env:SELENIUM_BROWSER="edge"
+$env:SELENIUM_HEADLESS="0"
+python -m pytest -m selenium
 ```
 
-## Project Structure
+Supported `SELENIUM_BROWSER` values are `chrome`, `edge`, and `firefox`. Selenium Manager handles browser driver discovery automatically. If Selenium cannot start the selected browser locally, the Selenium tests are skipped with a clear reason.
+
+## Database Notes
+
+Local SQLite database files are ignored by Git:
 
 ```text
-.
-|-- app.py
-|-- requirements.txt
-|-- roadwatch/
-|   |-- __init__.py
-|   |-- admin.py
-|   |-- auth.py
-|   |-- cli.py
-|   |-- config.py
-|   |-- extensions.py
-|   |-- main.py
-|   |-- models.py
-|   |-- reports.py
-|   `-- security.py
-|-- templates/
-|-- migrations/
-|-- documentation/
-`-- tests/
+instance/*.db
+instance/*.db-journal
 ```
 
-## Security Notes
+If migrations change, run:
 
-- Authentication is implemented with Flask-Login.
-- Passwords are hashed with Werkzeug before being stored.
-- Database access uses Flask-SQLAlchemy ORM queries.
-- Forms are protected with Flask-WTF CSRF tokens.
-- Jinja templates escape output by default, helping protect against XSS.
-
-## AJAX Evidence
-
-The report form uses JavaScript `fetch()` to call:
-
-```text
-/reports/address-suggestions?q=<partial-address>
+```powershell
+flask --app app db upgrade
 ```
 
-The Flask route returns JSON suggestions, and the page updates the street address datalist without a full page reload.
+To inspect the current migration head:
+
+```powershell
+flask --app app db heads
+```
+
+Timestamps are stored in UTC and displayed in Perth local time through the app's `datetime_label` template filter. The `tzdata` package is included so timezone conversion works reliably on Windows.

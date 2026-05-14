@@ -262,28 +262,43 @@ def report_details(report_id):
 @reports_bp.post("/<int:report_id>/confirm")
 def toggle_confirmation(report_id):
     report = db.get_or_404(Report, report_id)
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
 
     if not report.can_be_viewed_by(current_user):
         abort(404)
 
     if not current_user.is_authenticated:
+        login_url = url_for("auth.login", next=url_for("reports.report_details", report_id=report.id))
+        if is_ajax:
+            return jsonify({"ok": False, "error": "auth", "login_url": login_url}), 401
         flash("Log in to confirm that you have seen this issue.", "warning")
-        return redirect(url_for("auth.login", next=url_for("reports.report_details", report_id=report.id)))
+        return redirect(login_url)
 
     confirmation = Confirmation.query.filter_by(report_id=report.id, user_id=current_user.id).first()
 
     if confirmation:
         db.session.delete(confirmation)
         db.session.commit()
-        flash("Your confirmation has been removed.", "success")
+        confirmed = False
+        message = "Your confirmation has been removed."
     else:
         confirmation = Confirmation()
         confirmation.report_id = report.id
         confirmation.user_id = current_user.id
         db.session.add(confirmation)
         db.session.commit()
-        flash("You confirmed this report.", "success")
+        confirmed = True
+        message = "You confirmed this report."
 
+    if is_ajax:
+        return jsonify({
+            "ok": True,
+            "confirmed": confirmed,
+            "count": report.confirmation_count,
+            "message": message,
+        })
+
+    flash(message, "success")
     return redirect(request.referrer or url_for("reports.report_details", report_id=report.id))
 
 

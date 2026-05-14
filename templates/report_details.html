@@ -44,7 +44,7 @@
       </div>
       <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
         <h2 class="mb-2 text-2xl font-bold text-sky-900">Confirmations</h2>
-        <p class="text-lg text-slate-600">{{ report.confirmation_count }} user{% if report.confirmation_count != 1 %}s{% endif %} confirmed this issue</p>
+        <p class="text-lg text-slate-600" data-confirm-scope="{{ report.id }}"><span data-confirm-count>{{ report.confirmation_count }}</span> user<span data-confirm-plural>{% if report.confirmation_count != 1 %}s{% endif %}</span> confirmed this issue</p>
       </div>
       <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
         <h2 class="mb-2 text-2xl font-bold text-sky-900">Last Updated</h2>
@@ -107,9 +107,15 @@
     <div class="mt-6 flex flex-wrap gap-4">
       <a href="{{ url_for('reports.list_reports') }}" class="rounded-2xl bg-blue-500 px-6 py-3 text-lg font-semibold text-white no-underline hover:bg-blue-600">Back to Reports</a>
       {% if current_user.is_authenticated %}
-        <form method="post" action="{{ url_for('reports.toggle_confirmation', report_id=report.id) }}">
+        <form method="post" action="{{ url_for('reports.toggle_confirmation', report_id=report.id) }}" data-confirm-form data-confirm-scope="{{ report.id }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <button type="submit" class="rounded-2xl px-6 py-3 text-lg font-semibold {% if report.is_confirmed_by(current_user) %}bg-green-500 text-white hover:bg-green-600{% else %}border border-slate-300 text-slate-700 hover:bg-slate-50{% endif %}">
+          <button type="submit"
+                  data-confirm-btn
+                  data-label-on="Remove Confirmation"
+                  data-label-off="Confirm This Issue"
+                  data-classes-on="bg-green-500 text-white hover:bg-green-600"
+                  data-classes-off="border border-slate-300 text-slate-700 hover:bg-slate-50"
+                  class="rounded-2xl px-6 py-3 text-lg font-semibold {% if report.is_confirmed_by(current_user) %}bg-green-500 text-white hover:bg-green-600{% else %}border border-slate-300 text-slate-700 hover:bg-slate-50{% endif %}">
             {% if report.is_confirmed_by(current_user) %}Remove Confirmation{% else %}Confirm This Issue{% endif %}
           </button>
         </form>
