@@ -4,7 +4,7 @@ import sys
 from zoneinfo import ZoneInfo
 
 import click
-from flask import Flask, render_template
+from flask import Flask, redirect, render_template, url_for
 from flask_wtf.csrf import CSRFError, generate_csrf
 from sqlalchemy import inspect
 from sqlalchemy.schema import CreateIndex
@@ -19,21 +19,21 @@ from .models import Report, User
 from .reports import reports_bp
 
 STATUS_STYLES = {
-    "Reported": "bg-amber-100 text-amber-800",
-    "Under Review": "bg-blue-100 text-blue-800",
-    "Fixed": "bg-green-100 text-green-800",
+    "Reported": "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-100",
+    "Under Review": "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100",
+    "Fixed": "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100",
 }
 MODERATION_STYLES = {
-    "Pending Approval": "bg-amber-100 text-amber-800",
-    "Approved": "bg-green-100 text-green-800",
-    "Rejected": "bg-red-100 text-red-800",
+    "Pending Approval": "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-100",
+    "Approved": "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100",
+    "Rejected": "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100",
 }
 
 SEVERITY_STYLES = {
-    "Low": "bg-emerald-100 text-emerald-800",
-    "Medium": "bg-sky-100 text-sky-800",
-    "High": "bg-orange-100 text-orange-800",
-    "Urgent": "bg-red-100 text-red-800",
+    "Low": "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-100",
+    "Medium": "bg-sky-100 text-sky-800 dark:bg-sky-900 dark:text-sky-100",
+    "High": "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-100",
+    "Urgent": "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100",
 }
 LOCAL_TIMEZONE = ZoneInfo("Australia/Perth")
 
@@ -155,6 +155,10 @@ def create_app(config_class=Config):
     @login_manager.user_loader
     def load_user(user_id):
         return db.session.get(User, int(user_id))
+
+    @app.route("/favicon.ico")
+    def favicon():
+        return redirect(url_for("static", filename="favicon.svg"))
 
     @app.context_processor
     def inject_template_globals():

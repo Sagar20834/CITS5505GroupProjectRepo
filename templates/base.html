@@ -5,12 +5,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}RoadWatch Perth{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+  <script>
+    (function () {
+      const storedTheme = localStorage.getItem('roadwatch-theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const useDark = storedTheme ? storedTheme === 'dark' : prefersDark;
+      document.documentElement.classList.toggle('dark', useDark);
+    })();
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   {% block extra_head %}{% endblock %}
 </head>
 
-<body class="min-h-screen bg-slate-100 text-slate-800">
+<body class="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
   <nav class="bg-slate-900 sticky top-0 z-50">
     <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-5">
       <a href="{{ url_for('main.index') }}" class="text-4xl font-bold text-white no-underline">RoadWatch Perth</a>
@@ -39,10 +51,23 @@
         </form>
         {% else %}
         <a href="{{ url_for('auth.login') }}"
-          class="{% if request.endpoint == 'auth.login' %}text-amber-400{% else %}rounded-lg bg-blue-500 px-5 py-2.5 font-semibold text-white no-underline hover:bg-blue-600{% endif %}">Login</a>
+          class="{% if request.endpoint == 'auth.login' %}text-amber-400{% else %}rounded-lg bg-blue-500 dark:bg-blue-600 px-5 py-2.5 font-semibold text-white no-underline hover:bg-blue-600{% endif %}">Login</a>
         <a href="{{ url_for('auth.register') }}"
-          class="{% if request.endpoint == 'auth.register' %}text-amber-400{% else %}rounded-lg bg-green-500 px-5 py-2.5 font-semibold text-white no-underline hover:bg-green-600{% endif %}">Register</a>
+          class="{% if request.endpoint == 'auth.register' %}text-amber-400{% else %}rounded-lg bg-green-500 dark:bg-green-600 px-5 py-2.5 font-semibold text-white no-underline hover:bg-green-600{% endif %}">Register</a>
         {% endif %}
+        <button id="theme-toggle" type="button"
+          class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-600 bg-slate-800 text-slate-100 transition hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400"
+          aria-label="Switch theme">
+          <svg id="theme-icon-moon" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3 6.5 6.5 0 0 0 21 12.8Z"></path>
+          </svg>
+          <svg id="theme-icon-sun" class="hidden h-5 w-5" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+          </svg>
+        </button>
       </div>
     </div>
   </nav>
@@ -69,12 +94,52 @@
     (function () {
       const container = document.getElementById('toast-container');
       const flashedMessages = document.getElementById('flashed-messages');
+      const themeToggle = document.getElementById('theme-toggle');
+      const moonIcon = document.getElementById('theme-icon-moon');
+      const sunIcon = document.getElementById('theme-icon-sun');
+
+      function updateThemeToggle() {
+        const isDark = document.documentElement.classList.contains('dark');
+        if (themeToggle) themeToggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+        if (moonIcon) moonIcon.classList.toggle('hidden', isDark);
+        if (sunIcon) sunIcon.classList.toggle('hidden', !isDark);
+      }
+
+      function applyChartTheme() {
+        if (!window.Chart) return;
+        const isDark = document.documentElement.classList.contains('dark');
+        Chart.defaults.color = isDark ? '#cbd5e1' : '#475569';
+        Chart.defaults.borderColor = isDark ? '#334155' : '#e2e8f0';
+        Object.values(Chart.instances || {}).forEach(function (chart) {
+          chart.options.scales = chart.options.scales || {};
+          Object.values(chart.options.scales).forEach(function (scale) {
+            scale.grid = scale.grid || {};
+            scale.ticks = scale.ticks || {};
+            scale.grid.color = Chart.defaults.borderColor;
+            scale.ticks.color = Chart.defaults.color;
+          });
+          chart.update();
+        });
+      }
+
+      if (themeToggle) {
+        themeToggle.addEventListener('click', function () {
+          const useDark = !document.documentElement.classList.contains('dark');
+          document.documentElement.classList.toggle('dark', useDark);
+          localStorage.setItem('roadwatch-theme', useDark ? 'dark' : 'light');
+          updateThemeToggle();
+          applyChartTheme();
+          window.dispatchEvent(new CustomEvent('roadwatch-theme-change', { detail: { theme: useDark ? 'dark' : 'light' } }));
+        });
+      }
+      updateThemeToggle();
+      applyChartTheme();
 
       const palettes = {
-        success: 'border-green-200 bg-green-50 text-green-800',
-        warning: 'border-amber-200 bg-amber-50 text-amber-800',
-        error: 'border-red-200 bg-red-50 text-red-800',
-        message: 'border-slate-200 bg-white text-slate-700',
+        success: 'border-green-200 bg-green-50 dark:bg-green-950 text-green-800 dark:text-green-200',
+        warning: 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-amber-200',
+        error: 'border-red-200 bg-red-50 dark:bg-red-950 text-red-800 dark:text-red-200',
+        message: 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200',
       };
 
       function showToast(message, kind) {
