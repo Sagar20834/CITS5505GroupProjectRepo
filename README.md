@@ -101,6 +101,23 @@ flask --app app run
 
 Then open `http://127.0.0.1:5000`.
 
+### Email sharing setup
+
+Report sharing by email sends through SMTP. Configure these environment variables before starting Flask:
+
+```powershell
+$env:MAIL_SERVER="smtp.gmail.com"
+$env:MAIL_PORT="587"
+$env:MAIL_USERNAME="your-email@example.com"
+$env:MAIL_PASSWORD="your-app-password"
+$env:MAIL_USE_TLS="true"
+$env:MAIL_USE_SSL="false"
+$env:MAIL_DEFAULT_SENDER="RoadWatch Perth <your-email@example.com>"
+flask --app app run
+```
+
+For Gmail, use an app password rather than your normal account password.
+
 ## Demo Data
 
 The demo seed command creates users, reports, comments, confirmations, status notes, structured locations, and a mix of approval states.

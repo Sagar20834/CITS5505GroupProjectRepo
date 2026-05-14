@@ -166,6 +166,7 @@
         closeBtn.addEventListener('click', dismissToast);
         setTimeout(dismissToast, 3000);
       }
+      window.roadwatchShowToast = showToast;
 
       if (flashedMessages) {
         try {

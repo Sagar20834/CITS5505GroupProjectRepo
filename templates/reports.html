@@ -118,6 +118,15 @@
                     <span class="rounded-xl border border-slate-300 dark:border-slate-600 px-4 py-2 font-medium text-slate-500 dark:text-slate-400">Login to confirm</span>
                   {% endif %}
                   <a href="{{ url_for('reports.report_details', report_id=report.id) }}" class="rounded-xl border border-blue-500 px-4 py-2 font-medium text-blue-600 dark:text-blue-300 no-underline hover:bg-blue-50 dark:hover:bg-blue-900">View</a>
+                  <button type="button"
+                          class="rounded-xl border border-emerald-500 px-4 py-2 font-medium text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-900"
+                          data-share-report
+                          data-report-title="{{ report.issue_type }}"
+                          data-report-location="{{ report.location }}"
+                          data-report-url="{{ url_for('reports.report_details', report_id=report.id, _external=True) }}"
+                          data-email-url="{{ url_for('reports.share_report_email', report_id=report.id) }}">
+                    Share
+                  </button>
                   {% if report.can_be_managed_by(current_user) %}
                     <a href="{{ url_for('reports.edit_report', report_id=report.id) }}" class="rounded-xl border border-slate-300 dark:border-slate-600 px-4 py-2 font-medium text-slate-700 dark:text-slate-200 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">Edit</a>
                     <form method="post" action="{{ url_for('reports.delete_report', report_id=report.id) }}">
@@ -165,4 +174,128 @@
       </div>
     {% endif %}
   </section>
+
+  <div id="share-modal" class="fixed inset-0 z-[70] hidden items-center justify-center bg-slate-950/60 px-4 py-8">
+    <div class="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-800">
+      <div class="mb-5 flex items-start justify-between gap-4">
+        <div>
+          <p class="mb-2 text-sm font-bold uppercase tracking-[0.24em] text-blue-700 dark:text-blue-300">Share Report</p>
+          <h2 id="share-modal-title" class="text-2xl font-bold text-slate-900 dark:text-slate-100">Share report</h2>
+          <p id="share-modal-location" class="mt-1 text-sm text-slate-500 dark:text-slate-400"></p>
+        </div>
+        <button id="share-modal-close" type="button"
+                class="rounded-lg px-2 py-1 text-2xl leading-none text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
+                aria-label="Close share dialog">x</button>
+      </div>
+
+      <form id="share-email-form" class="space-y-4">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div>
+          <label for="share-email" class="mb-2 block text-sm font-semibold text-slate-600 dark:text-slate-300">Recipient email</label>
+          <input id="share-email" name="email" type="email" required
+                 class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
+                 placeholder="name@example.com">
+        </div>
+        <button type="submit" class="w-full rounded-2xl bg-blue-500 px-5 py-3 font-semibold text-white hover:bg-blue-600 dark:bg-blue-600">
+          Share by Email
+        </button>
+      </form>
+
+      <div class="mt-4">
+        <button id="share-whatsapp" type="button" class="w-full rounded-2xl bg-green-500 px-5 py-3 font-semibold text-white hover:bg-green-600 dark:bg-green-600">
+          Share by WhatsApp
+        </button>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    (function () {
+      const modal = document.getElementById('share-modal');
+      const closeBtn = document.getElementById('share-modal-close');
+      const emailForm = document.getElementById('share-email-form');
+      const emailInput = document.getElementById('share-email');
+      const whatsappBtn = document.getElementById('share-whatsapp');
+      const titleEl = document.getElementById('share-modal-title');
+      const locationEl = document.getElementById('share-modal-location');
+      let activeShare = null;
+
+      function toast(message, kind) {
+        if (window.roadwatchShowToast) {
+          window.roadwatchShowToast(message, kind);
+        }
+      }
+
+      function openModal(data) {
+        activeShare = data;
+        titleEl.textContent = data.title;
+        locationEl.textContent = data.location;
+        emailForm.action = data.emailUrl;
+        emailInput.value = '';
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        emailInput.focus();
+      }
+
+      function closeModal() {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        activeShare = null;
+      }
+
+      document.querySelectorAll('[data-share-report]').forEach(function (button) {
+        button.addEventListener('click', function () {
+          openModal({
+            title: button.dataset.reportTitle,
+            location: button.dataset.reportLocation,
+            url: button.dataset.reportUrl,
+            emailUrl: button.dataset.emailUrl,
+          });
+        });
+      });
+
+      closeBtn.addEventListener('click', closeModal);
+      modal.addEventListener('click', function (event) {
+        if (event.target === modal) closeModal();
+      });
+
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+      });
+
+      emailForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const submitBtn = emailForm.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+
+        fetch(emailForm.action, {
+          method: 'POST',
+          headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+          body: new FormData(emailForm),
+          credentials: 'same-origin',
+        })
+          .then(function (response) {
+            return response.json().then(function (data) { return { ok: response.ok, data: data }; });
+          })
+          .then(function (result) {
+            toast(result.data.message || (result.ok ? 'Report shared by email.' : 'Could not share this report.'), result.ok ? 'success' : 'error');
+            if (result.ok) closeModal();
+          })
+          .catch(function () {
+            toast('Could not share this report.', 'error');
+          })
+          .finally(function () {
+            submitBtn.disabled = false;
+          });
+      });
+
+      whatsappBtn.addEventListener('click', function () {
+        if (!activeShare) return;
+        const text = `RoadWatch Perth report: ${activeShare.title} at ${activeShare.location}\n${activeShare.url}`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
+      });
+    })();
+  </script>
 {% endblock %}

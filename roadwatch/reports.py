@@ -1,4 +1,7 @@
 import json
+import smtplib
+from email.message import EmailMessage
+from email.utils import parseaddr
 from urllib.error import URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -11,6 +14,14 @@ from .models import Comment, Confirmation, Report
 
 reports_bp = Blueprint("reports", __name__, url_prefix="/reports")
 REPORTS_PER_PAGE = 10
+
+
+class MailConfigurationError(RuntimeError):
+    pass
+
+
+class MailDeliveryError(RuntimeError):
+    pass
 
 
 def _format_address_suggestion(street_address, suburb="", postcode=""):
@@ -138,6 +149,65 @@ def _validate_comment_body(body):
     if len(body) < 5:
         return "Comments must be at least 5 characters long."
     return None
+
+
+def _validate_email_address(email_address):
+    parsed_name, parsed_email = parseaddr(email_address)
+    if parsed_name or parsed_email != email_address:
+        return False
+    local_part, separator, domain = parsed_email.partition("@")
+    return bool(local_part and separator and "." in domain and " " not in parsed_email)
+
+
+def _report_share_message(report):
+    report_url = url_for("reports.report_details", report_id=report.id, _external=True)
+    subject = f"RoadWatch Perth report: {report.issue_type} at {report.location}"
+    body = "\n".join(
+        [
+            "A RoadWatch Perth report was shared with you.",
+            "",
+            f"Issue: {report.issue_type}",
+            f"Location: {report.location}",
+            f"Severity: {report.severity}",
+            f"Progress: {report.status}",
+            "",
+            report.description,
+            "",
+            f"View the report: {report_url}",
+        ]
+    )
+    return subject, body, report_url
+
+
+def _send_report_share_email(report, recipient_email):
+    mail_server = current_app.config.get("MAIL_SERVER")
+    if not mail_server:
+        raise MailConfigurationError("Email sharing is not configured. Set MAIL_SERVER and mail credentials.")
+
+    subject, body, _report_url = _report_share_message(report)
+    message = EmailMessage()
+    message["Subject"] = subject
+    message["From"] = current_app.config["MAIL_DEFAULT_SENDER"]
+    message["To"] = recipient_email
+    message.set_content(body)
+
+    mail_port = current_app.config["MAIL_PORT"]
+    mail_timeout = current_app.config.get("MAIL_TIMEOUT", 10)
+    smtp_class = smtplib.SMTP_SSL if current_app.config["MAIL_USE_SSL"] else smtplib.SMTP
+
+    try:
+        with smtp_class(mail_server, mail_port, timeout=mail_timeout) as smtp:
+            if current_app.config["MAIL_USE_TLS"] and not current_app.config["MAIL_USE_SSL"]:
+                smtp.starttls()
+            if current_app.config["MAIL_USERNAME"]:
+                smtp.login(current_app.config["MAIL_USERNAME"], current_app.config["MAIL_PASSWORD"])
+            smtp.send_message(message)
+    except smtplib.SMTPAuthenticationError as error:
+        raise MailDeliveryError("Email login failed. Check MAIL_USERNAME and MAIL_PASSWORD.") from error
+    except smtplib.SMTPException as error:
+        raise MailDeliveryError("The mail server rejected the email. Check MAIL_DEFAULT_SENDER and SMTP settings.") from error
+    except OSError as error:
+        raise MailDeliveryError("Could not connect to the mail server. Check MAIL_SERVER, MAIL_PORT, TLS/SSL, and network access.") from error
 
 
 @reports_bp.get("/")
@@ -300,6 +370,32 @@ def toggle_confirmation(report_id):
 
     flash(message, "success")
     return redirect(request.referrer or url_for("reports.report_details", report_id=report.id))
+
+
+@reports_bp.post("/<int:report_id>/share/email")
+def share_report_email(report_id):
+    report = db.get_or_404(Report, report_id)
+
+    if not report.can_be_viewed_by(current_user):
+        abort(404)
+
+    recipient_email = request.form.get("email", "").strip()
+    if not _validate_email_address(recipient_email):
+        return jsonify({"ok": False, "message": "Please enter a valid email address."}), 400
+
+    try:
+        _send_report_share_email(report, recipient_email)
+    except MailConfigurationError as error:
+        current_app.logger.warning("Report share email is not configured: %s", error)
+        return jsonify({"ok": False, "message": str(error)}), 503
+    except MailDeliveryError as error:
+        current_app.logger.warning("Report share email delivery failed: %s", error)
+        return jsonify({"ok": False, "message": str(error)}), 503
+    except Exception:
+        current_app.logger.exception("Report share email failed")
+        return jsonify({"ok": False, "message": "Email sharing is not available right now."}), 503
+
+    return jsonify({"ok": True, "message": "Report shared by email."})
 
 
 @reports_bp.post("/<int:report_id>/comments")
