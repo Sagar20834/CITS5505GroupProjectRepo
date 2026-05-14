@@ -183,7 +183,11 @@ def test_browser_login_and_logout(browser, live_server):
     login_through_browser(browser, live_server, "browseruser", "UserPass123")
     wait_for_text(browser, "browseruser")
 
-    browser.find_element(By.XPATH, "//button[normalize-space()='Logout']").click()
+    browser.find_element(By.ID, "account-menu-button").click()
+    WebDriverWait(browser, 5).until(
+        EC.visibility_of_element_located((By.ID, "account-menu-panel"))
+    )
+    browser.find_element(By.XPATH, "//div[@id='account-menu-panel']//button[normalize-space()='Logout']").click()
     wait_for_text(browser, "You have been logged out.")
     wait_for_text(browser, "Login")
 
