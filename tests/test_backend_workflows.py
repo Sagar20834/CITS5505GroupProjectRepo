@@ -96,6 +96,34 @@ def test_user_login_and_logout(client, app):
         assert session.get("_user_id") is None
 
 
+def test_user_profile_and_password_change(client, app):
+    with app.app_context():
+        make_user()
+
+    login(client)
+    profile_response = client.get("/profile")
+    assert profile_response.status_code == 200
+    assert b"resident@example.com" in profile_response.data
+
+    password_page = client.get("/change-password")
+    token = csrf_token(password_page)
+    response = client.post(
+        "/change-password",
+        data={
+            "csrf_token": token,
+            "current_password": "Password123",
+            "new_password": "NewPassword123",
+            "confirm_password": "NewPassword123",
+        },
+        follow_redirects=False,
+    )
+
+    assert response.status_code in (302, 303)
+    with app.app_context():
+        user = User.query.filter_by(username="resident").one()
+        assert user.check_password("NewPassword123")
+
+
 def test_anonymous_report_submission(client, app):
     response = submit_report(client, is_anonymous="on")
     assert response.status_code in (302, 303)
