@@ -68,7 +68,10 @@ documentation/          Project brief and user stories
 
 ## Launching the Application
 
-Create and activate a virtual environment:
+Create and activate a fresh virtual environment. Do not reuse a copied `venv/`
+folder from another computer, because virtual environments contain
+machine-specific Python paths. The repository ignores both `venv/` and `.venv/`;
+use `.venv/` for local setup:
 
 ```powershell
 python -m venv .venv
@@ -100,6 +103,34 @@ flask --app app run
 ```
 
 Then open `http://127.0.0.1:5000`.
+
+### Windows Python setup troubleshooting
+
+If PowerShell cannot find `python`, install Python from
+<https://www.python.org/downloads/> or the Microsoft Store, and make sure the
+installer option to add Python to `PATH` is enabled. You can check with:
+
+```powershell
+python --version
+```
+
+On some Windows installations, the Python launcher is available as `py` instead:
+
+```powershell
+py -3 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+```
+
+If a stale local `venv/` folder exists and points to another user's machine,
+delete it and recreate the environment from `requirements.txt`:
+
+```powershell
+Remove-Item -Recurse -Force .\venv
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+```
 
 ### Email sharing setup
 
