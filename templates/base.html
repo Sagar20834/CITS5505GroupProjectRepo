@@ -41,14 +41,28 @@
         <a href="{{ url_for('admin.admin_panel') }}"
           class="{% if request.endpoint == 'admin.admin_panel' %}text-amber-400{% else %}hover:text-amber-400{% endif %}">Admin</a>
         {% endif %}
-        <span class="rounded-full bg-slate-800 px-3 py-1 text-sm text-slate-200">
-          {{ current_user.username }}{% if current_user.is_admin %} | admin{% endif %}
-        </span>
-        <form method="post" action="{{ url_for('auth.logout') }}">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <button type="submit"
-            class="rounded-lg bg-slate-700 px-4 py-2 font-semibold text-white hover:bg-slate-600">Logout</button>
-        </form>
+        <div id="account-menu" class="group relative pb-2">
+          <button id="account-menu-button" type="button"
+            class="flex items-center gap-2 rounded-full bg-slate-800 px-2 py-1.5 text-sm font-semibold text-slate-100 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400"
+            aria-haspopup="true" aria-expanded="false">
+            <span class="flex h-9 w-9 items-center justify-center rounded-full bg-amber-400 text-base font-bold uppercase text-slate-900">
+              {{ current_user.username[:1] }}
+            </span>
+            <span class="max-w-[10rem] truncate text-left">
+              {{ current_user.username }}{% if current_user.is_admin %} <span class="text-xs font-medium text-slate-300">admin</span>{% endif %}
+            </span>
+          </button>
+          <div id="account-menu-panel"
+            class="absolute right-0 top-full z-[70] hidden w-56 overflow-hidden rounded-xl border border-slate-200 bg-white py-2 text-sm text-slate-700 shadow-xl group-hover:block dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+            <a href="{{ url_for('auth.profile') }}" class="block px-4 py-2 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">View Profile</a>
+            <a href="{{ url_for('auth.change_password') }}" class="block px-4 py-2 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">Change Password</a>
+            <a href="{{ url_for('reports.list_reports', mine='1') }}" class="block px-4 py-2 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">My Reports</a>
+            <form method="post" action="{{ url_for('auth.logout') }}" class="border-t border-slate-200 dark:border-slate-700">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="block w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-900">Logout</button>
+            </form>
+          </div>
+        </div>
         {% else %}
         <a href="{{ url_for('auth.login') }}"
           class="{% if request.endpoint == 'auth.login' %}text-amber-400{% else %}rounded-lg bg-blue-500 dark:bg-blue-600 px-5 py-2.5 font-semibold text-white no-underline hover:bg-blue-600{% endif %}">Login</a>
@@ -97,6 +111,9 @@
       const themeToggle = document.getElementById('theme-toggle');
       const moonIcon = document.getElementById('theme-icon-moon');
       const sunIcon = document.getElementById('theme-icon-sun');
+      const accountMenuButton = document.getElementById('account-menu-button');
+      const accountMenuPanel = document.getElementById('account-menu-panel');
+      const accountMenu = document.getElementById('account-menu');
 
       function updateThemeToggle() {
         const isDark = document.documentElement.classList.contains('dark');
@@ -134,6 +151,50 @@
       }
       updateThemeToggle();
       applyChartTheme();
+
+      function closeAccountMenu() {
+        if (!accountMenuButton || !accountMenuPanel) return;
+        accountMenuPanel.classList.add('hidden');
+        accountMenuButton.setAttribute('aria-expanded', 'false');
+      }
+
+      function openAccountMenu() {
+        if (!accountMenuButton || !accountMenuPanel) return;
+        accountMenuPanel.classList.remove('hidden');
+        accountMenuButton.setAttribute('aria-expanded', 'true');
+      }
+
+      if (accountMenuButton && accountMenuPanel && accountMenu) {
+        accountMenuButton.addEventListener('click', function (event) {
+          event.stopPropagation();
+          const isOpen = !accountMenuPanel.classList.contains('hidden');
+          if (isOpen) {
+            closeAccountMenu();
+          } else {
+            openAccountMenu();
+          }
+        });
+
+        accountMenu.addEventListener('mouseenter', openAccountMenu);
+        accountMenu.addEventListener('mouseleave', closeAccountMenu);
+
+        accountMenuButton.addEventListener('focus', openAccountMenu);
+        accountMenuPanel.addEventListener('focusin', openAccountMenu);
+        accountMenu.addEventListener('focusout', function () {
+          window.setTimeout(function () {
+            if (!accountMenu.contains(document.activeElement)) closeAccountMenu();
+          }, 100);
+        });
+
+        accountMenuPanel.addEventListener('click', function (event) {
+          event.stopPropagation();
+        });
+
+        document.addEventListener('click', closeAccountMenu);
+        document.addEventListener('keydown', function (event) {
+          if (event.key === 'Escape') closeAccountMenu();
+        });
+      }
 
       const palettes = {
         success: 'border-green-200 bg-green-50 dark:bg-green-950 text-green-800 dark:text-green-200',
