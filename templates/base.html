@@ -49,22 +49,6 @@
 
   <main class="px-6 py-8">
     <div class="mx-auto max-w-7xl">
-      {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-      <div class="mb-6 space-y-3">
-        {% for category, message in messages %}
-        <div class="rounded-2xl border px-5 py-4 text-base shadow-sm
-                {% if category == 'success' %}border-green-200 bg-green-50 text-green-800
-                {% elif category == 'warning' %}border-amber-200 bg-amber-50 text-amber-800
-                {% elif category == 'error' %}border-red-200 bg-red-50 text-red-800
-                {% else %}border-slate-200 bg-white text-slate-700{% endif %}">
-          {{ message }}
-        </div>
-        {% endfor %}
-      </div>
-      {% endif %}
-      {% endwith %}
-
       {% block content %}{% endblock %}
     </div>
   </main>
@@ -74,25 +58,58 @@
     <p class="mt-1 text-sm text-slate-300">&copy; {{ current_year }} RoadWatch Perth</p>
   </footer>
 
-  <div id="toast-container" class="fixed top-4 right-4 z-[60] flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-2"></div>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  <script id="flashed-messages" type="application/json">{{ messages | tojson }}</script>
+  {% endwith %}
+
+  <div id="toast-container" aria-live="polite" aria-atomic="true"
+    class="pointer-events-none fixed right-4 top-20 z-[60] flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-2"></div>
 
   <script>
     (function () {
       const container = document.getElementById('toast-container');
+      const flashedMessages = document.getElementById('flashed-messages');
+
+      const palettes = {
+        success: 'border-green-200 bg-green-50 text-green-800',
+        warning: 'border-amber-200 bg-amber-50 text-amber-800',
+        error: 'border-red-200 bg-red-50 text-red-800',
+        message: 'border-slate-200 bg-white text-slate-700',
+      };
 
       function showToast(message, kind) {
         if (!container) return;
-        const palette = kind === 'error'
-          ? 'border-red-200 bg-red-50 text-red-800'
-          : 'border-green-200 bg-green-50 text-green-800';
+        const palette = palettes[kind] || palettes.message;
         const toast = document.createElement('div');
-        toast.className = 'rounded-2xl border px-5 py-4 text-base shadow-sm transition-opacity duration-300 ' + palette;
-        toast.textContent = message;
+        toast.className = 'flex items-start gap-3 rounded-lg border px-5 py-4 text-base shadow-lg transition-opacity duration-300 ' + palette;
+        toast.setAttribute('role', kind === 'error' ? 'alert' : 'status');
+        const messageEl = document.createElement('span');
+        messageEl.className = 'flex-1';
+        messageEl.textContent = message;
+        const closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.className = 'pointer-events-auto -mr-1 rounded px-1 text-xl font-semibold leading-none opacity-70 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-current';
+        closeBtn.setAttribute('aria-label', 'Close notification');
+        closeBtn.textContent = 'x';
+        toast.appendChild(messageEl);
+        toast.appendChild(closeBtn);
         container.appendChild(toast);
-        setTimeout(function () {
+        const dismissToast = function () {
           toast.style.opacity = '0';
           setTimeout(function () { toast.remove(); }, 300);
-        }, 3000);
+        };
+        closeBtn.addEventListener('click', dismissToast);
+        setTimeout(dismissToast, 3000);
+      }
+
+      if (flashedMessages) {
+        try {
+          JSON.parse(flashedMessages.textContent || '[]').forEach(function (item) {
+            showToast(item[1], item[0]);
+          });
+        } catch (error) {
+          // Ignore malformed flash payloads; the page itself can still render normally.
+        }
       }
 
       function applyButtonState(btn, confirmed) {
