@@ -4,7 +4,7 @@ import sys
 from zoneinfo import ZoneInfo
 
 import click
-from flask import Flask, render_template
+from flask import Flask, redirect, render_template, url_for
 from flask_wtf.csrf import CSRFError, generate_csrf
 from sqlalchemy import inspect
 from sqlalchemy.schema import CreateIndex
@@ -155,6 +155,10 @@ def create_app(config_class=Config):
     @login_manager.user_loader
     def load_user(user_id):
         return db.session.get(User, int(user_id))
+
+    @app.route("/favicon.ico")
+    def favicon():
+        return redirect(url_for("static", filename="favicon.svg"))
 
     @app.context_processor
     def inject_template_globals():

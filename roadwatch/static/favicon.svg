@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="RoadWatch Perth">
+  <rect width="64" height="64" rx="14" fill="#0f172a"/>
+  <path d="M32 7 56 18v16c0 13.2-9.8 20.5-24 25-14.2-4.5-24-11.8-24-25V18L32 7Z" fill="#2563eb"/>
+  <path d="M32 11.8 51 20.5v13c0 10.1-7.1 16.1-19 20-11.9-3.9-19-9.9-19-20v-13l19-8.7Z" fill="#38bdf8"/>
+  <path d="M23.2 51.1 28.8 19h6.4l5.6 32.1c-2.5 1.4-5.4 2.5-8.8 3.6-3.4-1.1-6.3-2.2-8.8-3.6Z" fill="#111827"/>
+  <path d="M32 22v7M32 36v7M32 50v3.7" stroke="#facc15" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="32" cy="32" r="10.5" fill="none" stroke="#f8fafc" stroke-width="4"/>
+  <path d="M40 40 50 50" stroke="#f8fafc" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="32" cy="32" r="4" fill="#facc15"/>
+</svg>
