@@ -3,27 +3,27 @@
 {% block title %}Reports | RoadWatch Perth{% endblock %}
 
 {% block content %}
-  <section class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg">
-    <p class="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700">Community Reports</p>
-    <h1 class="mb-3 text-4xl font-bold text-slate-900">All Reports</h1>
-    <p class="mb-8 text-lg leading-8 text-slate-600">Search, filter, and review road issues submitted by the community.</p>
+  <section class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8 shadow-lg">
+    <p class="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700 dark:text-blue-300">Community Reports</p>
+    <h1 class="mb-3 text-4xl font-bold text-slate-900 dark:text-slate-100">All Reports</h1>
+    <p class="mb-8 text-lg leading-8 text-slate-600 dark:text-slate-300">Search, filter, and review road issues submitted by the community.</p>
 
-    <form method="get" class="mb-8 grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-5 md:grid-cols-2 xl:grid-cols-[1fr,0.95fr,0.7fr,0.9fr,0.8fr,auto]">
+    <form method="get" class="mb-8 grid gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-5 md:grid-cols-2 xl:grid-cols-[1fr,0.95fr,0.7fr,0.9fr,0.8fr,auto]">
       <div>
-        <label for="street_address" class="mb-2 block text-sm font-semibold text-slate-600">Street address</label>
-        <input id="street_address" name="street_address" value="{{ filters.street_address }}" class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="e.g. Hay Street">
+        <label for="street_address" class="mb-2 block text-sm font-semibold text-slate-600 dark:text-slate-300">Street address</label>
+        <input id="street_address" name="street_address" value="{{ filters.street_address }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500" placeholder="e.g. Hay Street">
       </div>
       <div>
-        <label for="suburb" class="mb-2 block text-sm font-semibold text-slate-600">Suburb</label>
-        <input id="suburb" name="suburb" value="{{ filters.suburb }}" class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="e.g. Perth CBD">
+        <label for="suburb" class="mb-2 block text-sm font-semibold text-slate-600 dark:text-slate-300">Suburb</label>
+        <input id="suburb" name="suburb" value="{{ filters.suburb }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500" placeholder="e.g. Perth CBD">
       </div>
       <div>
-        <label for="postcode" class="mb-2 block text-sm font-semibold text-slate-600">Postcode</label>
-        <input id="postcode" name="postcode" value="{{ filters.postcode }}" class="w-full rounded-xl border border-slate-300 px-4 py-3" placeholder="e.g. 6000" inputmode="numeric" pattern="[0-9]{4}" maxlength="4">
+        <label for="postcode" class="mb-2 block text-sm font-semibold text-slate-600 dark:text-slate-300">Postcode</label>
+        <input id="postcode" name="postcode" value="{{ filters.postcode }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500" placeholder="e.g. 6000" inputmode="numeric" pattern="[0-9]{4}" maxlength="4">
       </div>
       <div>
-        <label for="issue_type" class="mb-2 block text-sm font-semibold text-slate-600">Issue type</label>
-        <select id="issue_type" name="issue_type" class="w-full rounded-xl border border-slate-300 px-4 py-3">
+        <label for="issue_type" class="mb-2 block text-sm font-semibold text-slate-600 dark:text-slate-300">Issue type</label>
+        <select id="issue_type" name="issue_type" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500">
           <option value="">All issue types</option>
           {% for issue_type in issue_types %}
             <option value="{{ issue_type }}" {% if filters.issue_type == issue_type %}selected{% endif %}>{{ issue_type }}</option>
@@ -31,8 +31,8 @@
         </select>
       </div>
       <div>
-        <label for="status" class="mb-2 block text-sm font-semibold text-slate-600">Progress</label>
-        <select id="status" name="status" class="w-full rounded-xl border border-slate-300 px-4 py-3">
+        <label for="status" class="mb-2 block text-sm font-semibold text-slate-600 dark:text-slate-300">Progress</label>
+        <select id="status" name="status" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500">
           <option value="">All progress states</option>
           {% for status in report_statuses %}
             <option value="{{ status }}" {% if filters.status == status %}selected{% endif %}>{{ status }}</option>
@@ -41,17 +41,17 @@
       </div>
       <div class="flex flex-col justify-end gap-3">
         {% if current_user.is_authenticated %}
-          <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-600">
-            <input type="checkbox" name="mine" value="1" {% if filters.mine %}checked{% endif %} class="rounded border-slate-300">
+          <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-300">
+            <input type="checkbox" name="mine" value="1" {% if filters.mine %}checked{% endif %} class="rounded border-slate-300 dark:border-slate-600">
             Show only my linked reports
           </label>
         {% endif %}
-        <button type="submit" class="rounded-xl bg-blue-500 px-5 py-3 font-semibold text-white hover:bg-blue-600">Apply filters</button>
+        <button type="submit" class="rounded-xl bg-blue-500 dark:bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-600">Apply filters</button>
       </div>
     </form>
 
     {% if reports %}
-      <div class="mb-5 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500">
+      <div class="mb-5 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500 dark:text-slate-400">
         <span>
           Showing {{ pagination.first }}-{{ pagination.last }} of {{ pagination.total }} report{% if pagination.total != 1 %}s{% endif %}
         </span>
@@ -60,13 +60,13 @@
 
       <div class="space-y-5">
         {% for report in reports %}
-          <article class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
+          <article class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
             <div class="grid gap-5 md:grid-cols-[220px,1fr]">
-              <div class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-200">
+              <div class="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-200 dark:bg-slate-700">
                 {% if report.image_url %}
                   <img src="{{ report.image_url }}" alt="{{ report.issue_type }} image" class="h-full min-h-[180px] w-full object-cover">
                 {% else %}
-                  <div class="flex min-h-[180px] items-center justify-center bg-slate-200 px-6 text-center text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  <div class="flex min-h-[180px] items-center justify-center bg-slate-200 dark:bg-slate-700 px-6 text-center text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
                     No image provided
                   </div>
                 {% endif %}
@@ -75,10 +75,10 @@
               <div>
                 <div class="mb-4 flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <h2 class="mb-1 text-2xl font-bold text-sky-900">{{ report.issue_type }}</h2>
-                    <p class="text-base text-slate-500">{{ report.location }}</p>
+                    <h2 class="mb-1 text-2xl font-bold text-sky-900 dark:text-sky-300">{{ report.issue_type }}</h2>
+                    <p class="text-base text-slate-500 dark:text-slate-400">{{ report.location }}</p>
                     {% if report.street_address or report.suburb or report.postcode %}
-                      <p class="mt-1 text-sm text-slate-400">
+                      <p class="mt-1 text-sm text-slate-400 dark:text-slate-500">
                         {{ report.street_address or "No street set" }}{% if report.suburb %} | {{ report.suburb }}{% endif %}{% if report.postcode %} | {{ report.postcode }}{% endif %}
                       </p>
                     {% endif %}
@@ -92,31 +92,37 @@
                   </div>
                 </div>
 
-                <p class="mb-4 text-lg leading-8 text-slate-600">{{ report.description[:220] }}{% if report.description|length > 220 %}...{% endif %}</p>
+                <p class="mb-4 text-lg leading-8 text-slate-600 dark:text-slate-300">{{ report.description[:220] }}{% if report.description|length > 220 %}...{% endif %}</p>
 
-                <div class="mb-5 flex flex-wrap gap-4 text-sm text-slate-500">
+                <div class="mb-5 flex flex-wrap gap-4 text-sm text-slate-500 dark:text-slate-400">
                   <span>Submitted by {{ report.reporter_label }}</span>
                   <span>{{ report.created_at|datetime_label }}</span>
-                  <span>{{ report.confirmation_count }} confirmation{% if report.confirmation_count != 1 %}s{% endif %}</span>
+                  <span data-confirm-scope="{{ report.id }}"><span data-confirm-count>{{ report.confirmation_count }}</span> confirmation<span data-confirm-plural>{% if report.confirmation_count != 1 %}s{% endif %}</span></span>
                 </div>
 
                 <div class="flex flex-wrap justify-end gap-3">
                   {% if current_user.is_authenticated %}
-                    <form method="post" action="{{ url_for('reports.toggle_confirmation', report_id=report.id) }}">
+                    <form method="post" action="{{ url_for('reports.toggle_confirmation', report_id=report.id) }}" data-confirm-form data-confirm-scope="{{ report.id }}">
                       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                      <button type="submit" class="rounded-xl border px-4 py-2 font-medium {% if report.is_confirmed_by(current_user) %}border-green-500 text-green-700 hover:bg-green-50{% else %}border-slate-300 text-slate-700 hover:bg-slate-100{% endif %}">
+                      <button type="submit"
+                              data-confirm-btn
+                              data-label-on="Confirmed"
+                              data-label-off="Confirm Issue"
+                              data-classes-on="border-green-500 text-green-700 dark:text-green-200 hover:bg-green-50 dark:hover:bg-green-900"
+                              data-classes-off="border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
+                              class="rounded-xl border px-4 py-2 font-medium {% if report.is_confirmed_by(current_user) %}border-green-500 text-green-700 dark:text-green-200 hover:bg-green-50 dark:hover:bg-green-900{% else %}border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700{% endif %}">
                         {% if report.is_confirmed_by(current_user) %}Confirmed{% else %}Confirm Issue{% endif %}
                       </button>
                     </form>
                   {% else %}
-                    <span class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-500">Login to confirm</span>
+                    <span class="rounded-xl border border-slate-300 dark:border-slate-600 px-4 py-2 font-medium text-slate-500 dark:text-slate-400">Login to confirm</span>
                   {% endif %}
-                  <a href="{{ url_for('reports.report_details', report_id=report.id) }}" class="rounded-xl border border-blue-500 px-4 py-2 font-medium text-blue-600 no-underline hover:bg-blue-50">View</a>
+                  <a href="{{ url_for('reports.report_details', report_id=report.id) }}" class="rounded-xl border border-blue-500 px-4 py-2 font-medium text-blue-600 dark:text-blue-300 no-underline hover:bg-blue-50 dark:hover:bg-blue-900">View</a>
                   {% if report.can_be_managed_by(current_user) %}
-                    <a href="{{ url_for('reports.edit_report', report_id=report.id) }}" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100">Edit</a>
+                    <a href="{{ url_for('reports.edit_report', report_id=report.id) }}" class="rounded-xl border border-slate-300 dark:border-slate-600 px-4 py-2 font-medium text-slate-700 dark:text-slate-200 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">Edit</a>
                     <form method="post" action="{{ url_for('reports.delete_report', report_id=report.id) }}">
                       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                      <button type="submit" class="rounded-xl border border-red-500 px-4 py-2 font-medium text-red-600 hover:bg-red-50">Delete</button>
+                      <button type="submit" class="rounded-xl border border-red-500 px-4 py-2 font-medium text-red-600 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900">Delete</button>
                     </form>
                   {% endif %}
                 </div>
@@ -129,33 +135,33 @@
       {% if pagination.pages > 1 %}
         <nav class="mt-8 flex flex-wrap items-center justify-center gap-2" aria-label="Report pages">
           {% if pagination.has_prev %}
-            <a href="{{ url_for('reports.list_reports', page=pagination.prev_num, street_address=filters.street_address, suburb=filters.suburb, postcode=filters.postcode, issue_type=filters.issue_type, status=filters.status, mine='1' if filters.mine else None) }}" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100">Previous</a>
+            <a href="{{ url_for('reports.list_reports', page=pagination.prev_num, street_address=filters.street_address, suburb=filters.suburb, postcode=filters.postcode, issue_type=filters.issue_type, status=filters.status, mine='1' if filters.mine else None) }}" class="rounded-xl border border-slate-300 dark:border-slate-600 px-4 py-2 font-medium text-slate-700 dark:text-slate-200 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">Previous</a>
           {% else %}
-            <span class="rounded-xl border border-slate-200 px-4 py-2 font-medium text-slate-300">Previous</span>
+            <span class="rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-2 font-medium text-slate-300">Previous</span>
           {% endif %}
 
           {% for page_number in pagination.iter_pages(left_edge=1, left_current=1, right_current=2, right_edge=1) %}
             {% if page_number %}
               {% if page_number == pagination.page %}
-                <span class="rounded-xl bg-blue-500 px-4 py-2 font-semibold text-white">{{ page_number }}</span>
+                <span class="rounded-xl bg-blue-500 dark:bg-blue-600 px-4 py-2 font-semibold text-white">{{ page_number }}</span>
               {% else %}
-                <a href="{{ url_for('reports.list_reports', page=page_number, street_address=filters.street_address, suburb=filters.suburb, postcode=filters.postcode, issue_type=filters.issue_type, status=filters.status, mine='1' if filters.mine else None) }}" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100">{{ page_number }}</a>
+                <a href="{{ url_for('reports.list_reports', page=page_number, street_address=filters.street_address, suburb=filters.suburb, postcode=filters.postcode, issue_type=filters.issue_type, status=filters.status, mine='1' if filters.mine else None) }}" class="rounded-xl border border-slate-300 dark:border-slate-600 px-4 py-2 font-medium text-slate-700 dark:text-slate-200 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">{{ page_number }}</a>
               {% endif %}
             {% else %}
-              <span class="px-2 text-slate-400">...</span>
+              <span class="px-2 text-slate-400 dark:text-slate-500">...</span>
             {% endif %}
           {% endfor %}
 
           {% if pagination.has_next %}
-            <a href="{{ url_for('reports.list_reports', page=pagination.next_num, street_address=filters.street_address, suburb=filters.suburb, postcode=filters.postcode, issue_type=filters.issue_type, status=filters.status, mine='1' if filters.mine else None) }}" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100">Next</a>
+            <a href="{{ url_for('reports.list_reports', page=pagination.next_num, street_address=filters.street_address, suburb=filters.suburb, postcode=filters.postcode, issue_type=filters.issue_type, status=filters.status, mine='1' if filters.mine else None) }}" class="rounded-xl border border-slate-300 dark:border-slate-600 px-4 py-2 font-medium text-slate-700 dark:text-slate-200 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">Next</a>
           {% else %}
-            <span class="rounded-xl border border-slate-200 px-4 py-2 font-medium text-slate-300">Next</span>
+            <span class="rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-2 font-medium text-slate-300">Next</span>
           {% endif %}
         </nav>
       {% endif %}
     {% else %}
-      <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center">
-        <p class="text-lg text-slate-600">No reports matched the current filters.</p>
+      <div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 p-10 text-center">
+        <p class="text-lg text-slate-600 dark:text-slate-300">No reports matched the current filters.</p>
       </div>
     {% endif %}
   </section>
