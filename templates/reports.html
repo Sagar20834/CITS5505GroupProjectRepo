@@ -5,8 +5,8 @@
 {% block content %}
   <section class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-lg sm:p-8">
     <p class="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700 dark:text-blue-300">Community Road Reports</p>
-    <h1 class="mb-3 text-3xl font-bold text-slate-900 dark:text-slate-100 sm:text-4xl">Browse road issues</h1>
-    <p class="mb-8 text-lg leading-8 text-slate-600 dark:text-slate-300">Search approved reports by location, issue type, safety priority, and repair progress.</p>
+    <h1 class="mb-3 text-3xl font-bold text-slate-900 dark:text-slate-100 sm:text-4xl">Browse RoadWatch case reports</h1>
+    <p class="mb-8 text-lg leading-8 text-slate-600 dark:text-slate-300">Search approved road issue reports by location, issue type, safety priority, and repair progress.</p>
 
     <form method="get" class="mb-8 grid gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-5 md:grid-cols-2 xl:grid-cols-[1fr,0.95fr,0.7fr,0.9fr,0.8fr,auto]">
       <div>
@@ -74,9 +74,10 @@
 
               <div>
                 <div class="mb-4 flex flex-wrap items-start justify-between gap-4">
-                  <div>
+                  <div class="min-w-0 flex-1">
+                    <p class="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-blue-700 dark:text-blue-300">RoadWatch case #{{ report.id }}</p>
                     <h2 class="mb-1 text-2xl font-bold text-sky-900 dark:text-sky-300">{{ report.issue_type }}</h2>
-                    <p class="text-base text-slate-500 dark:text-slate-400">{{ report.location }}</p>
+                    <p class="text-base font-medium text-slate-600 dark:text-slate-300">Perth road location: {{ report.location }}</p>
                     {% if report.street_address or report.suburb or report.postcode %}
                       <p class="mt-1 text-sm text-slate-400 dark:text-slate-500">
                         {{ report.street_address or "No street set" }}{% if report.suburb %} | {{ report.suburb }}{% endif %}{% if report.postcode %} | {{ report.postcode }}{% endif %}
@@ -84,20 +85,23 @@
                     {% endif %}
                   </div>
                   <div class="flex flex-wrap gap-2">
-                    <span class="rounded-full px-3 py-1 text-sm font-bold {{ severity_styles[report.severity] }}">Severity: {{ report.severity }}</span>
-                    <span class="rounded-full px-3 py-1 text-sm font-bold {{ status_styles[report.status] }}">Progress: {{ report.status }}</span>
+                    <span class="rounded-full px-3 py-1 text-sm font-bold {{ severity_styles[report.severity] }}">Safety priority: {{ report.severity }}</span>
+                    <span class="rounded-full px-3 py-1 text-sm font-bold {{ status_styles[report.status] }}">Repair stage: {{ report.status }}</span>
                     {% if current_user.is_authenticated and (current_user.is_admin or report.reporter_id == current_user.id) %}
-                      <span class="rounded-full px-3 py-1 text-sm font-bold {{ moderation_styles[report.moderation_status] }}">Approval: {{ report.moderation_status }}</span>
+                      <span class="rounded-full px-3 py-1 text-sm font-bold {{ moderation_styles[report.moderation_status] }}">Publication status: {{ report.moderation_status }}</span>
                     {% endif %}
                   </div>
                 </div>
 
-                <p class="mb-4 text-lg leading-8 text-slate-600 dark:text-slate-300">{{ report.description[:220] }}{% if report.description|length > 220 %}...{% endif %}</p>
+                <div class="mb-4 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+                  <p class="mb-1 text-xs font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Community context</p>
+                  <p class="text-base leading-7 text-slate-600 dark:text-slate-300">{{ report.description[:220] }}{% if report.description|length > 220 %}...{% endif %}</p>
+                </div>
 
                 <div class="mb-5 flex flex-wrap gap-4 text-sm text-slate-500 dark:text-slate-400">
-                  <span>Submitted by {{ report.reporter_label }}</span>
-                  <span>{{ report.created_at|datetime_label }}</span>
-                  <span data-confirm-scope="{{ report.id }}"><span data-confirm-count>{{ report.confirmation_count }}</span> confirmation<span data-confirm-plural>{% if report.confirmation_count != 1 %}s{% endif %}</span></span>
+                  <span>Reporter: {{ report.reporter_label }}</span>
+                  <span>Logged: {{ report.created_at|datetime_label }}</span>
+                  <span data-confirm-scope="{{ report.id }}">Community confirmations: <span data-confirm-count>{{ report.confirmation_count }}</span><span data-confirm-plural>{% if report.confirmation_count != 1 %}s{% endif %}</span></span>
                 </div>
 
                 <div class="flex flex-wrap justify-start gap-3 sm:justify-end">

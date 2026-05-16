@@ -9,15 +9,15 @@
   <div class="mb-8 flex flex-wrap items-start justify-between gap-4">
     <div>
       <h1 class="mb-3 text-3xl font-bold text-slate-900 dark:text-slate-100 sm:text-4xl">Road hazard details</h1>
-      <p class="text-lg leading-8 text-slate-600 dark:text-slate-300">Review the location, severity, community confirmations, and repair progress for this road issue.</p>
+      <p class="text-lg leading-8 text-slate-600 dark:text-slate-300">RoadWatch case #{{ report.id }} for a community-reported Perth road hazard, including location, safety priority, confirmations, and repair progress.</p>
     </div>
     <div class="flex flex-wrap gap-2">
-      <span class="rounded-full px-4 py-2 text-sm font-bold {{ severity_styles[report.severity] }}">Severity: {{
+      <span class="rounded-full px-4 py-2 text-sm font-bold {{ severity_styles[report.severity] }}">Safety priority: {{
         report.severity }}</span>
-      <span class="rounded-full px-4 py-2 text-sm font-bold {{ status_styles[report.status] }}">Progress: {{
+      <span class="rounded-full px-4 py-2 text-sm font-bold {{ status_styles[report.status] }}">Repair stage: {{
         report.status }}</span>
       {% if current_user.is_authenticated and (current_user.is_admin or report.reporter_id == current_user.id) %}
-      <span class="rounded-full px-4 py-2 text-sm font-bold {{ moderation_styles[report.moderation_status] }}">Approval:
+      <span class="rounded-full px-4 py-2 text-sm font-bold {{ moderation_styles[report.moderation_status] }}">Publication status:
         {{ report.moderation_status }}</span>
       {% endif %}
     </div>
@@ -33,34 +33,34 @@
 
   <div class="grid gap-4 md:grid-cols-2">
     <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
-      <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300">Issue Type</h2>
+      <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300">Road Hazard Category</h2>
       <p class="text-lg text-slate-600 dark:text-slate-300">{{ report.issue_type }}</p>
     </div>
     <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
-      <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300">Reported By</h2>
+      <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300">Community Reporter</h2>
       <p class="text-lg text-slate-600 dark:text-slate-300">{{ report.reporter_label }}</p>
     </div>
     <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
-      <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300">Severity</h2>
+      <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300">Safety Priority</h2>
       <p class="text-lg text-slate-600 dark:text-slate-300">{{ report.severity }}</p>
     </div>
     <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
-      <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300">Submitted</h2>
+      <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300">Logged With RoadWatch</h2>
       <p class="text-lg text-slate-600 dark:text-slate-300">{{ report.created_at|datetime_label }}</p>
     </div>
     <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
-      <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300">Confirmations</h2>
+      <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300">Community Confirmations</h2>
       <p class="text-lg text-slate-600 dark:text-slate-300" data-confirm-scope="{{ report.id }}"><span
           data-confirm-count>{{ report.confirmation_count }}</span> user<span data-confirm-plural>{% if
           report.confirmation_count != 1 %}s{% endif %}</span> confirmed this issue</p>
     </div>
     <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
-      <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300">Last Updated</h2>
+      <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300">Latest Maintenance Update</h2>
       <p class="text-lg text-slate-600 dark:text-slate-300">{{ report.updated_at|datetime_label }}</p>
     </div>
     <div
       class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm md:col-span-2">
-      <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300">Location</h2>
+      <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300">Perth Road Location</h2>
       <p class="text-lg text-slate-600 dark:text-slate-300">{{ report.location }}</p>
       <div class="mt-4 grid gap-4 md:grid-cols-3">
         <div>
@@ -79,12 +79,12 @@
     </div>
     <div
       class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm md:col-span-2">
-      <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300">Description</h2>
+      <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300">Community Context</h2>
       <p class="text-lg leading-8 text-slate-600 dark:text-slate-300">{{ report.description }}</p>
     </div>
     <div
       class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm md:col-span-2">
-      <h2 class="mb-4 text-2xl font-bold text-sky-900 dark:text-sky-300">Image</h2>
+      <h2 class="mb-4 text-2xl font-bold text-sky-900 dark:text-sky-300">Supporting Road Image</h2>
       {% if report.image_url %}
       <img src="{{ report.image_url }}" alt="{{ report.issue_type }} image"
         class="max-h-[420px] w-full rounded-2xl object-cover">
@@ -97,7 +97,7 @@
     </div>
     <div
       class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm md:col-span-2">
-      <h2 class="mb-4 text-2xl font-bold text-sky-900 dark:text-sky-300">Progress Notes</h2>
+      <h2 class="mb-4 text-2xl font-bold text-sky-900 dark:text-sky-300">Maintenance Progress Notes</h2>
       {% set notes = report.status_notes.all() %}
       {% if notes %}
       <div class="space-y-4">
@@ -106,7 +106,7 @@
           <div class="mb-2 flex flex-wrap items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
             <span class="font-semibold text-slate-700 dark:text-slate-200">{{ status_note.admin_label }}</span>
             <span>{{ status_note.created_at|datetime_label }}</span>
-            <span>Progress: {{ status_note.old_status }} to {{ status_note.new_status }}</span>
+            <span>Repair stage: {{ status_note.old_status }} to {{ status_note.new_status }}</span>
           </div>
           <p class="text-base leading-7 text-slate-600 dark:text-slate-300">{{ status_note.note }}</p>
         </article>
