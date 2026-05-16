@@ -4,8 +4,8 @@ import sys
 from zoneinfo import ZoneInfo
 
 import click
-from flask import Flask, redirect, render_template, url_for
-from flask_login import current_user
+from flask import Flask, flash, redirect, render_template, request, url_for
+from flask_login import current_user, logout_user
 from flask_wtf.csrf import CSRFError, generate_csrf
 from sqlalchemy import inspect
 from sqlalchemy.schema import CreateIndex
@@ -157,20 +157,27 @@ def create_app(config_class=Config):
     def load_user(user_id):
         return db.session.get(User, int(user_id))
 
+    @app.before_request
+    def enforce_active_user():
+        if current_user.is_authenticated and not current_user.is_active:
+            logout_user()
+            flash("This account has been blocked. Contact an administrator.", "error")
+            return redirect(url_for("auth.login", next=request.path))
+        return None
+
     @app.route("/favicon.ico")
     def favicon():
         return redirect(url_for("static", filename="favicon.svg"))
 
     @app.context_processor
     def inject_template_globals():
-        unread_notifications = []
+        notification_history = []
         unread_notification_count = 0
         if current_user.is_authenticated:
             unread_notification_count = Notification.query.filter_by(user_id=current_user.id, is_read=False).count()
-            unread_notifications = (
+            notification_history = (
                 Notification.query.filter_by(user_id=current_user.id)
                 .order_by(Notification.created_at.desc())
-                .limit(5)
                 .all()
             )
 
@@ -185,7 +192,7 @@ def create_app(config_class=Config):
             "moderation_styles": MODERATION_STYLES,
             "severity_styles": SEVERITY_STYLES,
             "unread_notification_count": unread_notification_count,
-            "recent_notifications": unread_notifications,
+            "recent_notifications": notification_history,
         }
 
     @app.template_filter("datetime_label")

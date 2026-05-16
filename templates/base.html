@@ -61,7 +61,7 @@
             </span>
           </button>
           <div id="account-menu-panel"
-            class="absolute right-0 top-full z-[70] hidden w-56 overflow-hidden rounded-xl border border-slate-200 bg-white py-2 text-sm text-slate-700 shadow-xl group-hover:block dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+            class="absolute right-0 top-full z-[70] hidden w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-slate-200 bg-white py-2 text-sm text-slate-700 shadow-xl group-hover:block dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
             <a href="{{ url_for('auth.profile') }}"
               class="block px-4 py-2 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">View Profile</a>
             <a href="{{ url_for('auth.change_password') }}"
@@ -79,7 +79,7 @@
                   {{ unread_notification_count if unread_notification_count < 10 else "9+" }}
                 </span>
               </button>
-              <div id="notification-list" class="space-y-2">
+              <div id="notification-list" class="max-h-72 space-y-2 overflow-y-auto pr-1">
                 {% if recent_notifications %}
                   {% for notification in recent_notifications %}
                     <a href="{{ notification.link_url or url_for('auth.profile') }}"

@@ -11,7 +11,14 @@ auth_bp = Blueprint("auth", __name__)
 
 def _safe_redirect_target(default_endpoint="main.dashboard"):
     candidate = request.args.get("next") or request.form.get("next")
-    if candidate and not urlsplit(candidate).netloc:
+    parsed_candidate = urlsplit(candidate or "")
+    if (
+        candidate
+        and candidate.startswith("/")
+        and not candidate.startswith("//")
+        and not parsed_candidate.scheme
+        and not parsed_candidate.netloc
+    ):
         return candidate
     return url_for(default_endpoint)
 

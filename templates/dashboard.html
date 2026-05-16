@@ -15,6 +15,16 @@
       </div>
     </div>
 
+    <div class="mb-8 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-7 shadow-sm">
+      <div class="mb-5 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p class="mb-2 text-sm font-bold uppercase tracking-[0.24em] text-blue-700 dark:text-blue-300">Hotspots</p>
+          <h2 class="text-3xl font-bold text-slate-900 dark:text-slate-100">Repeated Locations</h2>
+        </div>
+      </div>
+      {% include "_hotspot_list.html" %}
+    </div>
+
     <div class="grid gap-6 lg:grid-cols-2">
       <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-7 shadow-sm">
         <h2 class="mb-2 text-3xl font-bold text-sky-900 dark:text-sky-300">Reports by Type</h2>

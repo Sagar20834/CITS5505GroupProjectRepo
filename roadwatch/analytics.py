@@ -1,7 +1,6 @@
 from collections import OrderedDict
 from datetime import datetime, timezone
 
-from .extensions import db
 from .models import Report
 
 MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
@@ -49,32 +48,54 @@ def build_monthly_issue_matrix(reports, year=None):
 
 def build_hotspots(limit=5):
     rows = (
-        db.session.query(
+        Report.query.with_entities(
             Report.location_key,
-            db.func.min(Report.location).label("location"),
-            db.func.count(Report.id).label("report_count"),
-            db.func.count(db.func.distinct(Report.reporter_id)).label("reporter_count"),
+            Report.location,
+            Report.reporter_id,
         )
         .filter(
             Report.location_key.isnot(None),
             Report.location_key != "",
             Report.moderation_status == Report.APPROVED,
         )
-        .group_by(Report.location_key)
-        .having(db.func.count(Report.id) > 1)
-        .order_by(db.desc("report_count"), db.asc("location"))
-        .limit(limit)
+        .order_by(Report.location.asc())
         .all()
     )
 
-    return [
-        {
-            "location": row.location,
-            "report_count": row.report_count,
-            "reporter_count": row.reporter_count,
-        }
-        for row in rows
-    ]
+    buckets = {}
+    for row in rows:
+        bucket = buckets.setdefault(
+            row.location_key,
+            {
+                "location": row.location,
+                "reporter_ids": set(),
+                "guest_count": 0,
+            },
+        )
+        if row.location and row.location < bucket["location"]:
+            bucket["location"] = row.location
+        if row.reporter_id is None:
+            bucket["guest_count"] += 1
+        else:
+            bucket["reporter_ids"].add(row.reporter_id)
+
+    hotspots = []
+    for bucket in buckets.values():
+        reporter_count = len(bucket["reporter_ids"])
+        guest_count = bucket["guest_count"]
+        report_count = reporter_count + guest_count
+        if report_count <= 1:
+            continue
+        hotspots.append(
+            {
+                "location": bucket["location"],
+                "report_count": report_count,
+                "reporter_count": reporter_count,
+                "guest_count": guest_count,
+            }
+        )
+
+    return sorted(hotspots, key=lambda hotspot: (-hotspot["report_count"], hotspot["location"]))[:limit]
 
 
 def build_summary_cards(reports):

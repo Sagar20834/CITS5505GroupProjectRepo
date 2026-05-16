@@ -4,7 +4,7 @@ import click
 from flask.cli import with_appcontext
 
 from .extensions import db
-from .models import Comment, Confirmation, Report, ReportStatusNote, User
+from .models import Comment, Confirmation, Notification, Report, ReportStatusNote, User
 
 
 def _utc_datetime(year, month, day, hour=8, minute=0):
@@ -425,10 +425,11 @@ def seed_demo_command():
 @click.option("--yes", is_flag=True, help="Reset local app data without an interactive confirmation prompt.")
 @with_appcontext
 def reset_demo_command(yes):
-    if not yes and not click.confirm("This will delete all current users, reports, comments, confirmations, and status notes. Continue?"):
+    if not yes and not click.confirm("This will delete all current users, reports, comments, confirmations, notifications, and status notes. Continue?"):
         click.echo("Reset cancelled.")
         return
 
+    db.session.query(Notification).delete()
     db.session.query(Comment).delete()
     db.session.query(Confirmation).delete()
     db.session.query(ReportStatusNote).delete()
