@@ -74,7 +74,7 @@
   <section class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm sm:p-8">
     <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div>
-        <p class="mb-2 text-sm font-bold uppercase tracking-[0.24em] text-blue-700 dark:text-blue-300">Community Reports</p>
+        <p class="mb-2 text-sm font-bold uppercase tracking-[0.24em] text-blue-700 dark:text-blue-300">RoadWatch Case Feed</p>
         <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100 sm:text-3xl">Latest submissions</h2>
       </div>
       <a href="{{ url_for('reports.list_reports') }}" class="rounded-xl border border-blue-500 px-4 py-2 font-medium text-blue-600 dark:text-blue-300 no-underline hover:bg-blue-50 dark:hover:bg-blue-900">Browse all reports</a>
@@ -86,15 +86,16 @@
           <article class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-5 shadow-sm sm:p-6">
             <div class="mb-3 flex flex-wrap items-start justify-between gap-4">
               <div class="min-w-0 flex-1">
+                <p class="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-blue-700 dark:text-blue-300">Case #{{ report.id }}</p>
                 <h3 class="text-2xl font-bold text-sky-900 dark:text-sky-300">{{ report.issue_type }}</h3>
-                <p class="text-base text-slate-500 dark:text-slate-400">{{ report.location }}</p>
+                <p class="text-base text-slate-500 dark:text-slate-400">Location signal: {{ report.location }}</p>
               </div>
-              <span class="rounded-full px-3 py-1 text-sm font-bold {{ status_styles[report.status] }}">Progress: {{ report.status }}</span>
+              <span class="rounded-full px-3 py-1 text-sm font-bold {{ status_styles[report.status] }}">Repair stage: {{ report.status }}</span>
             </div>
-            <p class="mb-3 text-base leading-7 text-slate-600 dark:text-slate-300">{{ report.description[:170] }}{% if report.description|length > 170 %}...{% endif %}</p>
+            <p class="mb-3 text-base leading-7 text-slate-600 dark:text-slate-300">Community context: {{ report.description[:170] }}{% if report.description|length > 170 %}...{% endif %}</p>
             <div class="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500 dark:text-slate-400">
-              <span>Submitted by {{ report.reporter_label }}</span>
-              <span>{{ report.created_at|datetime_label }}</span>
+              <span>Reporter: {{ report.reporter_label }}</span>
+              <span>Logged: {{ report.created_at|datetime_label }}</span>
             </div>
             <div class="mt-5">
               <a href="{{ url_for('reports.report_details', report_id=report.id) }}" class="rounded-xl bg-blue-500 dark:bg-blue-600 px-4 py-2 font-medium text-white no-underline hover:bg-blue-600">View details</a>
