@@ -69,7 +69,7 @@
         <li class="w-full lg:w-auto">
           <div id="account-menu" class="group relative w-full lg:w-auto lg:pb-2">
             <button id="account-menu-button" type="button"
-              class="flex w-full items-center justify-between gap-2 rounded-full bg-slate-800 px-2 py-1.5 text-sm font-semibold text-slate-100 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400 lg:w-auto"
+              class="flex w-full items-center justify-start gap-2 rounded-full bg-slate-800 px-2 py-1.5 text-sm font-semibold text-slate-100 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400 lg:w-auto"
               aria-haspopup="true" aria-expanded="false">
               <span class="relative">
                 <span
@@ -80,13 +80,13 @@
                   class="{% if unread_notification_count == 0 %}hidden {% endif %}absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-xs font-bold text-white">
                   {{ unread_notification_count if unread_notification_count < 10 else "9+" }} </span>
                 </span>
-                <span class="max-w-[10rem] truncate text-left">
+                <span class="min-w-0 max-w-[10rem] truncate text-left">
                   {{ current_user.username }}{% if current_user.is_admin %} <span
                     class="text-xs font-medium text-slate-300"></span>{% endif %}
                 </span>
             </button>
             <div id="account-menu-panel"
-              class="absolute right-0 top-full z-[70] hidden w-full max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-slate-200 bg-white py-2 text-sm text-slate-700 shadow-xl group-hover:block dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 sm:w-80">
+              class="absolute right-0 top-full z-[70] hidden w-full max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-slate-200 bg-white py-2 text-sm text-slate-700 shadow-xl dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 sm:w-80">
               <a href="{{ url_for('auth.profile') }}"
                 class="block px-4 py-2 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">View Profile</a>
               {% if current_user.is_admin %}
@@ -313,6 +313,10 @@
 
         accountMenuPanel.addEventListener('click', function (event) {
           event.stopPropagation();
+        });
+
+        accountMenuPanel.querySelectorAll('a').forEach(function (link) {
+          link.addEventListener('click', closeAccountMenu);
         });
 
         document.addEventListener('click', closeAccountMenu);
