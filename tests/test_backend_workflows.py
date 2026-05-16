@@ -40,6 +40,11 @@ def test_home_page_is_server_rendered(client):
 
     assert response.status_code == 200
     assert b"RoadWatch Perth" in response.data
+    assert b"theme.css" in response.data
+    assert b"rw-ambient-bg" in response.data
+    assert b'id="hero-canvas"' in response.data
+    assert b"hero-canvas.js" in response.data
+    assert b"site-effects.js" in response.data
 
 
 def test_user_registration(client, app):
@@ -168,6 +173,7 @@ def test_logged_in_user_is_forced_out_when_blocked(client, app):
     login(client)
     with app.app_context():
         user = db.session.get(User, user_id)
+        assert user is not None
         user.is_active = False
         db.session.commit()
 
@@ -278,6 +284,8 @@ def test_report_notifications_are_created_and_marked_read(client, app):
     logout(client)
     login(client, identifier="admin")
     admin_page = client.get("/admin/")
+    assert b"rw-chip-warning" in admin_page.data
+    assert b"dark:text-gray-500" not in admin_page.data
     token = csrf_token(admin_page)
     response = client.post(
         f"/admin/reports/{report_id}/approval",
@@ -301,7 +309,9 @@ def test_report_notifications_are_created_and_marked_read(client, app):
     )
     assert response.status_code == 200
     assert response.is_json
-    assert response.get_json()["ok"] is True
+    payload = response.get_json()
+    assert payload is not None
+    assert payload["ok"] is True
 
     with app.app_context():
         assert Notification.query.filter_by(user_id=user_id, is_read=False).count() == 0
@@ -319,8 +329,8 @@ def test_reset_demo_clears_notification_history(runner, app):
         user = make_user()
         report = create_report(reporter=user)
         notification = Notification()
-        notification.user = user
-        notification.report = report
+        notification.user_id = user.id
+        notification.report_id = report.id
         notification.message = "Temporary notification before reset."
         db.session.add(notification)
         db.session.commit()
@@ -403,6 +413,7 @@ def test_report_edit_and_delete_permissions(client, app):
 
     with app.app_context():
         report = db.session.get(Report, report_id)
+        assert report is not None
         assert report.issue_type == "Crack"
         assert report.reporter_id == owner_id
         assert report.moderation_status == Report.PENDING_APPROVAL
@@ -440,6 +451,7 @@ def test_admin_can_approve_pending_report(client, app):
     assert b"Report approved and published." in response.data
     with app.app_context():
         report = db.session.get(Report, report_id)
+        assert report is not None
         assert report.moderation_status == Report.APPROVED
 
 
@@ -485,6 +497,7 @@ def test_admin_status_and_severity_actions(client, app):
 
     with app.app_context():
         report = db.session.get(Report, report_id)
+        assert report is not None
         assert report.status == "Under Review"
         assert report.severity == "Urgent"
         note = ReportStatusNote.query.filter_by(report_id=report_id).one()
@@ -528,7 +541,9 @@ def test_user_management_page_shows_users_dashboard_and_can_block_user(client, a
     assert b"resident has been blocked from logging in." in response.data
     assert b"Blocked" in response.data
     with app.app_context():
-        assert db.session.get(User, user_id).is_active is False
+        user = db.session.get(User, user_id)
+        assert user is not None
+        assert user.is_active is False
 
     users_page = client.get("/admin/users/")
     token = csrf_token(users_page)
@@ -541,7 +556,9 @@ def test_user_management_page_shows_users_dashboard_and_can_block_user(client, a
     assert response.status_code == 200
     assert b"resident has been restored." in response.data
     with app.app_context():
-        assert db.session.get(User, user_id).is_active is True
+        user = db.session.get(User, user_id)
+        assert user is not None
+        assert user.is_active is True
 
 
 def test_pending_report_is_visible_to_owner_but_not_public(client, app):
@@ -612,6 +629,7 @@ def test_ajax_confirm_returns_json_and_does_not_redirect(client, app):
     assert response.status_code == 200
     assert response.is_json
     payload = response.get_json()
+    assert payload is not None
     assert payload["ok"] is True
     assert payload["confirmed"] is True
     assert payload["count"] == 1
@@ -628,6 +646,7 @@ def test_ajax_confirm_returns_json_and_does_not_redirect(client, app):
 
     assert response.status_code == 200
     payload = response.get_json()
+    assert payload is not None
     assert payload["ok"] is True
     assert payload["confirmed"] is False
     assert payload["count"] == 0
@@ -660,8 +679,50 @@ def test_report_can_be_shared_by_email(client, app, monkeypatch):
 
     assert response.status_code == 200
     assert response.is_json
-    assert response.get_json()["ok"] is True
+    payload = response.get_json()
+    assert payload is not None
+    assert payload["ok"] is True
     assert sent == {"report_id": report_id, "recipient_email": "neighbour@example.com"}
+
+
+def test_reports_page_renders_whatsapp_share_controls(client, app):
+    with app.app_context():
+        report = create_report()
+        report_id = report.id
+
+    response = client.get("/reports/")
+
+    assert response.status_code == 200
+    assert b"Share by WhatsApp" in response.data
+    assert b'id="share-whatsapp"' in response.data
+    assert b"https://wa.me/?text=" in response.data
+    assert b"encodeURIComponent(text)" in response.data
+    assert b'data-report-title="Pothole"' in response.data
+    assert b'data-report-location="Hay Street, Perth CBD 6000"' in response.data
+    assert f'data-email-url="/reports/{report_id}/share/email"'.encode() in response.data
+
+
+def test_report_email_share_requires_mail_configuration(client, app):
+    with app.app_context():
+        report = create_report()
+        report_id = report.id
+        app.config["MAIL_SERVER"] = ""
+
+    reports_page = client.get("/reports/")
+    token = csrf_token(reports_page)
+
+    response = client.post(
+        f"/reports/{report_id}/share/email",
+        data={"csrf_token": token, "email": "neighbour@example.com"},
+        headers={"X-Requested-With": "XMLHttpRequest"},
+    )
+
+    assert response.status_code == 503
+    assert response.is_json
+    payload = response.get_json()
+    assert payload is not None
+    assert payload["ok"] is False
+    assert "not configured" in payload["message"]
 
 
 def test_report_email_share_rejects_invalid_email(client, app, monkeypatch):
@@ -684,7 +745,9 @@ def test_report_email_share_rejects_invalid_email(client, app, monkeypatch):
 
     assert response.status_code == 400
     assert response.is_json
-    assert response.get_json()["ok"] is False
+    payload = response.get_json()
+    assert payload is not None
+    assert payload["ok"] is False
 
 
 def test_model_helper_methods(app):
@@ -822,7 +885,9 @@ def test_address_suggestions_endpoint_returns_json(client, monkeypatch):
 
     assert response.status_code == 200
     assert response.is_json
-    assert response.get_json()[0]["street_address"] == "Hay Street"
+    payload = response.get_json()
+    assert payload is not None
+    assert payload[0]["street_address"] == "Hay Street"
 
 
 def test_photon_address_suggestions_normalize_address_fields(app, monkeypatch):
