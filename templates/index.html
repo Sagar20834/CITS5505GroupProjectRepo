@@ -3,11 +3,11 @@
 {% block title %}RoadWatch Perth{% endblock %}
 
 {% block content %}
-  <section class="mb-8 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8 shadow-lg md:p-10">
+  <section class="mb-8 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-lg sm:p-8 md:p-10">
     <div class="grid gap-8 lg:grid-cols-[1.2fr,0.8fr] lg:items-center">
       <div>
         <p class="mb-4 text-sm font-bold uppercase tracking-[0.28em] text-blue-700 dark:text-blue-300">Safer Streets Through Community Reporting</p>
-        <h1 class="mb-6 text-5xl font-bold leading-tight text-slate-900 dark:text-slate-100 md:text-6xl">Report road hazards across Perth before they become bigger problems.</h1>
+        <h1 class="mb-6 text-4xl font-bold leading-tight text-slate-900 dark:text-slate-100 sm:text-5xl md:text-6xl">Report road hazards across Perth before they become bigger problems.</h1>
         <p class="mb-8 max-w-3xl text-xl leading-9 text-slate-600 dark:text-slate-300">
           RoadWatch Perth helps residents report unsafe roads, track recurring issues,
           and surface hotspots that may need faster maintenance attention.
@@ -41,24 +41,24 @@
   </section>
 
   <section class="mb-8 grid gap-6 lg:grid-cols-[1.1fr,0.9fr]">
-    <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8 shadow-sm">
+    <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm sm:p-8">
       <p class="mb-3 text-sm font-bold uppercase tracking-[0.24em] text-blue-700 dark:text-blue-300">Analytics Overview</p>
-      <h2 class="mb-2 text-3xl font-bold text-slate-900 dark:text-slate-100">Issue trends this year</h2>
+      <h2 class="mb-2 text-2xl font-bold text-slate-900 dark:text-slate-100 sm:text-3xl">Issue trends this year</h2>
       <p class="mb-6 text-lg leading-8 text-slate-600 dark:text-slate-300">This chart now uses persisted report data rendered with Chart.js, which fits the clarified non-core library allowance for graphing.</p>
 
-      <div class="relative h-[360px]">
+      <div class="relative h-[280px] sm:h-[360px]">
         <canvas id="homepageChart"></canvas>
       </div>
     </div>
 
     <div class="space-y-6">
-      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8 shadow-sm">
-        <h2 class="mb-4 text-3xl font-bold text-slate-900 dark:text-slate-100">Repeated Locations</h2>
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm sm:p-8">
+        <h2 class="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100 sm:text-3xl">Repeated Locations</h2>
         {% include "_hotspot_list.html" %}
       </div>
 
-      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8 shadow-sm">
-        <h2 class="mb-4 text-3xl font-bold text-slate-900 dark:text-slate-100">Issue Types</h2>
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm sm:p-8">
+        <h2 class="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100 sm:text-3xl">Issue Types</h2>
         <div class="space-y-3">
           {% for issue_type, count in issue_counts.items() %}
             <div class="flex items-center justify-between rounded-xl bg-slate-50 dark:bg-slate-900 px-4 py-3">
@@ -71,11 +71,11 @@
     </div>
   </section>
 
-  <section class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8 shadow-sm">
+  <section class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm sm:p-8">
     <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div>
         <p class="mb-2 text-sm font-bold uppercase tracking-[0.24em] text-blue-700 dark:text-blue-300">Community Reports</p>
-        <h2 class="text-3xl font-bold text-slate-900 dark:text-slate-100">Latest submissions</h2>
+        <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100 sm:text-3xl">Latest submissions</h2>
       </div>
       <a href="{{ url_for('reports.list_reports') }}" class="rounded-xl border border-blue-500 px-4 py-2 font-medium text-blue-600 dark:text-blue-300 no-underline hover:bg-blue-50 dark:hover:bg-blue-900">Browse all reports</a>
     </div>
@@ -83,9 +83,9 @@
     {% if recent_reports %}
       <div class="grid gap-5 lg:grid-cols-2">
         {% for report in recent_reports %}
-          <article class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
-            <div class="mb-3 flex items-start justify-between gap-4">
-              <div>
+          <article class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-5 shadow-sm sm:p-6">
+            <div class="mb-3 flex flex-wrap items-start justify-between gap-4">
+              <div class="min-w-0 flex-1">
                 <h3 class="text-2xl font-bold text-sky-900 dark:text-sky-300">{{ report.issue_type }}</h3>
                 <p class="text-base text-slate-500 dark:text-slate-400">{{ report.location }}</p>
               </div>
@@ -103,7 +103,7 @@
         {% endfor %}
       </div>
     {% else %}
-      <div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 p-8 text-center">
+      <div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 p-5 text-center sm:p-8">
         <p class="text-lg text-slate-600 dark:text-slate-300">No reports have been submitted yet.</p>
       </div>
     {% endif %}

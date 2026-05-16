@@ -3,9 +3,9 @@
 {% block title %}Dashboard | RoadWatch Perth{% endblock %}
 
 {% block content %}
-  <section class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8 shadow-lg md:p-10">
+  <section class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-lg sm:p-8 md:p-10">
     <p class="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700 dark:text-blue-300">Reports Dashboard</p>
-    <h1 class="mb-3 text-5xl font-bold text-slate-900 dark:text-slate-100">Dashboard</h1>
+    <h1 class="mb-3 text-4xl font-bold text-slate-900 dark:text-slate-100 sm:text-5xl">Dashboard</h1>
     <p class="mb-8 text-xl leading-9 text-slate-600 dark:text-slate-300">Analytics only: totals and charts for approved public reports. Report approval and management now live on the separate admin page.</p>
 
     <div class="mb-8 max-w-sm">
@@ -15,29 +15,29 @@
       </div>
     </div>
 
-    <div class="mb-8 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-7 shadow-sm">
+    <div class="mb-8 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm sm:p-7">
       <div class="mb-5 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p class="mb-2 text-sm font-bold uppercase tracking-[0.24em] text-blue-700 dark:text-blue-300">Hotspots</p>
-          <h2 class="text-3xl font-bold text-slate-900 dark:text-slate-100">Repeated Locations</h2>
+          <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100 sm:text-3xl">Repeated Locations</h2>
         </div>
       </div>
       {% include "_hotspot_list.html" %}
     </div>
 
     <div class="grid gap-6 lg:grid-cols-2">
-      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-7 shadow-sm">
-        <h2 class="mb-2 text-3xl font-bold text-sky-900 dark:text-sky-300">Reports by Type</h2>
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm sm:p-7">
+        <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300 sm:text-3xl">Reports by Type</h2>
         <p class="mb-5 text-lg text-slate-500 dark:text-slate-400">Counts generated from persisted report data.</p>
-        <div class="relative h-[360px]">
+        <div class="relative h-[280px] sm:h-[360px]">
           <canvas id="barChart"></canvas>
         </div>
       </div>
 
-      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-7 shadow-sm">
-        <h2 class="mb-2 text-3xl font-bold text-sky-900 dark:text-sky-300">Status Distribution</h2>
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm sm:p-7">
+        <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300 sm:text-3xl">Status Distribution</h2>
         <p class="mb-5 text-lg text-slate-500 dark:text-slate-400">Shows how the current reports are progressing.</p>
-        <div class="relative h-[360px]">
+        <div class="relative h-[280px] sm:h-[360px]">
           <canvas id="pieChart"></canvas>
         </div>
       </div>

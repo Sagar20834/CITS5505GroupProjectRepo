@@ -188,6 +188,7 @@ def test_user_profile_and_password_change(client, app):
     profile_response = client.get("/profile")
     assert profile_response.status_code == 200
     assert b"resident@example.com" in profile_response.data
+    assert b"User Management" not in profile_response.data
 
     password_page = client.get("/change-password")
     token = csrf_token(password_page)
@@ -206,6 +207,24 @@ def test_user_profile_and_password_change(client, app):
     with app.app_context():
         user = User.query.filter_by(username="resident").one()
         assert user.check_password("NewPassword123")
+
+
+def test_profile_shows_user_management_link_only_to_admins(client, app):
+    with app.app_context():
+        make_user()
+        make_user(username="admin", email="admin@example.com", is_admin=True)
+
+    login(client)
+    resident_profile = client.get("/profile")
+    assert resident_profile.status_code == 200
+    assert b"User Management" not in resident_profile.data
+
+    logout(client)
+    login(client, identifier="admin")
+    admin_profile = client.get("/profile")
+    assert admin_profile.status_code == 200
+    assert b"User Management" in admin_profile.data
+    assert b"/admin/users/" in admin_profile.data
 
 
 def test_anonymous_report_submission(client, app):
@@ -290,8 +309,9 @@ def test_report_notifications_are_created_and_marked_read(client, app):
     logout(client)
     login(client)
     history_page = client.get("/")
-    assert b"Your report is waiting for admin approval." in history_page.data
-    assert b"Your report has been approved and published." in history_page.data
+    assert b"Your report is waiting for admin approval." not in history_page.data
+    assert b"Your report has been approved and published." not in history_page.data
+    assert b"No notifications yet." in history_page.data
 
 
 def test_reset_demo_clears_notification_history(runner, app):
@@ -473,7 +493,7 @@ def test_admin_status_and_severity_actions(client, app):
         assert note.new_status == "Under Review"
 
 
-def test_admin_page_shows_users_dashboard_and_can_block_user(client, app):
+def test_user_management_page_shows_users_dashboard_and_can_block_user(client, app):
     with app.app_context():
         make_user(username="admin", email="admin@example.com", is_admin=True)
         user = make_user()
@@ -490,14 +510,14 @@ def test_admin_page_shows_users_dashboard_and_can_block_user(client, app):
         user_id = user.id
 
     login(client, identifier="admin")
-    admin_page = client.get("/admin/")
+    users_page = client.get("/admin/users/")
 
-    assert admin_page.status_code == 200
-    assert b"Admin Users Dashboard" in admin_page.data
-    assert b"resident@example.com" in admin_page.data
-    assert b"1 reports / 1 comments / 1 confirmations" in admin_page.data
+    assert users_page.status_code == 200
+    assert b"Admin Users Dashboard" in users_page.data
+    assert b"resident@example.com" in users_page.data
+    assert b"1 reports / 1 comments / 1 confirmations" in users_page.data
 
-    token = csrf_token(admin_page)
+    token = csrf_token(users_page)
     response = client.post(
         f"/admin/users/{user_id}/toggle-active",
         data={"csrf_token": token},
@@ -510,8 +530,8 @@ def test_admin_page_shows_users_dashboard_and_can_block_user(client, app):
     with app.app_context():
         assert db.session.get(User, user_id).is_active is False
 
-    admin_page = client.get("/admin/")
-    token = csrf_token(admin_page)
+    users_page = client.get("/admin/users/")
+    token = csrf_token(users_page)
     response = client.post(
         f"/admin/users/{user_id}/toggle-active",
         data={"csrf_token": token},

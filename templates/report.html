@@ -4,9 +4,9 @@
 
 {% block content %}
   <div class="grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
-    <section class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8 shadow-lg md:p-10">
+    <section class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-lg sm:p-8 md:p-10">
       <p class="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700 dark:text-blue-300">Community Reporting</p>
-      <h1 class="mb-3 text-4xl font-bold text-slate-900 dark:text-slate-100">{{ heading }}</h1>
+      <h1 class="mb-3 text-3xl font-bold text-slate-900 dark:text-slate-100 sm:text-4xl">{{ heading }}</h1>
       <p class="mb-8 text-xl leading-9 text-slate-600 dark:text-slate-300">Submit enough detail for other users and administrators to understand, prioritise, and manage the issue.</p>
 
       <form method="post" action="{{ form_action }}" class="space-y-5">
@@ -70,14 +70,14 @@
         </label>
 
         <div class="flex flex-wrap gap-4">
-          <button type="submit" class="rounded-2xl bg-blue-500 dark:bg-blue-600 px-7 py-4 text-lg font-semibold text-white hover:bg-blue-600">{{ submit_label }}</button>
-          <a href="{{ url_for('reports.list_reports') }}" class="rounded-2xl border border-slate-300 dark:border-slate-600 px-7 py-4 text-lg font-semibold text-slate-700 dark:text-slate-200 no-underline hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</a>
+          <button type="submit" class="w-full rounded-2xl bg-blue-500 dark:bg-blue-600 px-7 py-4 text-lg font-semibold text-white hover:bg-blue-600 sm:w-auto">{{ submit_label }}</button>
+          <a href="{{ url_for('reports.list_reports') }}" class="w-full rounded-2xl border border-slate-300 dark:border-slate-600 px-7 py-4 text-center text-lg font-semibold text-slate-700 dark:text-slate-200 no-underline hover:bg-slate-50 dark:hover:bg-slate-700 sm:w-auto">Cancel</a>
         </div>
       </form>
     </section>
 
     <aside class="space-y-6">
-      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8 shadow-sm">
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm sm:p-8">
         <h2 class="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">Submission rules</h2>
         <ul class="space-y-3 text-base leading-7 text-slate-600 dark:text-slate-300">
           <li>Use the street, suburb, and postcode fields so reports can be searched accurately later.</li>
@@ -87,7 +87,7 @@
         </ul>
       </div>
 
-      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8 shadow-sm">
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm sm:p-8">
         <h2 class="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">What happens next</h2>
         <p class="text-base leading-8 text-slate-600 dark:text-slate-300">
           New reports are first sent to the admin for approval. They only become public after approval, and then administrators can continue updating their repair status through the admin page.
