@@ -128,6 +128,8 @@ def create_app(config_class=Config):
         template_folder=str(project_root / "templates"),
     )
     app.config.from_object(config_class)
+    if not app.config.get("SECRET_KEY") and not app.config.get("TESTING"):
+        raise RuntimeError("SECRET_KEY environment variable must be set before starting the app.")
 
     Path(app.instance_path).mkdir(parents=True, exist_ok=True)
 

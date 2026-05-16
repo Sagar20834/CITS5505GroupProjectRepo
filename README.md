@@ -84,6 +84,19 @@ Install dependencies:
 python -m pip install -r requirements.txt
 ```
 
+Set a local Flask secret key before running the app. This value signs sessions
+and CSRF tokens, so keep the real value out of Git:
+
+```powershell
+$env:SECRET_KEY="replace-with-a-long-random-secret"
+```
+
+You can generate a suitable value with:
+
+```powershell
+python -c "import secrets; print(secrets.token_urlsafe(32))"
+```
+
 Apply database migrations:
 
 ```powershell
@@ -134,7 +147,8 @@ python -m pip install -r requirements.txt
 
 ### Email sharing setup
 
-Report sharing by email sends through SMTP. Configure these environment variables before starting Flask:
+Report sharing by email is disabled unless SMTP settings are provided through
+environment variables. Configure these values before starting Flask:
 
 ```powershell
 $env:MAIL_SERVER="smtp.gmail.com"
