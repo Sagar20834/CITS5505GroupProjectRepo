@@ -1,16 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %}Report Details | RoadWatch Perth{% endblock %}
+{% block title %}Road Hazard Details | RoadWatch Perth{% endblock %}
 
 {% block content %}
 <section
   class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-lg sm:p-8">
-  <p class="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700 dark:text-blue-300">Report Summary</p>
+  <p class="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700 dark:text-blue-300">Road Issue Summary</p>
   <div class="mb-8 flex flex-wrap items-start justify-between gap-4">
     <div>
-      <h1 class="mb-3 text-3xl font-bold text-slate-900 dark:text-slate-100 sm:text-4xl">Report Details</h1>
-      <p class="text-lg leading-8 text-slate-600 dark:text-slate-300">Detailed information for an individual road hazard
-        report.</p>
+      <h1 class="mb-3 text-3xl font-bold text-slate-900 dark:text-slate-100 sm:text-4xl">Road hazard details</h1>
+      <p class="text-lg leading-8 text-slate-600 dark:text-slate-300">Review the location, severity, community confirmations, and repair progress for this road issue.</p>
     </div>
     <div class="flex flex-wrap gap-2">
       <span class="rounded-full px-4 py-2 text-sm font-bold {{ severity_styles[report.severity] }}">Severity: {{
@@ -28,8 +27,7 @@
   report.reporter_id == current_user.id) %}
   <div
     class="mb-6 rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950 px-5 py-4 text-base text-amber-800 dark:text-gray-500">
-    This report is not public yet. It is currently marked as <strong>{{ report.moderation_status }}</strong> and is only
-    visible to the submitter and administrators.
+    This report is not public yet. It is currently marked as <strong>{{ report.moderation_status }}</strong> and is visible only to the submitter and administrators.
   </div>
   {% endif %}
 
@@ -123,7 +121,7 @@
   <div class="mt-6 flex flex-wrap gap-4">
     <a href="{{ url_for('reports.list_reports') }}"
       class="w-full rounded-2xl bg-blue-500 dark:bg-blue-600 px-6 py-3 text-center text-lg font-semibold text-white no-underline hover:bg-blue-600 sm:w-auto">Back
-      to Reports</a>
+      to road issues</a>
     {% if current_user.is_authenticated %}
     <form method="post" action="{{ url_for('reports.toggle_confirmation', report_id=report.id) }}"
       class="w-full sm:w-auto" data-confirm-form data-confirm-scope="{{ report.id }}">
@@ -160,8 +158,8 @@
   class="mt-8 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-lg sm:p-8">
   <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
     <div>
-      <p class="mb-2 text-sm font-bold uppercase tracking-[0.24em] text-blue-700 dark:text-blue-300">Discussion</p>
-      <h2 class="text-3xl font-bold text-slate-900 dark:text-slate-100">Comments</h2>
+      <p class="mb-2 text-sm font-bold uppercase tracking-[0.24em] text-blue-700 dark:text-blue-300">Community Context</p>
+      <h2 class="text-3xl font-bold text-slate-900 dark:text-slate-100">Discussion notes</h2>
     </div>
     <span
       class="rounded-full bg-slate-100 dark:bg-slate-950 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
@@ -176,7 +174,7 @@
     <label for="body" class="mb-2 block text-sm font-semibold text-slate-600 dark:text-slate-300">Add a comment</label>
     <textarea id="body" name="body"
       class="min-h-[120px] w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
-      placeholder="Share extra context, ask a question, or post an update." required></textarea>
+      placeholder="Share extra context about traffic impact, location details, or recent changes." required></textarea>
     <div class="mt-4 flex justify-start sm:justify-end">
       <button type="submit"
         class="rounded-2xl bg-blue-500 dark:bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-600">Post
@@ -186,7 +184,7 @@
   {% else %}
   <div
     class="mb-8 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-5 text-slate-600 dark:text-slate-300">
-    Log in to post comments. Guests can still read the discussion below.
+    Log in to add local context or updates. Guests can still read the discussion below.
   </div>
   {% endif %}
 
@@ -215,8 +213,7 @@
   {% else %}
   <div
     class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 p-5 text-center sm:p-8">
-    <p class="text-lg text-slate-600 dark:text-slate-300">No comments yet. Start the discussion if you have more context
-      to add.</p>
+    <p class="text-lg text-slate-600 dark:text-slate-300">No discussion notes yet. Add context if you know more about this road issue.</p>
   </div>
   {% endif %}
 </section>
