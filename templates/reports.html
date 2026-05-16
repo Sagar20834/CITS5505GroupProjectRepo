@@ -3,9 +3,9 @@
 {% block title %}Reports | RoadWatch Perth{% endblock %}
 
 {% block content %}
-  <section class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8 shadow-lg">
+  <section class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-lg sm:p-8">
     <p class="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700 dark:text-blue-300">Community Reports</p>
-    <h1 class="mb-3 text-4xl font-bold text-slate-900 dark:text-slate-100">All Reports</h1>
+    <h1 class="mb-3 text-3xl font-bold text-slate-900 dark:text-slate-100 sm:text-4xl">All Reports</h1>
     <p class="mb-8 text-lg leading-8 text-slate-600 dark:text-slate-300">Search, filter, and review road issues submitted by the community.</p>
 
     <form method="get" class="mb-8 grid gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-5 md:grid-cols-2 xl:grid-cols-[1fr,0.95fr,0.7fr,0.9fr,0.8fr,auto]">
@@ -60,7 +60,7 @@
 
       <div class="space-y-5">
         {% for report in reports %}
-          <article class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
+          <article class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-5 shadow-sm sm:p-6">
             <div class="grid gap-5 md:grid-cols-[220px,1fr]">
               <div class="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-200 dark:bg-slate-700">
                 {% if report.image_url %}
@@ -100,7 +100,7 @@
                   <span data-confirm-scope="{{ report.id }}"><span data-confirm-count>{{ report.confirmation_count }}</span> confirmation<span data-confirm-plural>{% if report.confirmation_count != 1 %}s{% endif %}</span></span>
                 </div>
 
-                <div class="flex flex-wrap justify-end gap-3">
+                <div class="flex flex-wrap justify-start gap-3 sm:justify-end">
                   {% if current_user.is_authenticated %}
                     <form method="post" action="{{ url_for('reports.toggle_confirmation', report_id=report.id) }}" data-confirm-form data-confirm-scope="{{ report.id }}">
                       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -169,7 +169,7 @@
         </nav>
       {% endif %}
     {% else %}
-      <div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 p-10 text-center">
+      <div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 p-6 text-center sm:p-10">
         <p class="text-lg text-slate-600 dark:text-slate-300">No reports matched the current filters.</p>
       </div>
     {% endif %}

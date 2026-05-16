@@ -3,11 +3,12 @@
 {% block title %}Report Details | RoadWatch Perth{% endblock %}
 
 {% block content %}
-<section class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8 shadow-lg">
+<section
+  class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-lg sm:p-8">
   <p class="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700 dark:text-blue-300">Report Summary</p>
   <div class="mb-8 flex flex-wrap items-start justify-between gap-4">
     <div>
-      <h1 class="mb-3 text-4xl font-bold text-slate-900 dark:text-slate-100">Report Details</h1>
+      <h1 class="mb-3 text-3xl font-bold text-slate-900 dark:text-slate-100 sm:text-4xl">Report Details</h1>
       <p class="text-lg leading-8 text-slate-600 dark:text-slate-300">Detailed information for an individual road hazard
         report.</p>
     </div>
@@ -26,7 +27,7 @@
   {% if report.moderation_status != "Approved" and current_user.is_authenticated and (current_user.is_admin or
   report.reporter_id == current_user.id) %}
   <div
-    class="mb-6 rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950 px-5 py-4 text-base text-amber-800 dark:text-black">
+    class="mb-6 rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950 px-5 py-4 text-base text-amber-800 dark:text-gray-500">
     This report is not public yet. It is currently marked as <strong>{{ report.moderation_status }}</strong> and is only
     visible to the submitter and administrators.
   </div>
@@ -121,42 +122,42 @@
 
   <div class="mt-6 flex flex-wrap gap-4">
     <a href="{{ url_for('reports.list_reports') }}"
-      class="rounded-2xl bg-blue-500 dark:bg-blue-600 px-6 py-3 text-lg font-semibold text-white no-underline hover:bg-blue-600">Back
+      class="w-full rounded-2xl bg-blue-500 dark:bg-blue-600 px-6 py-3 text-center text-lg font-semibold text-white no-underline hover:bg-blue-600 sm:w-auto">Back
       to Reports</a>
     {% if current_user.is_authenticated %}
-    <form method="post" action="{{ url_for('reports.toggle_confirmation', report_id=report.id) }}" data-confirm-form
-      data-confirm-scope="{{ report.id }}">
+    <form method="post" action="{{ url_for('reports.toggle_confirmation', report_id=report.id) }}"
+      class="w-full sm:w-auto" data-confirm-form data-confirm-scope="{{ report.id }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <button type="submit" data-confirm-btn data-label-on="Remove Confirmation" data-label-off="Confirm This Issue"
         data-classes-on="bg-green-500 dark:bg-green-600 text-white hover:bg-green-600"
         data-classes-off="border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700"
-        class="rounded-2xl px-6 py-3 text-lg font-semibold {% if report.is_confirmed_by(current_user) %}bg-green-500 dark:bg-green-600 text-white hover:bg-green-600{% else %}border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700{% endif %}">
+        class="w-full rounded-2xl px-6 py-3 text-lg font-semibold sm:w-auto {% if report.is_confirmed_by(current_user) %}bg-green-500 dark:bg-green-600 text-white hover:bg-green-600{% else %}border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700{% endif %}">
         {% if report.is_confirmed_by(current_user) %}Remove Confirmation{% else %}Confirm This Issue{% endif %}
       </button>
     </form>
     <a href="{{ url_for('main.dashboard') }}"
-      class="rounded-2xl bg-amber-500 dark:bg-amber-400 px-6 py-3 text-lg font-semibold text-slate-900 no-underline hover:bg-amber-400">Go
+      class="w-full rounded-2xl bg-amber-500 dark:bg-amber-400 px-6 py-3 text-center text-lg font-semibold text-slate-900 no-underline hover:bg-amber-400 sm:w-auto">Go
       to Dashboard</a>
     {% else %}
     <span
-      class="rounded-2xl border border-slate-300 dark:border-slate-600 px-6 py-3 text-lg font-semibold text-slate-500 dark:text-slate-400">Login
+      class="w-full rounded-2xl border border-slate-300 dark:border-slate-600 px-6 py-3 text-center text-lg font-semibold text-slate-500 dark:text-slate-400 sm:w-auto">Login
       to confirm</span>
     {% endif %}
     {% if report.can_be_managed_by(current_user) %}
     <a href="{{ url_for('reports.edit_report', report_id=report.id) }}"
-      class="rounded-2xl border border-slate-300 dark:border-slate-600 px-6 py-3 text-lg font-semibold text-slate-700 dark:text-slate-200 no-underline hover:bg-slate-50 dark:hover:bg-slate-700">Edit
+      class="w-full rounded-2xl border border-slate-300 dark:border-slate-600 px-6 py-3 text-center text-lg font-semibold text-slate-700 dark:text-slate-200 no-underline hover:bg-slate-50 dark:hover:bg-slate-700 sm:w-auto">Edit
       Report</a>
-    <form method="post" action="{{ url_for('reports.delete_report', report_id=report.id) }}">
+    <form method="post" action="{{ url_for('reports.delete_report', report_id=report.id) }}" class="w-full sm:w-auto">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <button type="submit"
-        class="rounded-2xl border border-red-500 px-6 py-3 text-lg font-semibold text-red-600 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900">Delete</button>
+        class="w-full rounded-2xl border border-red-500 px-6 py-3 text-lg font-semibold text-red-600 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900 sm:w-auto">Delete</button>
     </form>
     {% endif %}
   </div>
 </section>
 
 <section id="comments"
-  class="mt-8 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8 shadow-lg">
+  class="mt-8 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-lg sm:p-8">
   <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
     <div>
       <p class="mb-2 text-sm font-bold uppercase tracking-[0.24em] text-blue-700 dark:text-blue-300">Discussion</p>
@@ -176,7 +177,7 @@
     <textarea id="body" name="body"
       class="min-h-[120px] w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
       placeholder="Share extra context, ask a question, or post an update." required></textarea>
-    <div class="mt-4 flex justify-end">
+    <div class="mt-4 flex justify-start sm:justify-end">
       <button type="submit"
         class="rounded-2xl bg-blue-500 dark:bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-600">Post
         Comment</button>
@@ -213,7 +214,7 @@
   </div>
   {% else %}
   <div
-    class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 p-8 text-center">
+    class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 p-5 text-center sm:p-8">
     <p class="text-lg text-slate-600 dark:text-slate-300">No comments yet. Start the discussion if you have more context
       to add.</p>
   </div>

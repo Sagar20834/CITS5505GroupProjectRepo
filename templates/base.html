@@ -22,118 +22,151 @@
   {% block extra_head %}{% endblock %}
 </head>
 
-<body class=" bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
+<body class="min-h-screen bg-slate-100 text-slate-800 dark:bg-slate-950 dark:text-slate-100">
   <nav class="bg-slate-900 sticky top-0 z-50">
-    <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-5">
-      <a href="{{ url_for('main.index') }}" class="text-4xl font-bold text-white no-underline">RoadWatch Perth</a>
-      <div class="flex flex-wrap items-center gap-4 text-base text-white md:text-lg">
-        <a href="{{ url_for('main.index') }}"
-          class="{% if request.endpoint == 'main.index' %}text-amber-400{% else %}hover:text-amber-400{% endif %}">Home</a>
-        <a href="{{ url_for('main.dashboard') }}"
-          class="{% if request.endpoint == 'main.dashboard' %}text-amber-400{% else %}hover:text-amber-400{% endif %}">Dashboard</a>
-        <a href="{{ url_for('reports.list_reports') }}"
-          class="{% if request.endpoint == 'reports.list_reports' or request.endpoint == 'reports.report_details' %}text-amber-400{% else %}hover:text-amber-400{% endif %}">Reports</a>
-        <a href="{{ url_for('reports.create_report') }}"
-          class="{% if request.endpoint == 'reports.create_report' or request.endpoint == 'reports.edit_report' %}text-amber-400{% else %}hover:text-amber-400{% endif %}">Report
-          Issue</a>
+    <div
+      class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:flex-nowrap lg:gap-4 lg:py-5">
+      <a href="{{ url_for('main.index') }}"
+        class="min-w-0 text-2xl font-bold text-white no-underline sm:text-3xl md:text-4xl">RoadWatch Perth</a>
+      <button id="mobile-menu-toggle" type="button"
+        class="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-slate-700 bg-slate-800 text-slate-100 transition hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400 lg:hidden"
+        aria-controls="primary-navigation" aria-expanded="false" aria-label="Open navigation menu">
+        <svg id="mobile-menu-icon-open" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+        <svg id="mobile-menu-icon-close" class="hidden h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M6 6l12 12M18 6 6 18"></path>
+        </svg>
+      </button>
+      <ul id="primary-navigation"
+        class="hidden w-full list-none flex-col gap-2 border-t border-slate-700 pt-4 text-base text-white lg:flex lg:w-auto lg:flex-row lg:items-center lg:justify-end lg:gap-4 lg:border-0 lg:pt-0 lg:text-lg">
+        <li class="w-full lg:w-auto">
+          <a href="{{ url_for('main.index') }}"
+            class="block rounded-lg px-3 py-2 no-underline {% if request.endpoint == 'main.index' %}bg-slate-800 text-amber-400 lg:bg-transparent{% else %}text-white hover:bg-slate-800 hover:text-amber-400 lg:hover:bg-transparent{% endif %}">Home</a>
+        </li>
+        <li class="w-full lg:w-auto">
+          <a href="{{ url_for('main.dashboard') }}"
+            class="block rounded-lg px-3 py-2 no-underline {% if request.endpoint == 'main.dashboard' %}bg-slate-800 text-amber-400 lg:bg-transparent{% else %}text-white hover:bg-slate-800 hover:text-amber-400 lg:hover:bg-transparent{% endif %}">Dashboard</a>
+        </li>
+        <li class="w-full lg:w-auto">
+          <a href="{{ url_for('reports.list_reports') }}"
+            class="block rounded-lg px-3 py-2 no-underline {% if request.endpoint == 'reports.list_reports' or request.endpoint == 'reports.report_details' %}bg-slate-800 text-amber-400 lg:bg-transparent{% else %}text-white hover:bg-slate-800 hover:text-amber-400 lg:hover:bg-transparent{% endif %}">Reports</a>
+        </li>
+        <li class="w-full lg:w-auto">
+          <a href="{{ url_for('reports.create_report') }}"
+            class="block rounded-lg px-3 py-2 no-underline {% if request.endpoint == 'reports.create_report' or request.endpoint == 'reports.edit_report' %}bg-slate-800 text-amber-400 lg:bg-transparent{% else %}text-white hover:bg-slate-800 hover:text-amber-400 lg:hover:bg-transparent{% endif %}">Report
+            Issue</a>
+        </li>
         {% if current_user.is_authenticated %}
         {% if current_user.is_admin %}
-        <a href="{{ url_for('admin.admin_panel') }}"
-          class="{% if request.endpoint == 'admin.admin_panel' %}text-amber-400{% else %}hover:text-amber-400{% endif %}">Admin</a>
+        <li class="w-full lg:w-auto">
+          <a href="{{ url_for('admin.admin_panel') }}"
+            class="block rounded-lg px-3 py-2 no-underline {% if request.endpoint == 'admin.admin_panel' or request.endpoint == 'user_management.user_management_panel' %}bg-slate-800 text-amber-400 lg:bg-transparent{% else %}text-white hover:bg-slate-800 hover:text-amber-400 lg:hover:bg-transparent{% endif %}">Admin</a>
+        </li>
         {% endif %}
-        <div id="account-menu" class="group relative pb-2">
-          <button id="account-menu-button" type="button"
-            class="flex items-center gap-2 rounded-full bg-slate-800 px-2 py-1.5 text-sm font-semibold text-slate-100 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400"
-            aria-haspopup="true" aria-expanded="false">
-            <span class="relative">
-              <span
-                class="flex h-9 w-9 items-center justify-center rounded-full bg-amber-400 text-base font-bold uppercase text-slate-900">
-                {{ current_user.username[:1] }}
-              </span>
-              <span id="notification-count-badge"
-                class="{% if unread_notification_count == 0 %}hidden {% endif %}absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-xs font-bold text-white">
-                {{ unread_notification_count if unread_notification_count < 10 else "9+" }} </span>
-              </span>
-              <span class="max-w-[10rem] truncate text-left">
-                {{ current_user.username }}{% if current_user.is_admin %} <span
-                  class="text-xs font-medium text-slate-300"></span>{% endif %}
-              </span>
-          </button>
-          <div id="account-menu-panel"
-            class="absolute right-0 top-full z-[70] hidden w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-slate-200 bg-white py-2 text-sm text-slate-700 shadow-xl group-hover:block dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
-            <a href="{{ url_for('auth.profile') }}"
-              class="block px-4 py-2 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">View Profile</a>
-            {% if current_user.is_admin %}
-            <a href="{{ url_for('user_management.user_management_panel') }}"
-              class="block px-4 py-2 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">User Management</a>
-            {% endif %}
-            <a href="{{ url_for('auth.change_password') }}"
-              class="block px-4 py-2 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">Change Password</a>
-            <a href="{{ url_for('reports.list_reports', mine='1') }}"
-              class="block px-4 py-2 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">My Reports</a>
-            <div class="border-t border-slate-200 px-4 py-3 dark:border-slate-700">
-              <button id="notification-clear-button" type="button"
-                class="mb-2 flex w-full items-center justify-between gap-3 text-left font-semibold text-slate-700 dark:text-slate-200"
-                data-clear-url="{{ url_for('auth.mark_notifications_read') }}" data-csrf-token="{{ csrf_token() }}">
-                <span>Notifications</span>
-                <span id="notification-menu-count"
-                  class="{% if unread_notification_count == 0 %}hidden {% endif %}rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold text-red-700">
+        <li class="w-full lg:w-auto">
+          <div id="account-menu" class="group relative w-full lg:w-auto lg:pb-2">
+            <button id="account-menu-button" type="button"
+              class="flex w-full items-center justify-between gap-2 rounded-full bg-slate-800 px-2 py-1.5 text-sm font-semibold text-slate-100 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400 lg:w-auto"
+              aria-haspopup="true" aria-expanded="false">
+              <span class="relative">
+                <span
+                  class="flex h-9 w-9 items-center justify-center rounded-full bg-amber-400 text-base font-bold uppercase text-slate-900">
+                  {{ current_user.username[:1] }}
+                </span>
+                <span id="notification-count-badge"
+                  class="{% if unread_notification_count == 0 %}hidden {% endif %}absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-xs font-bold text-white">
                   {{ unread_notification_count if unread_notification_count < 10 else "9+" }} </span>
-              </button>
-              <div id="notification-list" class="max-h-72 space-y-2 overflow-y-auto pr-1">
-                {% if recent_notifications %}
-                {% for notification in recent_notifications %}
-                <a href="{{ notification.link_url or url_for('auth.profile') }}"
-                  class="block rounded-lg px-2 py-2 text-xs leading-5 no-underline {% if notification.is_read %}text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700{% else %}bg-blue-50 font-semibold text-slate-800 hover:bg-blue-100 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-700{% endif %}"
-                  data-notification-link>
-                  {{ notification.message }}
-                </a>
-                {% endfor %}
-                {% else %}
-                <p class="px-2 py-2 text-xs text-slate-500 dark:text-slate-400">No notifications yet.</p>
-                {% endif %}
+                </span>
+                <span class="max-w-[10rem] truncate text-left">
+                  {{ current_user.username }}{% if current_user.is_admin %} <span
+                    class="text-xs font-medium text-slate-300"></span>{% endif %}
+                </span>
+            </button>
+            <div id="account-menu-panel"
+              class="absolute right-0 top-full z-[70] hidden w-full max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-slate-200 bg-white py-2 text-sm text-slate-700 shadow-xl group-hover:block dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 sm:w-80">
+              <a href="{{ url_for('auth.profile') }}"
+                class="block px-4 py-2 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">View Profile</a>
+              {% if current_user.is_admin %}
+              <a href="{{ url_for('user_management.user_management_panel') }}"
+                class="block px-4 py-2 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">User Management</a>
+              {% endif %}
+              <a href="{{ url_for('auth.change_password') }}"
+                class="block px-4 py-2 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">Change Password</a>
+              <a href="{{ url_for('reports.list_reports', mine='1') }}"
+                class="block px-4 py-2 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">My Reports</a>
+              <div class="border-t border-slate-200 px-4 py-3 dark:border-slate-700">
+                <button id="notification-clear-button" type="button"
+                  class="mb-2 flex w-full items-center justify-between gap-3 text-left font-semibold text-slate-700 dark:text-slate-200"
+                  data-clear-url="{{ url_for('auth.mark_notifications_read') }}" data-csrf-token="{{ csrf_token() }}">
+                  <span>Notifications</span>
+                  <span id="notification-menu-count"
+                    class="{% if unread_notification_count == 0 %}hidden {% endif %}rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold text-red-700">
+                    {{ unread_notification_count if unread_notification_count < 10 else "9+" }} </span>
+                </button>
+                <div id="notification-list" class="max-h-72 space-y-2 overflow-y-auto pr-1">
+                  {% if recent_notifications %}
+                  {% for notification in recent_notifications %}
+                  <a href="{{ notification.link_url or url_for('auth.profile') }}"
+                    class="block rounded-lg px-2 py-2 text-xs leading-5 no-underline {% if notification.is_read %}text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700{% else %}bg-blue-50 font-semibold text-slate-800 hover:bg-blue-100 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-700{% endif %}"
+                    data-notification-link>
+                    {{ notification.message }}
+                  </a>
+                  {% endfor %}
+                  {% else %}
+                  <p class="px-2 py-2 text-xs text-slate-500 dark:text-slate-400">No notifications yet.</p>
+                  {% endif %}
+                </div>
               </div>
+              <form method="post" action="{{ url_for('auth.logout') }}"
+                class="border-t border-slate-200 dark:border-slate-700">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit"
+                  class="block w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-900">Logout</button>
+              </form>
             </div>
-            <form method="post" action="{{ url_for('auth.logout') }}"
-              class="border-t border-slate-200 dark:border-slate-700">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <button type="submit"
-                class="block w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-900">Logout</button>
-            </form>
           </div>
-        </div>
+        </li>
         {% else %}
-        <a href="{{ url_for('auth.login') }}"
-          class="{% if request.endpoint == 'auth.login' %}text-amber-400{% else %}rounded-lg bg-blue-500 dark:bg-blue-600 px-5 py-2.5 font-semibold text-white no-underline hover:bg-blue-600{% endif %}">Login</a>
-        <a href="{{ url_for('auth.register') }}"
-          class="{% if request.endpoint == 'auth.register' %}text-amber-400{% else %}rounded-lg bg-green-500 dark:bg-green-600 px-5 py-2.5 font-semibold text-white no-underline hover:bg-green-600{% endif %}">Register</a>
+        <li class="w-full lg:w-auto">
+          <a href="{{ url_for('auth.login') }}"
+            class="block rounded-lg px-5 py-2.5 font-semibold no-underline {% if request.endpoint == 'auth.login' %}bg-slate-800 text-amber-400 lg:bg-transparent{% else %}bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-600{% endif %}">Login</a>
+        </li>
+        <li class="w-full lg:w-auto">
+          <a href="{{ url_for('auth.register') }}"
+            class="block rounded-lg px-5 py-2.5 font-semibold no-underline {% if request.endpoint == 'auth.register' %}bg-slate-800 text-amber-400 lg:bg-transparent{% else %}bg-green-500 text-white hover:bg-green-600 dark:bg-green-600{% endif %}">Register</a>
+        </li>
         {% endif %}
-        <button id="theme-toggle" type="button"
-          class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-600 bg-slate-800 text-slate-100 transition hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400"
-          aria-label="Switch theme">
-          <svg id="theme-icon-moon" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3 6.5 6.5 0 0 0 21 12.8Z"></path>
-          </svg>
-          <svg id="theme-icon-sun" class="hidden h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="4"></circle>
-            <path
-              d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41">
-            </path>
-          </svg>
-        </button>
-      </div>
+        <li class="w-full lg:w-auto">
+          <button id="theme-toggle" type="button"
+            class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-600 bg-slate-800 text-slate-100 transition hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400"
+            aria-label="Switch theme">
+            <svg id="theme-icon-moon" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3 6.5 6.5 0 0 0 21 12.8Z"></path>
+            </svg>
+            <svg id="theme-icon-sun" class="hidden h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="4"></circle>
+              <path
+                d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41">
+              </path>
+            </svg>
+          </button>
+        </li>
+      </ul>
     </div>
   </nav>
 
-  <main class="px-6 py-8">
-    <div class="mx-auto max-w-7xl">
+  <main class="px-4 py-6 sm:px-6 sm:py-8">
+    <div class="mx-auto max-w-7xl break-words">
       {% block content %}{% endblock %}
     </div>
   </main>
 
-  <footer class="bg-slate-900 py-4 text-center text-white">
+  <footer class="bg-slate-900 px-4 py-4 text-center text-white">
     <p class="mb-0">RoadWatch Perth - Community reporting for safer roads.</p>
     <p class="mt-1 text-sm text-slate-300">&copy; {{ current_year }} RoadWatch Perth</p>
   </footer>
@@ -143,7 +176,8 @@
   {% endwith %}
 
   <div id="toast-container" aria-live="polite" aria-atomic="true"
-    class="pointer-events-none fixed right-4 top-20 z-[60] flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-2"></div>
+    class="pointer-events-none fixed left-4 right-4 top-20 z-[60] flex w-auto flex-col gap-2 sm:left-auto sm:w-80">
+  </div>
 
   <script>
     (function () {
@@ -158,6 +192,10 @@
       const notificationClearButton = document.getElementById('notification-clear-button');
       const notificationCountBadge = document.getElementById('notification-count-badge');
       const notificationMenuCount = document.getElementById('notification-menu-count');
+      const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+      const primaryNavigation = document.getElementById('primary-navigation');
+      const mobileMenuIconOpen = document.getElementById('mobile-menu-icon-open');
+      const mobileMenuIconClose = document.getElementById('mobile-menu-icon-close');
 
       function updateThemeToggle() {
         const isDark = document.documentElement.classList.contains('dark');
@@ -195,6 +233,49 @@
       }
       updateThemeToggle();
       applyChartTheme();
+
+      function isDesktopNavigation() {
+        return window.matchMedia('(min-width: 1024px)').matches;
+      }
+
+      function setMobileMenuOpen(isOpen) {
+        if (!mobileMenuToggle || !primaryNavigation) return;
+        primaryNavigation.classList.toggle('hidden', !isOpen);
+        mobileMenuToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        mobileMenuToggle.setAttribute('aria-label', isOpen ? 'Close navigation menu' : 'Open navigation menu');
+        if (mobileMenuIconOpen) mobileMenuIconOpen.classList.toggle('hidden', isOpen);
+        if (mobileMenuIconClose) mobileMenuIconClose.classList.toggle('hidden', !isOpen);
+        if (!isOpen) closeAccountMenu();
+      }
+
+      if (mobileMenuToggle && primaryNavigation) {
+        mobileMenuToggle.addEventListener('click', function (event) {
+          event.stopPropagation();
+          const isOpen = mobileMenuToggle.getAttribute('aria-expanded') === 'true';
+          setMobileMenuOpen(!isOpen);
+        });
+
+        primaryNavigation.querySelectorAll('a').forEach(function (link) {
+          link.addEventListener('click', function () {
+            if (!isDesktopNavigation()) setMobileMenuOpen(false);
+          });
+        });
+
+        document.addEventListener('click', function (event) {
+          if (isDesktopNavigation() || primaryNavigation.classList.contains('hidden')) return;
+          if (!primaryNavigation.contains(event.target) && !mobileMenuToggle.contains(event.target)) {
+            setMobileMenuOpen(false);
+          }
+        });
+
+        window.addEventListener('resize', function () {
+          if (isDesktopNavigation()) setMobileMenuOpen(false);
+        });
+      }
+
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') setMobileMenuOpen(false);
+      });
 
       function closeAccountMenu() {
         if (!accountMenuButton || !accountMenuPanel) return;
@@ -236,7 +317,10 @@
 
         document.addEventListener('click', closeAccountMenu);
         document.addEventListener('keydown', function (event) {
-          if (event.key === 'Escape') closeAccountMenu();
+          if (event.key === 'Escape') {
+            closeAccountMenu();
+            setMobileMenuOpen(false);
+          }
         });
       }
 
@@ -272,7 +356,7 @@
 
       const palettes = {
         success: 'border-green-200 bg-green-50 dark:bg-green-950 text-green-800 dark:text-green-200',
-        warning: 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-black',
+        warning: 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-gray-500',
         error: 'border-red-200 bg-red-50 dark:bg-red-950 text-red-800 dark:text-red-200',
         message: 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200',
       };
