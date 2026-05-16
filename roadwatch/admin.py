@@ -3,47 +3,12 @@ from flask_login import current_user
 
 from .analytics import build_hotspots
 from .extensions import db
-from .models import Comment, Confirmation, Report, ReportStatusNote, User
+from .models import Comment, Report, ReportStatusNote
 from .notifications import create_notification
 from .security import admin_required
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 ADMIN_REPORTS_PER_PAGE = 5
-ADMIN_USERS_PER_PAGE = 8
-
-
-def _build_user_activity_counts(users):
-    user_ids = [user.id for user in users]
-    if not user_ids:
-        return {}
-
-    report_counts = dict(
-        db.session.query(Report.reporter_id, db.func.count(Report.id))
-        .filter(Report.reporter_id.in_(user_ids))
-        .group_by(Report.reporter_id)
-        .all()
-    )
-    comment_counts = dict(
-        db.session.query(Comment.author_id, db.func.count(Comment.id))
-        .filter(Comment.author_id.in_(user_ids))
-        .group_by(Comment.author_id)
-        .all()
-    )
-    confirmation_counts = dict(
-        db.session.query(Confirmation.user_id, db.func.count(Confirmation.id))
-        .filter(Confirmation.user_id.in_(user_ids))
-        .group_by(Confirmation.user_id)
-        .all()
-    )
-
-    return {
-        user_id: {
-            "reports": report_counts.get(user_id, 0),
-            "comments": comment_counts.get(user_id, 0),
-            "confirmations": confirmation_counts.get(user_id, 0),
-        }
-        for user_id in user_ids
-    }
 
 
 @admin_bp.get("/")
@@ -51,7 +16,6 @@ def _build_user_activity_counts(users):
 def admin_panel():
     pending_page = max(request.args.get("pending_page", 1, type=int), 1)
     reviewed_page = max(request.args.get("reviewed_page", 1, type=int), 1)
-    users_page = max(request.args.get("users_page", 1, type=int), 1)
 
     pending_pagination = (
         Report.query.filter(Report.moderation_status == Report.PENDING_APPROVAL)
@@ -63,28 +27,14 @@ def admin_panel():
         .order_by(Report.created_at.desc())
         .paginate(page=reviewed_page, per_page=ADMIN_REPORTS_PER_PAGE, error_out=False)
     )
-    users_pagination = (
-        User.query.order_by(User.is_admin.desc(), User.created_at.desc(), User.username.asc())
-        .paginate(page=users_page, per_page=ADMIN_USERS_PER_PAGE, error_out=False)
-    )
-    user_summary = {
-        "total": User.query.count(),
-        "active": User.query.filter(User._is_active.is_(True)).count(),
-        "blocked": User.query.filter(User._is_active.is_(False)).count(),
-        "admins": User.query.filter(User.is_admin.is_(True)).count(),
-    }
 
     return render_template(
         "admin.html",
         pending_reports=pending_pagination.items,
         reviewed_reports=reviewed_pagination.items,
-        users=users_pagination.items,
-        user_activity_counts=_build_user_activity_counts(users_pagination.items),
         hotspots=build_hotspots(limit=6),
         pending_pagination=pending_pagination,
         reviewed_pagination=reviewed_pagination,
-        users_pagination=users_pagination,
-        user_summary=user_summary,
     )
 
 
@@ -190,22 +140,3 @@ def delete_comment(comment_id):
     flash("Comment removed.", "success")
     return redirect(request.referrer or url_for("reports.report_details", report_id=report_id, _anchor="comments"))
 
-
-@admin_bp.post("/users/<int:user_id>/toggle-active")
-@admin_required
-def toggle_user_active(user_id):
-    user = db.get_or_404(User, user_id)
-
-    if user.id == current_user.id:
-        flash("You cannot disable your own admin account.", "error")
-        return redirect(request.referrer or url_for("admin.admin_panel"))
-
-    user.is_active = not user.is_active
-    db.session.commit()
-
-    if user.is_active:
-        flash(f"{user.username} has been restored.", "success")
-    else:
-        flash(f"{user.username} has been blocked from logging in.", "success")
-
-    return redirect(request.referrer or url_for("admin.admin_panel"))

@@ -10,7 +10,12 @@
         <h1 class="mb-2 text-4xl font-bold text-slate-900 dark:text-slate-100">Profile</h1>
         <p class="text-lg text-slate-600 dark:text-slate-300">View your account details and activity.</p>
       </div>
-      <a href="{{ url_for('auth.change_password') }}" class="rounded-2xl bg-blue-500 px-5 py-3 font-semibold text-white no-underline hover:bg-blue-600 dark:bg-blue-600">Change Password</a>
+      <div class="flex flex-wrap gap-3">
+        {% if current_user.is_admin %}
+          <a href="{{ url_for('user_management.user_management_panel') }}" class="rounded-2xl border border-blue-500 px-5 py-3 font-semibold text-blue-700 no-underline hover:bg-blue-50 dark:text-blue-200 dark:hover:bg-blue-900">User Management</a>
+        {% endif %}
+        <a href="{{ url_for('auth.change_password') }}" class="rounded-2xl bg-blue-500 px-5 py-3 font-semibold text-white no-underline hover:bg-blue-600 dark:bg-blue-600">Change Password</a>
+      </div>
     </div>
 
     <div class="grid gap-5 md:grid-cols-2">

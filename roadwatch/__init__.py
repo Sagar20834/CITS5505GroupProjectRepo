@@ -18,6 +18,7 @@ from .extensions import csrf, db, login_manager, migrate
 from .main import main_bp
 from .models import Notification, Report, User
 from .reports import reports_bp
+from .user_management import user_management_bp
 
 STATUS_STYLES = {
     "Reported": "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-100",
@@ -140,6 +141,7 @@ def create_app(config_class=Config):
     app.register_blueprint(auth_bp)
     app.register_blueprint(reports_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(user_management_bp)
     app.cli.add_command(seed_demo_command)
     app.cli.add_command(reset_demo_command)
 
