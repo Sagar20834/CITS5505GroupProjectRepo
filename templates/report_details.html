@@ -4,8 +4,8 @@
 
 {% block content %}
 <section
-  class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-lg sm:p-8">
-  <p class="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700 dark:text-blue-300">Report Summary</p>
+  class="rw-panel rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-lg sm:p-8">
+  <p class="rw-kicker mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700 dark:text-blue-300">Report Summary</p>
   <div class="mb-8 flex flex-wrap items-start justify-between gap-4">
     <div>
       <h1 class="mb-3 text-3xl font-bold text-slate-900 dark:text-slate-100 sm:text-4xl">Report Details</h1>
@@ -26,84 +26,84 @@
   {% if report.moderation_status != "Approved" and current_user.is_authenticated and (current_user.is_admin or
   report.reporter_id == current_user.id) %}
   <div
-    class="mb-6 rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950 px-5 py-4 text-base text-amber-800 dark:text-gray-500">
+    class="rw-status-note mb-6 rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950 px-5 py-4 text-base text-amber-800 dark:text-amber-100">
     This report is not public yet. It is currently marked as <strong>{{ report.moderation_status }}</strong> and is only
     visible to the submitter and administrators.
   </div>
   {% endif %}
 
   <div class="grid gap-4 md:grid-cols-2">
-    <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
+    <div class="rw-card rw-sweep-card rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
       <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300">Road Hazard Category</h2>
       <p class="text-lg text-slate-600 dark:text-slate-300">{{ report.issue_type }}</p>
     </div>
-    <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
+    <div class="rw-card rw-sweep-card rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
       <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300">Community Reporter</h2>
       <p class="text-lg text-slate-600 dark:text-slate-300">{{ report.reporter_label }}</p>
     </div>
-    <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
+    <div class="rw-card rw-sweep-card rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
       <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300">Safety Priority</h2>
       <p class="text-lg text-slate-600 dark:text-slate-300">{{ report.severity }}</p>
     </div>
-    <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
+    <div class="rw-card rw-sweep-card rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
       <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300">Logged With RoadWatch</h2>
       <p class="text-lg text-slate-600 dark:text-slate-300">{{ report.created_at|datetime_label }}</p>
     </div>
-    <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
+    <div class="rw-card rw-sweep-card rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
       <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300">Community Confirmations</h2>
       <p class="text-lg text-slate-600 dark:text-slate-300" data-confirm-scope="{{ report.id }}"><span
           data-confirm-count>{{ report.confirmation_count }}</span> user<span data-confirm-plural>{% if
           report.confirmation_count != 1 %}s{% endif %}</span> confirmed this issue</p>
     </div>
-    <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
+    <div class="rw-card rw-sweep-card rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
       <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300">Latest Maintenance Update</h2>
       <p class="text-lg text-slate-600 dark:text-slate-300">{{ report.updated_at|datetime_label }}</p>
     </div>
     <div
-      class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm md:col-span-2">
+      class="rw-card rw-sweep-card rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm md:col-span-2">
       <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300">Perth Road Location</h2>
       <p class="text-lg text-slate-600 dark:text-slate-300">{{ report.location }}</p>
       <div class="mt-4 grid gap-4 md:grid-cols-3">
         <div>
-          <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">Street</p>
+          <p class="rw-kicker text-sm font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">Street</p>
           <p class="mt-1 text-base text-slate-600 dark:text-slate-300">{{ report.street_address or "Not provided" }}</p>
         </div>
         <div>
-          <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">Suburb</p>
+          <p class="rw-kicker text-sm font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">Suburb</p>
           <p class="mt-1 text-base text-slate-600 dark:text-slate-300">{{ report.suburb or "Not provided" }}</p>
         </div>
         <div>
-          <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">Postcode</p>
+          <p class="rw-kicker text-sm font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">Postcode</p>
           <p class="mt-1 text-base text-slate-600 dark:text-slate-300">{{ report.postcode or "Not provided" }}</p>
         </div>
       </div>
     </div>
     <div
-      class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm md:col-span-2">
+      class="rw-card rw-sweep-card rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm md:col-span-2">
       <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300">Community Context</h2>
       <p class="text-lg leading-8 text-slate-600 dark:text-slate-300">{{ report.description }}</p>
     </div>
     <div
-      class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm md:col-span-2">
+      class="rw-card rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm md:col-span-2">
       <h2 class="mb-4 text-2xl font-bold text-sky-900 dark:text-sky-300">Supporting Road Image</h2>
       {% if report.image_url %}
       <img src="{{ report.image_url }}" alt="{{ report.issue_type }} image"
         class="max-h-[420px] w-full rounded-2xl object-cover">
       {% else %}
       <div
-        class="flex min-h-[220px] items-center justify-center rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
+        class="rw-kicker flex min-h-[220px] items-center justify-center rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
         No image provided
       </div>
       {% endif %}
     </div>
     <div
-      class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm md:col-span-2">
+      class="rw-card rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm md:col-span-2">
       <h2 class="mb-4 text-2xl font-bold text-sky-900 dark:text-sky-300">Maintenance Progress Notes</h2>
       {% set notes = report.status_notes.all() %}
       {% if notes %}
       <div class="space-y-4">
         {% for status_note in notes %}
-        <article class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
+        <article class="rw-card rw-sweep-card rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
           <div class="mb-2 flex flex-wrap items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
             <span class="font-semibold text-slate-700 dark:text-slate-200">{{ status_note.admin_label }}</span>
             <span>{{ status_note.created_at|datetime_label }}</span>
@@ -121,70 +121,70 @@
 
   <div class="mt-6 flex flex-wrap gap-4">
     <a href="{{ url_for('reports.list_reports') }}"
-      class="w-full rounded-2xl bg-blue-500 dark:bg-blue-600 px-6 py-3 text-center text-lg font-semibold text-white no-underline hover:bg-blue-600 sm:w-auto">Back
+      class="rw-btn rw-btn-primary w-full rounded-2xl bg-blue-500 dark:bg-blue-600 px-6 py-3 text-center text-lg font-semibold text-white no-underline hover:bg-blue-600 sm:w-auto">Back
       to Reports</a>
     {% if current_user.is_authenticated %}
     <form method="post" action="{{ url_for('reports.toggle_confirmation', report_id=report.id) }}"
       class="w-full sm:w-auto" data-confirm-form data-confirm-scope="{{ report.id }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <button type="submit" data-confirm-btn data-label-on="Remove Confirmation" data-label-off="Confirm This Issue"
-        data-classes-on="bg-green-500 dark:bg-green-600 text-white hover:bg-green-600"
-        data-classes-off="border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700"
-        class="w-full rounded-2xl px-6 py-3 text-lg font-semibold sm:w-auto {% if report.is_confirmed_by(current_user) %}bg-green-500 dark:bg-green-600 text-white hover:bg-green-600{% else %}border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700{% endif %}">
+        data-classes-on="rw-btn-success bg-green-500 dark:bg-green-600 text-white hover:bg-green-600"
+        data-classes-off="rw-btn-outline rw-btn-outline-success border border-green-500 text-green-700 dark:text-green-200 hover:bg-green-50 dark:hover:bg-green-900"
+        class="rw-btn w-full rounded-2xl px-6 py-3 text-lg font-semibold sm:w-auto {% if report.is_confirmed_by(current_user) %}rw-btn-success bg-green-500 dark:bg-green-600 text-white hover:bg-green-600{% else %}rw-btn-outline rw-btn-outline-success border border-green-500 text-green-700 dark:text-green-200 hover:bg-green-50 dark:hover:bg-green-900{% endif %}">
         {% if report.is_confirmed_by(current_user) %}Remove Confirmation{% else %}Confirm This Issue{% endif %}
       </button>
     </form>
     <a href="{{ url_for('main.dashboard') }}"
-      class="w-full rounded-2xl bg-amber-500 dark:bg-amber-400 px-6 py-3 text-center text-lg font-semibold text-slate-900 no-underline hover:bg-amber-400 sm:w-auto">Go
+      class="rw-btn rw-btn-warning w-full rounded-2xl bg-amber-500 dark:bg-amber-400 px-6 py-3 text-center text-lg font-semibold text-slate-900 no-underline hover:bg-amber-400 sm:w-auto">Go
       to Dashboard</a>
     {% else %}
     <span
-      class="w-full rounded-2xl border border-slate-300 dark:border-slate-600 px-6 py-3 text-center text-lg font-semibold text-slate-500 dark:text-slate-400 sm:w-auto">Login
+      class="rw-btn rw-btn-outline rw-btn-outline-muted rw-btn-disabled w-full rounded-2xl border border-slate-300 dark:border-slate-600 px-6 py-3 text-center text-lg font-semibold text-slate-500 dark:text-slate-400 sm:w-auto">Login
       to confirm</span>
     {% endif %}
     {% if report.can_be_managed_by(current_user) %}
     <a href="{{ url_for('reports.edit_report', report_id=report.id) }}"
-      class="w-full rounded-2xl border border-slate-300 dark:border-slate-600 px-6 py-3 text-center text-lg font-semibold text-slate-700 dark:text-slate-200 no-underline hover:bg-slate-50 dark:hover:bg-slate-700 sm:w-auto">Edit
+      class="rw-btn rw-btn-warning w-full rounded-2xl bg-amber-500 px-6 py-3 text-center text-lg font-semibold text-slate-900 no-underline hover:bg-amber-400 dark:bg-amber-400 sm:w-auto">Edit
       Report</a>
     <form method="post" action="{{ url_for('reports.delete_report', report_id=report.id) }}" class="w-full sm:w-auto">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <button type="submit"
-        class="w-full rounded-2xl border border-red-500 px-6 py-3 text-lg font-semibold text-red-600 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900 sm:w-auto">Delete</button>
+        class="rw-btn rw-btn-danger w-full rounded-2xl bg-red-500 px-6 py-3 text-lg font-semibold text-white hover:bg-red-600 dark:bg-red-600 sm:w-auto">Delete</button>
     </form>
     {% endif %}
   </div>
 </section>
 
 <section id="comments"
-  class="mt-8 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-lg sm:p-8">
+  class="rw-panel rw-reveal mt-8 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-lg sm:p-8">
   <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
     <div>
-      <p class="mb-2 text-sm font-bold uppercase tracking-[0.24em] text-blue-700 dark:text-blue-300">Discussion</p>
+      <p class="rw-kicker mb-2 text-sm font-bold uppercase tracking-[0.24em] text-blue-700 dark:text-blue-300">Discussion</p>
       <h2 class="text-3xl font-bold text-slate-900 dark:text-slate-100">Comments</h2>
     </div>
     <span
-      class="rounded-full bg-slate-100 dark:bg-slate-950 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
+      class="rw-chip rounded-full bg-slate-100 dark:bg-slate-950 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
       {{ comments|length }} comment{% if comments|length != 1 %}s{% endif %}
     </span>
   </div>
 
   {% if current_user.is_authenticated %}
   <form method="post" action="{{ url_for('reports.create_comment', report_id=report.id) }}"
-    class="mb-8 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-5">
+    class="rw-panel mb-8 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-5">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <label for="body" class="mb-2 block text-sm font-semibold text-slate-600 dark:text-slate-300">Add a comment</label>
     <textarea id="body" name="body"
-      class="min-h-[120px] w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
+      class="rw-field min-h-[120px] w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
       placeholder="Share extra context, ask a question, or post an update." required></textarea>
     <div class="mt-4 flex justify-start sm:justify-end">
       <button type="submit"
-        class="rounded-2xl bg-blue-500 dark:bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-600">Post
+        class="rw-btn rw-btn-primary rounded-2xl bg-blue-500 dark:bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-600">Post
         Comment</button>
     </div>
   </form>
   {% else %}
   <div
-    class="mb-8 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-5 text-slate-600 dark:text-slate-300">
+    class="rw-card mb-8 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-5 text-slate-600 dark:text-slate-300">
     Log in to post comments. Guests can still read the discussion below.
   </div>
   {% endif %}
@@ -193,7 +193,7 @@
   <div class="space-y-4">
     {% for comment in comments %}
     <article
-      class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-5 shadow-sm">
+      class="rw-card rw-sweep-card rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-5 shadow-sm">
       <div class="mb-3 flex flex-wrap items-start justify-between gap-4">
         <div>
           <p class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ comment.author.username }}</p>
@@ -203,7 +203,7 @@
         <form method="post" action="{{ url_for('admin.delete_comment', comment_id=comment.id) }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button type="submit"
-            class="rounded-xl border border-red-500 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900">Delete</button>
+            class="rw-btn rw-btn-outline rw-btn-outline-danger rounded-xl border border-red-500 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900">Delete</button>
         </form>
         {% endif %}
       </div>
@@ -213,7 +213,7 @@
   </div>
   {% else %}
   <div
-    class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 p-5 text-center sm:p-8">
+    class="rw-card rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 p-5 text-center sm:p-8">
     <p class="text-lg text-slate-600 dark:text-slate-300">No comments yet. Start the discussion if you have more context
       to add.</p>
   </div>

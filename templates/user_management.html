@@ -3,32 +3,32 @@
 {% block title %}User Management | RoadWatch Perth{% endblock %}
 
 {% block content %}
-  <section id="users-dashboard" class="rounded-2xl border border-slate-200 bg-white p-5 shadow-lg dark:border-slate-700 dark:bg-slate-800 sm:p-8">
+  <section id="users-dashboard" class="rw-panel rw-reveal rounded-2xl border border-slate-200 bg-white p-5 shadow-lg dark:border-slate-700 dark:bg-slate-800 sm:p-8">
     <div class="mb-5 flex flex-wrap items-end justify-between gap-4">
       <div>
-        <p class="mb-2 text-sm font-bold uppercase tracking-[0.24em] text-blue-700 dark:text-blue-300">Users</p>
+        <p class="rw-kicker mb-2 text-sm font-bold uppercase tracking-[0.24em] text-blue-700 dark:text-blue-300">Users</p>
         <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100 sm:text-4xl">Admin Users Dashboard</h1>
       </div>
-      <span class="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 dark:bg-slate-950 dark:text-slate-200">
+      <span class="rw-chip rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 dark:bg-slate-950 dark:text-slate-200">
         {{ user_summary.total }} total
       </span>
     </div>
 
     <div class="mb-6 grid gap-3 md:grid-cols-4">
-      <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
-        <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Active</p>
+      <div class="rw-card rw-sweep-card rw-reveal rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+        <p class="rw-kicker text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Active</p>
         <p class="mt-2 text-3xl font-bold text-green-600 dark:text-green-300">{{ user_summary.active }}</p>
       </div>
-      <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
-        <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Blocked</p>
+      <div class="rw-card rw-sweep-card rw-reveal rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+        <p class="rw-kicker text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Blocked</p>
         <p class="mt-2 text-3xl font-bold text-red-600 dark:text-red-300">{{ user_summary.blocked }}</p>
       </div>
-      <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
-        <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Admins</p>
+      <div class="rw-card rw-sweep-card rw-reveal rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+        <p class="rw-kicker text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Admins</p>
         <p class="mt-2 text-3xl font-bold text-blue-600 dark:text-blue-300">{{ user_summary.admins }}</p>
       </div>
-      <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
-        <p class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Residents</p>
+      <div class="rw-card rw-sweep-card rw-reveal rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+        <p class="rw-kicker text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Residents</p>
         <p class="mt-2 text-3xl font-bold text-slate-700 dark:text-slate-200">{{ user_summary.total - user_summary.admins }}</p>
       </div>
     </div>
@@ -41,9 +41,9 @@
         <span>Page {{ users_pagination.page }} of {{ users_pagination.pages }}</span>
       </div>
 
-      <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+      <div class="rw-panel overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
         <table class="min-w-full divide-y divide-slate-200 text-left text-sm dark:divide-slate-700">
-          <thead class="bg-slate-50 text-xs font-bold uppercase tracking-[0.16em] text-slate-500 dark:bg-slate-900 dark:text-slate-400">
+          <thead class="rw-kicker bg-slate-50 text-xs font-bold uppercase tracking-[0.16em] text-slate-500 dark:bg-slate-900 dark:text-slate-400">
             <tr>
               <th scope="col" class="px-4 py-3">User</th>
               <th scope="col" class="px-4 py-3">Role</th>
@@ -62,16 +62,16 @@
                 </td>
                 <td class="px-4 py-4">
                   {% if user.is_admin %}
-                    <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-800 dark:bg-blue-900 dark:text-blue-100">Admin</span>
+                    <span class="rw-chip rw-chip-info rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-800 dark:bg-blue-900 dark:text-blue-100">Admin</span>
                   {% else %}
-                    <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700 dark:bg-slate-700 dark:text-slate-100">Resident</span>
+                    <span class="rw-chip rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700 dark:bg-slate-700 dark:text-slate-100">Resident</span>
                   {% endif %}
                 </td>
                 <td class="px-4 py-4">
                   {% if user.is_active %}
-                    <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-800 dark:bg-green-900 dark:text-green-100">Active</span>
+                    <span class="rw-chip rw-chip-success rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-800 dark:bg-green-900 dark:text-green-100">Active</span>
                   {% else %}
-                    <span class="rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-800 dark:bg-red-900 dark:text-red-100">Blocked</span>
+                    <span class="rw-chip rw-chip-danger rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-800 dark:bg-red-900 dark:text-red-100">Blocked</span>
                   {% endif %}
                 </td>
                 <td class="px-4 py-4 text-slate-600 dark:text-slate-300">
@@ -85,7 +85,7 @@
                   {% else %}
                     <form method="post" action="{{ url_for('user_management.toggle_user_active', user_id=user.id) }}">
                       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                      <button type="submit" class="{% if user.is_active %}rounded-xl border border-red-500 px-4 py-2 font-semibold text-red-600 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-900{% else %}rounded-xl border border-green-500 px-4 py-2 font-semibold text-green-700 hover:bg-green-50 dark:text-green-200 dark:hover:bg-green-900{% endif %}">
+                      <button type="submit" class="rw-btn {% if user.is_active %}rw-btn-outline rw-btn-outline-danger rounded-xl border border-red-500 px-4 py-2 font-semibold text-red-600 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-900{% else %}rw-btn-outline rw-btn-outline-success rounded-xl border border-green-500 px-4 py-2 font-semibold text-green-700 hover:bg-green-50 dark:text-green-200 dark:hover:bg-green-900{% endif %}">
                         {% if user.is_active %}Block{% else %}Unblock{% endif %}
                       </button>
                     </form>
@@ -100,17 +100,17 @@
       {% if users_pagination.pages > 1 %}
         <nav class="mt-8 flex flex-wrap items-center justify-center gap-2" aria-label="User pages">
           {% if users_pagination.has_prev %}
-            <a href="{{ url_for('user_management.user_management_panel', page=users_pagination.prev_num) }}" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-700">Previous</a>
+            <a href="{{ url_for('user_management.user_management_panel', page=users_pagination.prev_num) }}" class="rw-btn rw-btn-outline rw-btn-outline-muted rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-700">Previous</a>
           {% else %}
-            <span class="rounded-xl border border-slate-200 px-4 py-2 font-medium text-slate-300 dark:border-slate-700">Previous</span>
+            <span class="rw-btn rw-btn-outline rw-btn-outline-muted rw-btn-disabled rounded-xl border border-slate-200 px-4 py-2 font-medium text-slate-300 dark:border-slate-700">Previous</span>
           {% endif %}
 
           {% for page_number in users_pagination.iter_pages(left_edge=1, left_current=1, right_current=2, right_edge=1) %}
             {% if page_number %}
               {% if page_number == users_pagination.page %}
-                <span class="rounded-xl bg-blue-500 px-4 py-2 font-semibold text-white dark:bg-blue-600">{{ page_number }}</span>
+                <span class="rw-btn rw-btn-primary rounded-xl bg-blue-500 px-4 py-2 font-semibold text-white dark:bg-blue-600">{{ page_number }}</span>
               {% else %}
-                <a href="{{ url_for('user_management.user_management_panel', page=page_number) }}" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-700">{{ page_number }}</a>
+                <a href="{{ url_for('user_management.user_management_panel', page=page_number) }}" class="rw-btn rw-btn-outline rw-btn-outline-muted rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-700">{{ page_number }}</a>
               {% endif %}
             {% else %}
               <span class="px-2 text-slate-400 dark:text-slate-500">...</span>
@@ -118,14 +118,14 @@
           {% endfor %}
 
           {% if users_pagination.has_next %}
-            <a href="{{ url_for('user_management.user_management_panel', page=users_pagination.next_num) }}" class="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-700">Next</a>
+            <a href="{{ url_for('user_management.user_management_panel', page=users_pagination.next_num) }}" class="rw-btn rw-btn-outline rw-btn-outline-muted rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 no-underline hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-700">Next</a>
           {% else %}
-            <span class="rounded-xl border border-slate-200 px-4 py-2 font-medium text-slate-300 dark:border-slate-700">Next</span>
+            <span class="rw-btn rw-btn-outline rw-btn-outline-muted rw-btn-disabled rounded-xl border border-slate-200 px-4 py-2 font-medium text-slate-300 dark:border-slate-700">Next</span>
           {% endif %}
         </nav>
       {% endif %}
     {% else %}
-      <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center dark:border-slate-600 dark:bg-slate-900 sm:p-10">
+      <div class="rw-card rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center dark:border-slate-600 dark:bg-slate-900 sm:p-10">
         <p class="text-lg text-slate-600 dark:text-slate-300">No users are registered yet.</p>
       </div>
     {% endif %}
