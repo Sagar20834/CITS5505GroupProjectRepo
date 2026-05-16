@@ -87,11 +87,13 @@ Apply database migrations:
 flask --app app db upgrade
 ```
 
-Optionally load demo users and reports:
+Load demo users and reports if you want data to appear in the app:
 
 ```powershell
 flask --app app seed-demo
 ```
+
+The application starts with an empty database. It will not contain users, reports, comments, notifications, or dashboard data until `seed-demo` is run or data is created through the web interface.
 
 Run the app:
 
@@ -121,6 +123,8 @@ For Gmail, use an app password rather than your normal account password.
 ## Demo Data
 
 The demo seed command creates users, reports, comments, confirmations, status notes, structured locations, and a mix of approval states.
+
+Run `flask --app app seed-demo` after setup to populate the local database. Without this step, the app is still usable, but public pages and dashboards show empty states until reports are submitted and approved.
 
 Default demo accounts:
 
@@ -200,6 +204,8 @@ If migrations change, run:
 ```powershell
 flask --app app db upgrade
 ```
+
+The application also performs a lightweight startup schema sync as a local safeguard for missing tables, columns, and indexes. Alembic migrations remain the source of truth, so `flask --app app db upgrade` should still be run after pulling schema changes.
 
 To inspect the current migration head:
 

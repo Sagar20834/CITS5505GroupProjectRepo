@@ -56,5 +56,6 @@ def dashboard():
     return render_template(
         "dashboard.html",
         summary=build_summary_cards(reports),
+        hotspots=build_hotspots(limit=6),
         chart_data=chart_data,
     )

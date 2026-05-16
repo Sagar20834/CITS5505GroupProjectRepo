@@ -3,6 +3,7 @@ import json
 from datetime import datetime, timezone
 
 from conftest import csrf_token, login, logout, make_user, report_form_data
+from roadwatch.analytics import build_hotspots
 from roadwatch.extensions import db
 from roadwatch.models import Comment, Confirmation, Notification, Report, ReportStatusNote, User
 
@@ -92,6 +93,89 @@ def test_user_login_and_logout(client, app):
     response = logout(client)
     assert response.status_code in (302, 303)
 
+    with client.session_transaction() as session:
+        assert session.get("_user_id") is None
+
+
+def test_login_next_redirect_only_allows_local_paths(client, app):
+    with app.app_context():
+        make_user()
+
+    response = login(client, identifier="resident")
+    assert response.status_code in (302, 303)
+    assert response.headers["Location"].endswith("/dashboard")
+
+    logout(client)
+    response = client.get("/login?next=/reports")
+    token = csrf_token(response)
+    response = client.post(
+        "/login?next=/reports",
+        data={
+            "csrf_token": token,
+            "identifier": "resident",
+            "password": "Password123",
+            "next": "/reports",
+        },
+        follow_redirects=False,
+    )
+    assert response.status_code in (302, 303)
+    assert response.headers["Location"].endswith("/reports")
+
+    unsafe_targets = [
+        "//evil.example/login",
+        "////evil.example/login",
+        "javascript:alert(1)",
+        "reports",
+    ]
+    for unsafe_target in unsafe_targets:
+        logout(client)
+        response = client.get(f"/login?next={unsafe_target}")
+        token = csrf_token(response)
+        response = client.post(
+            "/login",
+            data={
+                "csrf_token": token,
+                "identifier": "resident",
+                "password": "Password123",
+                "next": unsafe_target,
+            },
+            follow_redirects=False,
+        )
+
+        assert response.status_code in (302, 303)
+        assert response.headers["Location"].endswith("/dashboard")
+
+
+def test_blocked_user_cannot_login(client, app):
+    with app.app_context():
+        user = make_user()
+        user.is_active = False
+        db.session.commit()
+
+    response = login(client)
+
+    assert response.status_code == 200
+    assert b"This account has been blocked. Contact an administrator." in response.data
+    with client.session_transaction() as session:
+        assert session.get("_user_id") is None
+
+
+def test_logged_in_user_is_forced_out_when_blocked(client, app):
+    with app.app_context():
+        user = make_user()
+        user_id = user.id
+
+    login(client)
+    with app.app_context():
+        user = db.session.get(User, user_id)
+        user.is_active = False
+        db.session.commit()
+
+    response = client.get("/profile", follow_redirects=True)
+
+    assert response.status_code == 200
+    assert b"This account has been blocked. Contact an administrator." in response.data
+    assert b"Login" in response.data
     with client.session_transaction() as session:
         assert session.get("_user_id") is None
 
@@ -202,6 +286,34 @@ def test_report_notifications_are_created_and_marked_read(client, app):
 
     with app.app_context():
         assert Notification.query.filter_by(user_id=user_id, is_read=False).count() == 0
+
+    logout(client)
+    login(client)
+    history_page = client.get("/")
+    assert b"Your report is waiting for admin approval." in history_page.data
+    assert b"Your report has been approved and published." in history_page.data
+
+
+def test_reset_demo_clears_notification_history(runner, app):
+    with app.app_context():
+        user = make_user()
+        report = create_report(reporter=user)
+        notification = Notification()
+        notification.user = user
+        notification.report = report
+        notification.message = "Temporary notification before reset."
+        db.session.add(notification)
+        db.session.commit()
+
+        assert Notification.query.count() == 1
+
+    result = runner.invoke(args=["reset-demo", "--yes"])
+
+    assert result.exit_code == 0
+    assert "Local app data was reset and fresh demo data was loaded." in result.output
+    with app.app_context():
+        assert Notification.query.count() == 0
+        assert User.query.filter_by(username="admin").first() is not None
 
 
 def test_invalid_report_form_shows_validation_error(client, app):
@@ -359,6 +471,57 @@ def test_admin_status_and_severity_actions(client, app):
         assert note.admin_id == admin_id
         assert note.old_status == "Reported"
         assert note.new_status == "Under Review"
+
+
+def test_admin_page_shows_users_dashboard_and_can_block_user(client, app):
+    with app.app_context():
+        make_user(username="admin", email="admin@example.com", is_admin=True)
+        user = make_user()
+        report = create_report(reporter=user)
+        comment = Comment()
+        comment.body = "This issue is getting worse after rain."
+        comment.report_id = report.id
+        comment.author_id = user.id
+        confirmation = Confirmation()
+        confirmation.report_id = report.id
+        confirmation.user_id = user.id
+        db.session.add_all([comment, confirmation])
+        db.session.commit()
+        user_id = user.id
+
+    login(client, identifier="admin")
+    admin_page = client.get("/admin/")
+
+    assert admin_page.status_code == 200
+    assert b"Admin Users Dashboard" in admin_page.data
+    assert b"resident@example.com" in admin_page.data
+    assert b"1 reports / 1 comments / 1 confirmations" in admin_page.data
+
+    token = csrf_token(admin_page)
+    response = client.post(
+        f"/admin/users/{user_id}/toggle-active",
+        data={"csrf_token": token},
+        follow_redirects=True,
+    )
+
+    assert response.status_code == 200
+    assert b"resident has been blocked from logging in." in response.data
+    assert b"Blocked" in response.data
+    with app.app_context():
+        assert db.session.get(User, user_id).is_active is False
+
+    admin_page = client.get("/admin/")
+    token = csrf_token(admin_page)
+    response = client.post(
+        f"/admin/users/{user_id}/toggle-active",
+        data={"csrf_token": token},
+        follow_redirects=True,
+    )
+
+    assert response.status_code == 200
+    assert b"resident has been restored." in response.data
+    with app.app_context():
+        assert db.session.get(User, user_id).is_active is True
 
 
 def test_pending_report_is_visible_to_owner_but_not_public(client, app):
@@ -525,6 +688,56 @@ def test_model_helper_methods(app):
         assert pending_report.can_be_viewed_by(owner)
         assert pending_report.can_be_viewed_by(admin)
         assert not pending_report.can_be_viewed_by(other)
+
+
+def test_hotspots_deduplicate_linked_user_reports_and_count_guests(app):
+    with app.app_context():
+        first_user = make_user(username="first", email="first@example.com")
+        second_user = make_user(username="second", email="second@example.com")
+
+        create_report(reporter=first_user)
+        create_report(reporter=first_user)
+        assert build_hotspots() == []
+
+        create_report(reporter=second_user)
+        create_report()
+        create_report()
+
+        hotspots = build_hotspots(limit=5)
+
+    assert len(hotspots) == 1
+    assert hotspots[0]["location"] == "Hay Street, Perth CBD 6000"
+    assert hotspots[0]["report_count"] == 4
+    assert hotspots[0]["reporter_count"] == 2
+    assert hotspots[0]["guest_count"] == 2
+
+
+def test_hotspots_are_visible_on_dashboard_and_admin_pages(client, app):
+    with app.app_context():
+        admin = make_user(username="admin", email="admin@example.com", is_admin=True)
+        user = make_user()
+        admin_username = admin.username
+        create_report(reporter=user)
+        create_report()
+
+    dashboard_response = client.get("/dashboard")
+
+    assert dashboard_response.status_code == 200
+    assert b"Repeated Locations" in dashboard_response.data
+    assert b"Hay Street, Perth CBD 6000" in dashboard_response.data
+    assert b"1 linked reporter" in dashboard_response.data
+    assert b"+ 1 guest report" in dashboard_response.data
+    assert b"2 unique signals" in dashboard_response.data
+
+    login(client, identifier=admin_username, password="Password123")
+    admin_response = client.get("/admin/")
+
+    assert admin_response.status_code == 200
+    assert b"Repeated Locations" in admin_response.data
+    assert b"Hay Street, Perth CBD 6000" in admin_response.data
+    assert b"1 linked reporter" in admin_response.data
+    assert b"+ 1 guest report" in admin_response.data
+    assert b"2 unique signals" in admin_response.data
 
 
 def test_admin_can_delete_comments(client, app):
