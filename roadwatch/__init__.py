@@ -173,12 +173,12 @@ def create_app(config_class=Config):
 
     @app.context_processor
     def inject_template_globals():
-        notification_history = []
+        unread_notifications = []
         unread_notification_count = 0
         if current_user.is_authenticated:
             unread_notification_count = Notification.query.filter_by(user_id=current_user.id, is_read=False).count()
-            notification_history = (
-                Notification.query.filter_by(user_id=current_user.id)
+            unread_notifications = (
+                Notification.query.filter_by(user_id=current_user.id, is_read=False)
                 .order_by(Notification.created_at.desc())
                 .all()
             )
@@ -194,7 +194,7 @@ def create_app(config_class=Config):
             "moderation_styles": MODERATION_STYLES,
             "severity_styles": SEVERITY_STYLES,
             "unread_notification_count": unread_notification_count,
-            "recent_notifications": notification_history,
+            "recent_notifications": unread_notifications,
         }
 
     @app.template_filter("datetime_label")

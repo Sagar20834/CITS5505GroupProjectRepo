@@ -110,7 +110,7 @@
                   {% if recent_notifications %}
                   {% for notification in recent_notifications %}
                   <a href="{{ notification.link_url or url_for('auth.profile') }}"
-                    class="block rounded-lg px-2 py-2 text-xs leading-5 no-underline {% if notification.is_read %}text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700{% else %}bg-blue-50 font-semibold text-slate-800 hover:bg-blue-100 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-700{% endif %}"
+                    class="block rounded-lg bg-blue-50 px-2 py-2 text-xs font-semibold leading-5 text-slate-800 no-underline hover:bg-blue-100 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-700"
                     data-notification-link>
                     {{ notification.message }}
                   </a>

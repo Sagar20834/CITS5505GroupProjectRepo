@@ -309,8 +309,9 @@ def test_report_notifications_are_created_and_marked_read(client, app):
     logout(client)
     login(client)
     history_page = client.get("/")
-    assert b"Your report is waiting for admin approval." in history_page.data
-    assert b"Your report has been approved and published." in history_page.data
+    assert b"Your report is waiting for admin approval." not in history_page.data
+    assert b"Your report has been approved and published." not in history_page.data
+    assert b"No notifications yet." in history_page.data
 
 
 def test_reset_demo_clears_notification_history(runner, app):
