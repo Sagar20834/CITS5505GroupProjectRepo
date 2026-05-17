@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Report Details | RoadWatch Perth{% endblock %}
+{% block title %}Road Hazard Details | RoadWatch Perth{% endblock %}
 
 {% block content %}
 <section
@@ -8,8 +8,8 @@
   <p class="rw-kicker mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700 dark:text-blue-300">Report Summary</p>
   <div class="mb-8 flex flex-wrap items-start justify-between gap-4">
     <div>
-      <h1 class="mb-3 text-3xl font-bold text-slate-900 dark:text-slate-100 sm:text-4xl">Report Details</h1>
-      <p class="text-lg leading-8 text-slate-600 dark:text-slate-300">RoadWatch case #{{ report.id }} for a community-reported Perth road hazard.</p>
+      <h1 class="mb-3 text-3xl font-bold text-slate-900 dark:text-slate-100 sm:text-4xl">Road hazard details</h1>
+      <p class="text-lg leading-8 text-slate-600 dark:text-slate-300">RoadWatch case #{{ report.id }} for a community-reported Perth road hazard, including location, safety priority, confirmations, and repair progress.</p>
     </div>
     <div class="flex flex-wrap gap-2">
       <span class="rounded-full px-4 py-2 text-sm font-bold {{ severity_styles[report.severity] }}">Safety priority: {{

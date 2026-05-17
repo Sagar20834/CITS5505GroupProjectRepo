@@ -10,8 +10,8 @@
         <p class="rw-kicker mb-4 text-sm font-bold uppercase tracking-[0.28em] text-blue-700 dark:text-blue-300">Safer Streets Through Community Reporting</p>
         <h1 class="mb-6 text-4xl font-bold leading-tight text-slate-900 dark:text-slate-100 sm:text-5xl md:text-6xl">Report road hazards across Perth before they become bigger problems.</h1>
         <p class="mb-8 max-w-3xl text-xl leading-9 text-slate-600 dark:text-slate-300">
-          RoadWatch Perth helps residents report unsafe roads, track recurring issues,
-          and surface hotspots that may need faster maintenance attention.
+          RoadWatch Perth turns community reports into a shared picture of potholes,
+          cracks, flooding, missing signs, and other hazards that need attention.
         </p>
         <div class="flex flex-wrap gap-4">
           <a href="{{ url_for('reports.create_report') }}" class="rw-btn rw-btn-warning rounded-2xl bg-amber-500 dark:bg-amber-400 px-7 py-4 text-xl font-semibold text-slate-900 no-underline hover:bg-amber-400">Report an Issue</a>
@@ -45,7 +45,7 @@
     <div class="rw-panel rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm sm:p-8">
       <p class="rw-kicker mb-3 text-sm font-bold uppercase tracking-[0.24em] text-blue-700 dark:text-blue-300">Analytics Overview</p>
       <h2 class="mb-2 text-2xl font-bold text-slate-900 dark:text-slate-100 sm:text-3xl">Issue trends this year</h2>
-      <p class="mb-6 text-lg leading-8 text-slate-600 dark:text-slate-300">This chart now uses persisted report data rendered with Chart.js, which fits the clarified non-core library allowance for graphing.</p>
+      <p class="mb-6 text-lg leading-8 text-slate-600 dark:text-slate-300">Track how approved community reports change across the year and see which road hazards are appearing most often.</p>
 
       <div class="relative h-[280px] sm:h-[360px]">
         <canvas id="homepageChart"></canvas>

@@ -7,7 +7,7 @@
     <section class="rw-panel rw-form-shell rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-lg sm:p-8 md:p-10">
       <p class="rw-kicker mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700 dark:text-blue-300">Community Reporting</p>
       <h1 class="mb-3 text-3xl font-bold text-slate-900 dark:text-slate-100 sm:text-4xl">{{ heading }}</h1>
-      <p class="mb-8 text-xl leading-9 text-slate-600 dark:text-slate-300">Submit enough detail for other users and administrators to understand, prioritise, and manage the issue.</p>
+      <p class="mb-8 text-xl leading-9 text-slate-600 dark:text-slate-300">Share the location, hazard type, and impact so the community can understand the problem and administrators can review it clearly.</p>
 
       <form method="post" action="{{ form_action }}" class="space-y-5">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -30,7 +30,7 @@
               <div id="street-address-suggestion-panel" class="rw-surface rw-overlay-surface absolute left-0 right-0 top-full z-40 mt-2 hidden overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800"></div>
             </div>
             <datalist id="street-address-suggestions"></datalist>
-            <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Start typing to see OpenStreetMap suggestions. If the public lookup service is unavailable, saved approved report locations are used as a fallback.</p>
+            <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Start typing to find a Perth street address. Saved approved report locations may appear as helpful suggestions.</p>
           </div>
           <div>
             <label for="suburb" class="mb-2 block text-sm font-semibold text-slate-600 dark:text-slate-300">Suburb</label>
@@ -65,7 +65,7 @@
           <input type="checkbox" name="is_anonymous" value="on" {% if form_data.is_anonymous %}checked{% endif %} class="mt-1 rounded border-slate-300 dark:border-slate-600">
           <span>
             <span class="block font-semibold text-slate-800 dark:text-slate-100">Submit anonymously</span>
-            <span class="mt-1 block text-sm leading-6 text-slate-600 dark:text-slate-300">The system can still keep the report linked to your account for tracking, but your public name will be hidden.</span>
+            <span class="mt-1 block text-sm leading-6 text-slate-600 dark:text-slate-300">Your account can still track the report, but your public name will be hidden from other users.</span>
           </span>
         </label>
 
@@ -80,9 +80,9 @@
       <div class="rw-card rw-sweep-card rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm sm:p-8">
         <h2 class="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">Submission rules</h2>
         <ul class="space-y-3 text-base leading-7 text-slate-600 dark:text-slate-300">
-          <li>Use the street, suburb, and postcode fields so reports can be searched accurately later.</li>
+          <li>Use the street, suburb, and postcode fields so the hazard can be found later.</li>
           <li>Choose the issue type that best matches the road condition.</li>
-          <li>Describe the hazard rather than only naming it.</li>
+          <li>Describe how the hazard affects drivers, cyclists, pedestrians, or nearby traffic.</li>
           <li>Anonymous reports are allowed for guests and signed-in users.</li>
         </ul>
       </div>
@@ -90,7 +90,7 @@
       <div class="rw-card rw-sweep-card rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm sm:p-8">
         <h2 class="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">What happens next</h2>
         <p class="text-base leading-8 text-slate-600 dark:text-slate-300">
-          New reports are first sent to the admin for approval. They only become public after approval, and then administrators can continue updating their repair status through the admin page.
+          New reports are reviewed before publication. Once approved, the report appears publicly and administrators can update its repair progress.
         </p>
         {% if not current_user.is_authenticated %}
           <p class="mt-4 text-base leading-8 text-slate-600 dark:text-slate-300">
