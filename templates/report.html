@@ -4,8 +4,8 @@
 
 {% block content %}
   <div class="grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
-    <section class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-lg sm:p-8 md:p-10">
-      <p class="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700 dark:text-blue-300">Report A Road Hazard</p>
+    <section class="rw-panel rw-form-shell rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-lg sm:p-8 md:p-10">
+      <p class="rw-kicker mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700 dark:text-blue-300">Community Reporting</p>
       <h1 class="mb-3 text-3xl font-bold text-slate-900 dark:text-slate-100 sm:text-4xl">{{ heading }}</h1>
       <p class="mb-8 text-xl leading-9 text-slate-600 dark:text-slate-300">Share the location, hazard type, and impact so the community can understand the problem and administrators can review it clearly.</p>
 
@@ -14,7 +14,7 @@
 
         <div>
           <label for="issue_type" class="mb-2 block text-sm font-semibold text-slate-600 dark:text-slate-300">Issue type</label>
-          <select id="issue_type" name="issue_type" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500" required>
+          <select id="issue_type" name="issue_type" class="rw-field w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500" required>
             <option value="">Select issue type</option>
             {% for issue_type in issue_types %}
               <option value="{{ issue_type }}" {% if form_data.issue_type == issue_type %}selected{% endif %}>{{ issue_type }}</option>
@@ -26,25 +26,25 @@
           <div class="md:col-span-2">
             <label for="street_address" class="mb-2 block text-sm font-semibold text-slate-600 dark:text-slate-300">Street address</label>
             <div class="relative">
-              <input id="street_address" name="street_address" value="{{ form_data.street_address }}" list="street-address-suggestions" autocomplete="off" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500" placeholder="e.g. Hay Street near William Street" required>
-              <div id="street-address-suggestion-panel" class="absolute left-0 right-0 top-full z-40 mt-2 hidden overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800"></div>
+              <input id="street_address" name="street_address" value="{{ form_data.street_address }}" list="street-address-suggestions" autocomplete="off" class="rw-field w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500" placeholder="e.g. Hay Street near William Street" required>
+              <div id="street-address-suggestion-panel" class="rw-surface rw-overlay-surface absolute left-0 right-0 top-full z-40 mt-2 hidden overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800"></div>
             </div>
             <datalist id="street-address-suggestions"></datalist>
             <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Start typing to find a Perth street address. Saved approved report locations may appear as helpful suggestions.</p>
           </div>
           <div>
             <label for="suburb" class="mb-2 block text-sm font-semibold text-slate-600 dark:text-slate-300">Suburb</label>
-            <input id="suburb" name="suburb" value="{{ form_data.suburb }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500" placeholder="e.g. Perth CBD" required>
+            <input id="suburb" name="suburb" value="{{ form_data.suburb }}" class="rw-field w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500" placeholder="e.g. Perth CBD" required>
           </div>
           <div>
             <label for="postcode" class="mb-2 block text-sm font-semibold text-slate-600 dark:text-slate-300">Postcode</label>
-            <input id="postcode" name="postcode" value="{{ form_data.postcode }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500" placeholder="e.g. 6000" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required>
+            <input id="postcode" name="postcode" value="{{ form_data.postcode }}" class="rw-field w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500" placeholder="e.g. 6000" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required>
           </div>
         </div>
 
         <div>
           <label for="severity" class="mb-2 block text-sm font-semibold text-slate-600 dark:text-slate-300">Severity</label>
-          <select id="severity" name="severity" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500" required>
+          <select id="severity" name="severity" class="rw-field w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500" required>
             {% for severity in report_severities %}
               <option value="{{ severity }}" {% if form_data.severity == severity %}selected{% endif %}>{{ severity }}</option>
             {% endfor %}
@@ -53,15 +53,15 @@
 
         <div>
           <label for="description" class="mb-2 block text-sm font-semibold text-slate-600 dark:text-slate-300">Description</label>
-          <textarea id="description" name="description" class="min-h-[170px] w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500" placeholder="Describe the hazard, who it affects, and any urgency details." required>{{ form_data.description }}</textarea>
+          <textarea id="description" name="description" class="rw-field min-h-[170px] w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500" placeholder="Describe the hazard, who it affects, and any urgency details." required>{{ form_data.description }}</textarea>
         </div>
 
         <div>
           <label for="image_url" class="mb-2 block text-sm font-semibold text-slate-600 dark:text-slate-300">Image URL</label>
-          <input id="image_url" name="image_url" value="{{ form_data.image_url }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500" placeholder="https://example.com/road-issue.jpg">
+          <input id="image_url" name="image_url" value="{{ form_data.image_url }}" class="rw-field w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500" placeholder="https://example.com/road-issue.jpg">
         </div>
 
-        <label class="flex items-start gap-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-4">
+        <label class="rw-card rw-sweep-card flex items-start gap-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-4">
           <input type="checkbox" name="is_anonymous" value="on" {% if form_data.is_anonymous %}checked{% endif %} class="mt-1 rounded border-slate-300 dark:border-slate-600">
           <span>
             <span class="block font-semibold text-slate-800 dark:text-slate-100">Submit anonymously</span>
@@ -70,14 +70,14 @@
         </label>
 
         <div class="flex flex-wrap gap-4">
-          <button type="submit" class="w-full rounded-2xl bg-blue-500 dark:bg-blue-600 px-7 py-4 text-lg font-semibold text-white hover:bg-blue-600 sm:w-auto">{{ submit_label }}</button>
-          <a href="{{ url_for('reports.list_reports') }}" class="w-full rounded-2xl border border-slate-300 dark:border-slate-600 px-7 py-4 text-center text-lg font-semibold text-slate-700 dark:text-slate-200 no-underline hover:bg-slate-50 dark:hover:bg-slate-700 sm:w-auto">Cancel</a>
+          <button type="submit" class="rw-btn rw-btn-primary w-full rounded-2xl bg-blue-500 dark:bg-blue-600 px-7 py-4 text-lg font-semibold text-white hover:bg-blue-600 sm:w-auto">{{ submit_label }}</button>
+          <a href="{{ url_for('reports.list_reports') }}" class="rw-btn rw-btn-outline rw-btn-outline-muted w-full rounded-2xl border border-slate-300 dark:border-slate-600 px-7 py-4 text-center text-lg font-semibold text-slate-700 dark:text-slate-200 no-underline hover:bg-slate-50 dark:hover:bg-slate-700 sm:w-auto">Cancel</a>
         </div>
       </form>
     </section>
 
     <aside class="space-y-6">
-      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm sm:p-8">
+      <div class="rw-card rw-sweep-card rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm sm:p-8">
         <h2 class="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">Submission rules</h2>
         <ul class="space-y-3 text-base leading-7 text-slate-600 dark:text-slate-300">
           <li>Use the street, suburb, and postcode fields so the hazard can be found later.</li>
@@ -87,7 +87,7 @@
         </ul>
       </div>
 
-      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm sm:p-8">
+      <div class="rw-card rw-sweep-card rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm sm:p-8">
         <h2 class="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">What happens next</h2>
         <p class="text-base leading-8 text-slate-600 dark:text-slate-300">
           New reports are reviewed before publication. Once approved, the report appears publicly and administrators can update its repair progress.
@@ -160,7 +160,7 @@
 
           const button = document.createElement("button");
           button.type = "button";
-          button.className = "block w-full px-4 py-3 text-left text-sm text-slate-700 hover:bg-blue-50 dark:text-slate-200 dark:hover:bg-slate-700";
+          button.className = "rw-btn rw-btn-ghost block w-full px-4 py-3 text-left text-sm text-slate-700 hover:bg-blue-50 dark:text-slate-200 dark:hover:bg-slate-700";
           button.textContent = item.label;
           button.addEventListener("mousedown", (event) => {
             event.preventDefault();

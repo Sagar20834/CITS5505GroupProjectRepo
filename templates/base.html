@@ -6,8 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}RoadWatch Perth{% endblock %}</title>
   <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script>
     (function () {
+      document.documentElement.classList.add('js');
       const storedTheme = localStorage.getItem('roadwatch-theme');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       const useDark = storedTheme ? storedTheme === 'dark' : prefersDark;
@@ -18,18 +22,22 @@
   <script>
     tailwind.config = { darkMode: 'class' };
   </script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   {% block extra_head %}{% endblock %}
 </head>
 
-<body class="min-h-screen bg-slate-100 text-slate-800 dark:bg-slate-950 dark:text-slate-100">
-  <nav class="bg-slate-900 sticky top-0 z-50">
+<body class="rw-body min-h-screen bg-slate-100 text-slate-800 dark:bg-slate-950 dark:text-slate-100">
+  <div class="rw-ambient-bg" aria-hidden="true"></div>
+
+  <nav class="rw-nav bg-slate-900 sticky top-0 z-50">
     <div
       class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:flex-nowrap lg:gap-4 lg:py-5">
       <a href="{{ url_for('main.index') }}"
-        class="min-w-0 text-2xl font-bold text-white no-underline sm:text-3xl md:text-4xl">RoadWatch Perth</a>
+        class="rw-brand min-w-0 text-2xl font-bold text-white no-underline sm:text-3xl md:text-4xl"
+        data-text="RoadWatch Perth">RoadWatch Perth</a>
       <button id="mobile-menu-toggle" type="button"
-        class="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-slate-700 bg-slate-800 text-slate-100 transition hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400 lg:hidden"
+        class="rw-nav-control inline-flex h-11 w-11 items-center justify-center rounded-lg border border-slate-700 bg-slate-800 text-slate-100 transition hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400 lg:hidden"
         aria-controls="primary-navigation" aria-expanded="false" aria-label="Open navigation menu">
         <svg id="mobile-menu-icon-open" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"
           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -44,32 +52,32 @@
         class="hidden w-full list-none flex-col gap-2 border-t border-slate-700 pt-4 text-base text-white lg:flex lg:w-auto lg:flex-row lg:items-center lg:justify-end lg:gap-4 lg:border-0 lg:pt-0 lg:text-lg">
         <li class="w-full lg:w-auto">
           <a href="{{ url_for('main.index') }}"
-            class="block rounded-lg px-3 py-2 no-underline {% if request.endpoint == 'main.index' %}bg-slate-800 text-amber-400 lg:bg-transparent{% else %}text-white hover:bg-slate-800 hover:text-amber-400 lg:hover:bg-transparent{% endif %}">Home</a>
+            class="rw-nav-link block rounded-lg px-3 py-2 no-underline {% if request.endpoint == 'main.index' %}bg-slate-800 text-amber-400 lg:bg-transparent{% else %}text-white hover:bg-slate-800 hover:text-amber-400 lg:hover:bg-transparent{% endif %}">Home</a>
         </li>
         <li class="w-full lg:w-auto">
           <a href="{{ url_for('main.dashboard') }}"
-            class="block rounded-lg px-3 py-2 no-underline {% if request.endpoint == 'main.dashboard' %}bg-slate-800 text-amber-400 lg:bg-transparent{% else %}text-white hover:bg-slate-800 hover:text-amber-400 lg:hover:bg-transparent{% endif %}">Dashboard</a>
+            class="rw-nav-link block rounded-lg px-3 py-2 no-underline {% if request.endpoint == 'main.dashboard' %}bg-slate-800 text-amber-400 lg:bg-transparent{% else %}text-white hover:bg-slate-800 hover:text-amber-400 lg:hover:bg-transparent{% endif %}">Dashboard</a>
         </li>
         <li class="w-full lg:w-auto">
           <a href="{{ url_for('reports.list_reports') }}"
-            class="block rounded-lg px-3 py-2 no-underline {% if request.endpoint == 'reports.list_reports' or request.endpoint == 'reports.report_details' %}bg-slate-800 text-amber-400 lg:bg-transparent{% else %}text-white hover:bg-slate-800 hover:text-amber-400 lg:hover:bg-transparent{% endif %}">Reports</a>
+            class="rw-nav-link block rounded-lg px-3 py-2 no-underline {% if request.endpoint == 'reports.list_reports' or request.endpoint == 'reports.report_details' %}bg-slate-800 text-amber-400 lg:bg-transparent{% else %}text-white hover:bg-slate-800 hover:text-amber-400 lg:hover:bg-transparent{% endif %}">Reports</a>
         </li>
         <li class="w-full lg:w-auto">
           <a href="{{ url_for('reports.create_report') }}"
-            class="block rounded-lg px-3 py-2 no-underline {% if request.endpoint == 'reports.create_report' or request.endpoint == 'reports.edit_report' %}bg-slate-800 text-amber-400 lg:bg-transparent{% else %}text-white hover:bg-slate-800 hover:text-amber-400 lg:hover:bg-transparent{% endif %}">Report
+            class="rw-nav-link block rounded-lg px-3 py-2 no-underline {% if request.endpoint == 'reports.create_report' or request.endpoint == 'reports.edit_report' %}bg-slate-800 text-amber-400 lg:bg-transparent{% else %}text-white hover:bg-slate-800 hover:text-amber-400 lg:hover:bg-transparent{% endif %}">Report
             Issue</a>
         </li>
         {% if current_user.is_authenticated %}
         {% if current_user.is_admin %}
         <li class="w-full lg:w-auto">
           <a href="{{ url_for('admin.admin_panel') }}"
-            class="block rounded-lg px-3 py-2 no-underline {% if request.endpoint == 'admin.admin_panel' or request.endpoint == 'user_management.user_management_panel' %}bg-slate-800 text-amber-400 lg:bg-transparent{% else %}text-white hover:bg-slate-800 hover:text-amber-400 lg:hover:bg-transparent{% endif %}">Admin</a>
+            class="rw-nav-link block rounded-lg px-3 py-2 no-underline {% if request.endpoint == 'admin.admin_panel' or request.endpoint == 'user_management.user_management_panel' %}bg-slate-800 text-amber-400 lg:bg-transparent{% else %}text-white hover:bg-slate-800 hover:text-amber-400 lg:hover:bg-transparent{% endif %}">Admin</a>
         </li>
         {% endif %}
         <li class="w-full lg:w-auto">
           <div id="account-menu" class="group relative w-full lg:w-auto lg:pb-2">
             <button id="account-menu-button" type="button"
-              class="flex w-full items-center justify-start gap-2 rounded-full bg-slate-800 px-2 py-1.5 text-sm font-semibold text-slate-100 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400 lg:w-auto"
+              class="rw-account-button flex w-full items-center justify-start gap-2 rounded-full bg-slate-800 px-2 py-1.5 text-sm font-semibold text-slate-100 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400 lg:w-auto"
               aria-haspopup="true" aria-expanded="false">
               <span class="relative">
                 <span
@@ -86,7 +94,7 @@
                 </span>
             </button>
             <div id="account-menu-panel"
-              class="absolute right-0 top-full z-[70] hidden w-full max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-slate-200 bg-white py-2 text-sm text-slate-700 shadow-xl dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 sm:w-80">
+              class="rw-surface rw-overlay-surface absolute right-0 top-full z-[70] hidden w-full max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-slate-200 bg-white py-2 text-sm text-slate-700 shadow-xl dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 sm:w-80">
               <a href="{{ url_for('auth.profile') }}"
                 class="block px-4 py-2 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">View Profile</a>
               {% if current_user.is_admin %}
@@ -99,7 +107,7 @@
                 class="block px-4 py-2 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">My Reports</a>
               <div class="border-t border-slate-200 px-4 py-3 dark:border-slate-700">
                 <button id="notification-clear-button" type="button"
-                  class="mb-2 flex w-full items-center justify-between gap-3 text-left font-semibold text-slate-700 dark:text-slate-200"
+                  class="rw-btn rw-btn-ghost mb-2 flex w-full items-center justify-between gap-3 text-left font-semibold text-slate-700 dark:text-slate-200"
                   data-clear-url="{{ url_for('auth.mark_notifications_read') }}" data-csrf-token="{{ csrf_token() }}">
                   <span>Notifications</span>
                   <span id="notification-menu-count"
@@ -124,7 +132,7 @@
                 class="border-t border-slate-200 dark:border-slate-700">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit"
-                  class="block w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-900">Logout</button>
+                  class="rw-btn rw-btn-ghost rw-btn-ghost-danger block w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-900">Logout</button>
               </form>
             </div>
           </div>
@@ -132,16 +140,16 @@
         {% else %}
         <li class="w-full lg:w-auto">
           <a href="{{ url_for('auth.login') }}"
-            class="block rounded-lg px-5 py-2.5 font-semibold no-underline {% if request.endpoint == 'auth.login' %}bg-slate-800 text-amber-400 lg:bg-transparent{% else %}bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-600{% endif %}">Login</a>
+            class="rw-nav-link block rounded-lg px-5 py-2.5 font-semibold no-underline {% if request.endpoint == 'auth.login' %}bg-slate-800 text-amber-400 lg:bg-transparent{% else %}bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-600{% endif %}">Login</a>
         </li>
         <li class="w-full lg:w-auto">
           <a href="{{ url_for('auth.register') }}"
-            class="block rounded-lg px-5 py-2.5 font-semibold no-underline {% if request.endpoint == 'auth.register' %}bg-slate-800 text-amber-400 lg:bg-transparent{% else %}bg-green-500 text-white hover:bg-green-600 dark:bg-green-600{% endif %}">Register</a>
+            class="rw-nav-link block rounded-lg px-5 py-2.5 font-semibold no-underline {% if request.endpoint == 'auth.register' %}bg-slate-800 text-amber-400 lg:bg-transparent{% else %}bg-green-500 text-white hover:bg-green-600 dark:bg-green-600{% endif %}">Register</a>
         </li>
         {% endif %}
         <li class="w-full lg:w-auto">
           <button id="theme-toggle" type="button"
-            class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-600 bg-slate-800 text-slate-100 transition hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400"
+            class="rw-nav-control flex h-10 w-10 items-center justify-center rounded-full border border-slate-600 bg-slate-800 text-slate-100 transition hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400"
             aria-label="Switch theme">
             <svg id="theme-icon-moon" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -160,13 +168,13 @@
     </div>
   </nav>
 
-  <main class="px-4 py-6 sm:px-6 sm:py-8">
+  <main class="relative z-[1] px-4 py-6 sm:px-6 sm:py-8">
     <div class="mx-auto max-w-7xl break-words">
       {% block content %}{% endblock %}
     </div>
   </main>
 
-  <footer class="bg-slate-900 px-4 py-4 text-center text-white">
+  <footer class="rw-footer bg-slate-900 px-4 py-4 text-center text-white">
     <p class="mb-0">RoadWatch Perth - Community reporting for safer roads.</p>
     <p class="mt-1 text-sm text-slate-300">&copy; {{ current_year }} RoadWatch Perth</p>
   </footer>
@@ -204,12 +212,46 @@
         if (sunIcon) sunIcon.classList.toggle('hidden', !isDark);
       }
 
+      const chartTokens = [
+        '--rw-chart-1',
+        '--rw-chart-2',
+        '--rw-chart-3',
+        '--rw-chart-4',
+        '--rw-chart-5',
+        '--rw-chart-6',
+      ];
+
+      function cssValue(token, fallback) {
+        const styles = getComputedStyle(document.documentElement);
+        return styles.getPropertyValue(token).trim() || fallback || token;
+      }
+
+      function chartColors() {
+        return chartTokens.map(function (token) { return cssValue(token); });
+      }
+
+      function applyDatasetTheme(dataset) {
+        if (dataset.roadwatchBackgroundToken) {
+          dataset.backgroundColor = cssValue(dataset.roadwatchBackgroundToken);
+        }
+        if (dataset.roadwatchBackgroundTokens) {
+          dataset.backgroundColor = dataset.roadwatchBackgroundTokens.map(function (token) { return cssValue(token); });
+        }
+        if (dataset.roadwatchBorderToken) {
+          dataset.borderColor = cssValue(dataset.roadwatchBorderToken);
+        }
+        if (dataset.roadwatchBorderTokens) {
+          dataset.borderColor = dataset.roadwatchBorderTokens.map(function (token) { return cssValue(token); });
+        }
+      }
+
       function applyChartTheme() {
         if (!window.Chart) return;
         const isDark = document.documentElement.classList.contains('dark');
-        Chart.defaults.color = isDark ? '#cbd5e1' : '#475569';
-        Chart.defaults.borderColor = isDark ? '#334155' : '#e2e8f0';
+        Chart.defaults.color = cssValue('--rw-muted-text', isDark ? '#cbd5e1' : '#475569');
+        Chart.defaults.borderColor = cssValue('--rw-grid-line', isDark ? '#334155' : '#e2e8f0');
         Object.values(Chart.instances || {}).forEach(function (chart) {
+          chart.data.datasets.forEach(applyDatasetTheme);
           chart.options.scales = chart.options.scales || {};
           Object.values(chart.options.scales).forEach(function (scale) {
             scale.grid = scale.grid || {};
@@ -220,6 +262,18 @@
           chart.update();
         });
       }
+
+      window.RoadWatchTheme = {
+        applyChartTheme: applyChartTheme,
+        chartColors: chartColors,
+        chartTokens: function () { return chartTokens.slice(); },
+        cssValue: cssValue,
+        registerChart: function (chart) {
+          chart.data.datasets.forEach(applyDatasetTheme);
+          chart.update();
+          return chart;
+        },
+      };
 
       if (themeToggle) {
         themeToggle.addEventListener('click', function () {
@@ -360,7 +414,7 @@
 
       const palettes = {
         success: 'border-green-200 bg-green-50 dark:bg-green-950 text-green-800 dark:text-green-200',
-        warning: 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-gray-500',
+        warning: 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-amber-100',
         error: 'border-red-200 bg-red-50 dark:bg-red-950 text-red-800 dark:text-red-200',
         message: 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200',
       };
@@ -369,14 +423,14 @@
         if (!container) return;
         const palette = palettes[kind] || palettes.message;
         const toast = document.createElement('div');
-        toast.className = 'flex items-start gap-3 rounded-lg border px-5 py-4 text-base shadow-lg transition-opacity duration-300 ' + palette;
+        toast.className = 'rw-surface rw-overlay-surface flex items-start gap-3 rounded-lg border px-5 py-4 text-base shadow-lg transition-opacity duration-300 ' + palette;
         toast.setAttribute('role', kind === 'error' ? 'alert' : 'status');
         const messageEl = document.createElement('span');
         messageEl.className = 'flex-1';
         messageEl.textContent = message;
         const closeBtn = document.createElement('button');
         closeBtn.type = 'button';
-        closeBtn.className = 'pointer-events-auto -mr-1 rounded px-1 text-xl font-semibold leading-none opacity-70 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-current';
+        closeBtn.className = 'rw-btn rw-btn-ghost pointer-events-auto -mr-1 rounded px-1 text-xl font-semibold leading-none opacity-70 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-current';
         closeBtn.setAttribute('aria-label', 'Close notification');
         closeBtn.textContent = 'x';
         toast.appendChild(messageEl);
@@ -463,6 +517,8 @@
     })();
   </script>
 
+  <script src="{{ url_for('static', filename='hero-canvas.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='site-effects.js') }}" defer></script>
   {% block scripts %}{% endblock %}
 </body>
 

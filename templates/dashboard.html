@@ -3,40 +3,40 @@
 {% block title %}Dashboard | RoadWatch Perth{% endblock %}
 
 {% block content %}
-  <section class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-lg sm:p-8 md:p-10">
-    <p class="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700 dark:text-blue-300">Road Safety Dashboard</p>
-    <h1 class="mb-3 text-4xl font-bold text-slate-900 dark:text-slate-100 sm:text-5xl">Community issue overview</h1>
-    <p class="mb-8 text-xl leading-9 text-slate-600 dark:text-slate-300">Review approved public reports, compare common hazard types, and identify locations where repeated issues may need closer attention.</p>
+  <section class="rw-panel rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-lg sm:p-8 md:p-10">
+    <p class="rw-kicker mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700 dark:text-blue-300">Reports Dashboard</p>
+    <h1 class="mb-3 text-4xl font-bold text-slate-900 dark:text-slate-100 sm:text-5xl">Dashboard</h1>
+    <p class="mb-8 text-xl leading-9 text-slate-600 dark:text-slate-300">Analytics only: totals and charts for approved public reports. Report approval and management now live on the separate admin page.</p>
 
-    <div class="mb-8 max-w-sm">
-      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 text-center shadow-sm">
-        <div class="mb-2 text-base text-slate-500 dark:text-slate-400">Approved public reports</div>
+    <div class="mx-auto mb-8 max-w-sm">
+      <div class="rw-card rw-sweep-card rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 text-center shadow-sm">
+        <div class="mb-2 text-base text-slate-500 dark:text-slate-400">Total Reports</div>
         <div class="text-4xl font-bold text-blue-600 dark:text-blue-300">{{ summary.total }}</div>
       </div>
     </div>
 
-    <div class="mb-8 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm sm:p-7">
+    <div class="rw-panel rw-reveal mb-8 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm sm:p-7">
       <div class="mb-5 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p class="mb-2 text-sm font-bold uppercase tracking-[0.24em] text-blue-700 dark:text-blue-300">Location Hotspots</p>
-          <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100 sm:text-3xl">Repeated report locations</h2>
+          <p class="rw-kicker mb-2 text-sm font-bold uppercase tracking-[0.24em] text-blue-700 dark:text-blue-300">Hotspots</p>
+          <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100 sm:text-3xl">Repeated Locations</h2>
         </div>
       </div>
       {% include "_hotspot_list.html" %}
     </div>
 
     <div class="grid gap-6 lg:grid-cols-2">
-      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm sm:p-7">
-        <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300 sm:text-3xl">Reports by issue type</h2>
-        <p class="mb-5 text-lg text-slate-500 dark:text-slate-400">See which road hazards are most frequently reported by the community.</p>
+      <div class="rw-card rw-sweep-card rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm sm:p-7">
+        <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300 sm:text-3xl">Reports by Type</h2>
+        <p class="mb-5 text-lg text-slate-500 dark:text-slate-400">Counts generated from persisted report data.</p>
         <div class="relative h-[280px] sm:h-[360px]">
           <canvas id="barChart"></canvas>
         </div>
       </div>
 
-      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm sm:p-7">
-        <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300 sm:text-3xl">Repair progress</h2>
-        <p class="mb-5 text-lg text-slate-500 dark:text-slate-400">Track how approved reports are moving from reported to under review or fixed.</p>
+      <div class="rw-card rw-sweep-card rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm sm:p-7">
+        <h2 class="mb-2 text-2xl font-bold text-sky-900 dark:text-sky-300 sm:text-3xl">Status Distribution</h2>
+        <p class="mb-5 text-lg text-slate-500 dark:text-slate-400">Shows how the current reports are progressing.</p>
         <div class="relative h-[280px] sm:h-[360px]">
           <canvas id="pieChart"></canvas>
         </div>
@@ -48,15 +48,18 @@
 {% block scripts %}
   <script>
     const chartData = {{ chart_data|tojson }};
+    const chartTokens = window.RoadWatchTheme.chartTokens();
+    const chartColors = chartTokens.map((token) => window.RoadWatchTheme.cssValue(token));
 
-    new Chart(document.getElementById("barChart"), {
+    window.RoadWatchTheme.registerChart(new Chart(document.getElementById("barChart"), {
       type: "bar",
       data: {
         labels: chartData.issueLabels,
         datasets: [{
           label: "Issue Reports",
           data: chartData.issueValues,
-          backgroundColor: ["#10b981", "#ef4444", "#3b82f6", "#0f766e", "#f59e0b", "#7c3aed"]
+          backgroundColor: chartColors,
+          roadwatchBackgroundTokens: chartTokens
         }]
       },
       options: {
@@ -65,18 +68,20 @@
         plugins: { legend: { display: false } },
         scales: { y: { beginAtZero: true } }
       }
-    });
+    }));
 
-    new Chart(document.getElementById("pieChart"), {
+    const statusTokens = ["--rw-chart-4", "--rw-chart-3", "--rw-chart-1"];
+    window.RoadWatchTheme.registerChart(new Chart(document.getElementById("pieChart"), {
       type: "pie",
       data: {
         labels: chartData.statusLabels,
         datasets: [{
           data: chartData.statusValues,
-          backgroundColor: ["#f59e0b", "#3b82f6", "#10b981"]
+          backgroundColor: statusTokens.map((token) => window.RoadWatchTheme.cssValue(token)),
+          roadwatchBackgroundTokens: statusTokens
         }]
       },
       options: { responsive: true, maintainAspectRatio: false }
-    });
+    }));
   </script>
 {% endblock %}

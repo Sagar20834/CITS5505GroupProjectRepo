@@ -3,27 +3,27 @@
 {% block title %}Reports | RoadWatch Perth{% endblock %}
 
 {% block content %}
-  <section class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-lg sm:p-8">
-    <p class="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700 dark:text-blue-300">Community Road Reports</p>
-    <h1 class="mb-3 text-3xl font-bold text-slate-900 dark:text-slate-100 sm:text-4xl">Browse RoadWatch case reports</h1>
-    <p class="mb-8 text-lg leading-8 text-slate-600 dark:text-slate-300">Search approved road issue reports by location, issue type, safety priority, and repair progress.</p>
+  <section class="rw-panel rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-lg sm:p-8">
+    <p class="rw-kicker mb-3 text-sm font-bold uppercase tracking-[0.28em] text-blue-700 dark:text-blue-300">Community Reports</p>
+    <h1 class="mb-3 text-3xl font-bold text-slate-900 dark:text-slate-100 sm:text-4xl">All Reports</h1>
+    <p class="mb-8 text-lg leading-8 text-slate-600 dark:text-slate-300">Search RoadWatch case reports by location, issue type, safety priority, and repair progress.</p>
 
-    <form method="get" class="mb-8 grid gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-5 md:grid-cols-2 xl:grid-cols-[1fr,0.95fr,0.7fr,0.9fr,0.8fr,auto]">
+    <form method="get" class="rw-panel mb-8 grid gap-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-5 md:grid-cols-2 xl:grid-cols-[1fr,0.95fr,0.7fr,0.9fr,0.8fr,auto]">
       <div>
         <label for="street_address" class="mb-2 block text-sm font-semibold text-slate-600 dark:text-slate-300">Street address</label>
-        <input id="street_address" name="street_address" value="{{ filters.street_address }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500" placeholder="e.g. Hay Street">
+        <input id="street_address" name="street_address" value="{{ filters.street_address }}" class="rw-field w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500" placeholder="e.g. Hay Street">
       </div>
       <div>
         <label for="suburb" class="mb-2 block text-sm font-semibold text-slate-600 dark:text-slate-300">Suburb</label>
-        <input id="suburb" name="suburb" value="{{ filters.suburb }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500" placeholder="e.g. Perth CBD">
+        <input id="suburb" name="suburb" value="{{ filters.suburb }}" class="rw-field w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500" placeholder="e.g. Perth CBD">
       </div>
       <div>
         <label for="postcode" class="mb-2 block text-sm font-semibold text-slate-600 dark:text-slate-300">Postcode</label>
-        <input id="postcode" name="postcode" value="{{ filters.postcode }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500" placeholder="e.g. 6000" inputmode="numeric" pattern="[0-9]{4}" maxlength="4">
+        <input id="postcode" name="postcode" value="{{ filters.postcode }}" class="rw-field w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500" placeholder="e.g. 6000" inputmode="numeric" pattern="[0-9]{4}" maxlength="4">
       </div>
       <div>
         <label for="issue_type" class="mb-2 block text-sm font-semibold text-slate-600 dark:text-slate-300">Issue type</label>
-        <select id="issue_type" name="issue_type" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500">
+        <select id="issue_type" name="issue_type" class="rw-field w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500">
           <option value="">All issue types</option>
           {% for issue_type in issue_types %}
             <option value="{{ issue_type }}" {% if filters.issue_type == issue_type %}selected{% endif %}>{{ issue_type }}</option>
@@ -32,7 +32,7 @@
       </div>
       <div>
         <label for="status" class="mb-2 block text-sm font-semibold text-slate-600 dark:text-slate-300">Progress</label>
-        <select id="status" name="status" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500">
+        <select id="status" name="status" class="rw-field w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500">
           <option value="">All progress states</option>
           {% for status in report_statuses %}
             <option value="{{ status }}" {% if filters.status == status %}selected{% endif %}>{{ status }}</option>
@@ -46,7 +46,7 @@
             Show only reports linked to my account
           </label>
         {% endif %}
-        <button type="submit" class="rounded-xl bg-blue-500 dark:bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-600">Apply filters</button>
+        <button type="submit" class="rw-btn rw-btn-primary rounded-xl bg-blue-500 dark:bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-600">Apply filters</button>
       </div>
     </form>
 
@@ -60,13 +60,13 @@
 
       <div class="space-y-5">
         {% for report in reports %}
-          <article class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-5 shadow-sm sm:p-6">
+          <article class="rw-card rw-sweep-card rw-reveal rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-5 shadow-sm sm:p-6">
             <div class="grid gap-5 md:grid-cols-[220px,1fr]">
               <div class="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-200 dark:bg-slate-700">
                 {% if report.image_url %}
                   <img src="{{ report.image_url }}" alt="{{ report.issue_type }} image" class="h-full min-h-[180px] w-full object-cover">
                 {% else %}
-                  <div class="flex min-h-[180px] items-center justify-center bg-slate-200 dark:bg-slate-700 px-6 text-center text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                  <div class="rw-kicker flex min-h-[180px] items-center justify-center bg-slate-200 dark:bg-slate-700 px-6 text-center text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
                     No image provided
                   </div>
                 {% endif %}
@@ -75,7 +75,7 @@
               <div>
                 <div class="mb-4 flex flex-wrap items-start justify-between gap-4">
                   <div class="min-w-0 flex-1">
-                    <p class="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-blue-700 dark:text-blue-300">RoadWatch case #{{ report.id }}</p>
+                    <p class="rw-kicker mb-2 text-xs font-bold uppercase tracking-[0.18em] text-blue-700 dark:text-blue-300">RoadWatch case #{{ report.id }}</p>
                     <h2 class="mb-1 text-2xl font-bold text-sky-900 dark:text-sky-300">{{ report.issue_type }}</h2>
                     <p class="text-base font-medium text-slate-600 dark:text-slate-300">Perth road location: {{ report.location }}</p>
                     {% if report.street_address or report.suburb or report.postcode %}
@@ -93,8 +93,8 @@
                   </div>
                 </div>
 
-                <div class="mb-4 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
-                  <p class="mb-1 text-xs font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Community context</p>
+                <div class="rw-card mb-4 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+                  <p class="rw-kicker mb-1 text-xs font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Community context</p>
                   <p class="text-base leading-7 text-slate-600 dark:text-slate-300">{{ report.description[:220] }}{% if report.description|length > 220 %}...{% endif %}</p>
                 </div>
 
@@ -112,18 +112,18 @@
                               data-confirm-btn
                               data-label-on="Confirmed"
                               data-label-off="Confirm Issue"
-                              data-classes-on="border-green-500 text-green-700 dark:text-green-200 hover:bg-green-50 dark:hover:bg-green-900"
-                              data-classes-off="border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
-                              class="rounded-xl border px-4 py-2 font-medium {% if report.is_confirmed_by(current_user) %}border-green-500 text-green-700 dark:text-green-200 hover:bg-green-50 dark:hover:bg-green-900{% else %}border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700{% endif %}">
+                              data-classes-on="rw-btn-success bg-green-500 dark:bg-green-600 text-white hover:bg-green-600"
+                              data-classes-off="rw-btn-outline rw-btn-outline-success border-green-500 text-green-700 dark:text-green-200 hover:bg-green-50 dark:hover:bg-green-900"
+                              class="rw-btn rounded-xl border px-4 py-2 font-medium {% if report.is_confirmed_by(current_user) %}rw-btn-success bg-green-500 dark:bg-green-600 text-white hover:bg-green-600{% else %}rw-btn-outline rw-btn-outline-success border-green-500 text-green-700 dark:text-green-200 hover:bg-green-50 dark:hover:bg-green-900{% endif %}">
                         {% if report.is_confirmed_by(current_user) %}Confirmed{% else %}Confirm Issue{% endif %}
                       </button>
                     </form>
                   {% else %}
-                    <span class="rounded-xl border border-slate-300 dark:border-slate-600 px-4 py-2 font-medium text-slate-500 dark:text-slate-400">Login to confirm</span>
+                    <span class="rw-btn rw-btn-outline rw-btn-outline-muted rw-btn-disabled rounded-xl border border-slate-300 dark:border-slate-600 px-4 py-2 font-medium text-slate-500 dark:text-slate-400">Login to confirm</span>
                   {% endif %}
-                  <a href="{{ url_for('reports.report_details', report_id=report.id) }}" class="rounded-xl border border-blue-500 px-4 py-2 font-medium text-blue-600 dark:text-blue-300 no-underline hover:bg-blue-50 dark:hover:bg-blue-900">View</a>
+                  <a href="{{ url_for('reports.report_details', report_id=report.id) }}" class="rw-btn rw-btn-primary rounded-xl bg-blue-500 px-4 py-2 font-medium text-white no-underline hover:bg-blue-600 dark:bg-blue-600">View</a>
                   <button type="button"
-                          class="rounded-xl border border-emerald-500 px-4 py-2 font-medium text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-900"
+                          class="rw-btn rw-btn-success rounded-xl bg-green-500 px-4 py-2 font-medium text-white hover:bg-green-600 dark:bg-green-600"
                           data-share-report
                           data-report-title="{{ report.issue_type }}"
                           data-report-location="{{ report.location }}"
@@ -132,10 +132,10 @@
                     Share
                   </button>
                   {% if report.can_be_managed_by(current_user) %}
-                    <a href="{{ url_for('reports.edit_report', report_id=report.id) }}" class="rounded-xl border border-slate-300 dark:border-slate-600 px-4 py-2 font-medium text-slate-700 dark:text-slate-200 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">Edit</a>
+                    <a href="{{ url_for('reports.edit_report', report_id=report.id) }}" class="rw-btn rw-btn-warning rounded-xl bg-amber-500 px-4 py-2 font-medium text-slate-900 no-underline hover:bg-amber-400 dark:bg-amber-400">Edit</a>
                     <form method="post" action="{{ url_for('reports.delete_report', report_id=report.id) }}">
                       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                      <button type="submit" class="rounded-xl border border-red-500 px-4 py-2 font-medium text-red-600 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900">Delete</button>
+                      <button type="submit" class="rw-btn rw-btn-danger rounded-xl bg-red-500 px-4 py-2 font-medium text-white hover:bg-red-600 dark:bg-red-600">Delete</button>
                     </form>
                   {% endif %}
                 </div>
@@ -148,17 +148,17 @@
       {% if pagination.pages > 1 %}
         <nav class="mt-8 flex flex-wrap items-center justify-center gap-2" aria-label="Report pages">
           {% if pagination.has_prev %}
-            <a href="{{ url_for('reports.list_reports', page=pagination.prev_num, street_address=filters.street_address, suburb=filters.suburb, postcode=filters.postcode, issue_type=filters.issue_type, status=filters.status, mine='1' if filters.mine else None) }}" class="rounded-xl border border-slate-300 dark:border-slate-600 px-4 py-2 font-medium text-slate-700 dark:text-slate-200 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">Previous</a>
+            <a href="{{ url_for('reports.list_reports', page=pagination.prev_num, street_address=filters.street_address, suburb=filters.suburb, postcode=filters.postcode, issue_type=filters.issue_type, status=filters.status, mine='1' if filters.mine else None) }}" class="rw-btn rw-btn-outline rw-btn-outline-muted rounded-xl border border-slate-300 dark:border-slate-600 px-4 py-2 font-medium text-slate-700 dark:text-slate-200 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">Previous</a>
           {% else %}
-            <span class="rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-2 font-medium text-slate-300">Previous</span>
+            <span class="rw-btn rw-btn-outline rw-btn-outline-muted rw-btn-disabled rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-2 font-medium text-slate-300">Previous</span>
           {% endif %}
 
           {% for page_number in pagination.iter_pages(left_edge=1, left_current=1, right_current=2, right_edge=1) %}
             {% if page_number %}
               {% if page_number == pagination.page %}
-                <span class="rounded-xl bg-blue-500 dark:bg-blue-600 px-4 py-2 font-semibold text-white">{{ page_number }}</span>
+                <span class="rw-btn rw-btn-primary rounded-xl bg-blue-500 dark:bg-blue-600 px-4 py-2 font-semibold text-white">{{ page_number }}</span>
               {% else %}
-                <a href="{{ url_for('reports.list_reports', page=page_number, street_address=filters.street_address, suburb=filters.suburb, postcode=filters.postcode, issue_type=filters.issue_type, status=filters.status, mine='1' if filters.mine else None) }}" class="rounded-xl border border-slate-300 dark:border-slate-600 px-4 py-2 font-medium text-slate-700 dark:text-slate-200 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">{{ page_number }}</a>
+                <a href="{{ url_for('reports.list_reports', page=page_number, street_address=filters.street_address, suburb=filters.suburb, postcode=filters.postcode, issue_type=filters.issue_type, status=filters.status, mine='1' if filters.mine else None) }}" class="rw-btn rw-btn-outline rw-btn-outline-muted rounded-xl border border-slate-300 dark:border-slate-600 px-4 py-2 font-medium text-slate-700 dark:text-slate-200 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">{{ page_number }}</a>
               {% endif %}
             {% else %}
               <span class="px-2 text-slate-400 dark:text-slate-500">...</span>
@@ -166,29 +166,29 @@
           {% endfor %}
 
           {% if pagination.has_next %}
-            <a href="{{ url_for('reports.list_reports', page=pagination.next_num, street_address=filters.street_address, suburb=filters.suburb, postcode=filters.postcode, issue_type=filters.issue_type, status=filters.status, mine='1' if filters.mine else None) }}" class="rounded-xl border border-slate-300 dark:border-slate-600 px-4 py-2 font-medium text-slate-700 dark:text-slate-200 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">Next</a>
+            <a href="{{ url_for('reports.list_reports', page=pagination.next_num, street_address=filters.street_address, suburb=filters.suburb, postcode=filters.postcode, issue_type=filters.issue_type, status=filters.status, mine='1' if filters.mine else None) }}" class="rw-btn rw-btn-outline rw-btn-outline-muted rounded-xl border border-slate-300 dark:border-slate-600 px-4 py-2 font-medium text-slate-700 dark:text-slate-200 no-underline hover:bg-slate-100 dark:hover:bg-slate-700">Next</a>
           {% else %}
-            <span class="rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-2 font-medium text-slate-300">Next</span>
+            <span class="rw-btn rw-btn-outline rw-btn-outline-muted rw-btn-disabled rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-2 font-medium text-slate-300">Next</span>
           {% endif %}
         </nav>
       {% endif %}
     {% else %}
-      <div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 p-6 text-center sm:p-10">
-        <p class="text-lg text-slate-600 dark:text-slate-300">No approved reports match those filters yet. Try widening the location or progress search.</p>
+      <div class="rw-card rounded-2xl border border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 p-6 text-center sm:p-10">
+        <p class="text-lg text-slate-600 dark:text-slate-300">No reports matched the current filters.</p>
       </div>
     {% endif %}
   </section>
 
   <div id="share-modal" class="fixed inset-0 z-[70] hidden items-center justify-center bg-slate-950/60 px-4 py-8">
-    <div class="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-800">
+    <div class="rw-surface rw-overlay-surface w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-800">
       <div class="mb-5 flex items-start justify-between gap-4">
         <div>
-          <p class="mb-2 text-sm font-bold uppercase tracking-[0.24em] text-blue-700 dark:text-blue-300">Share Road Issue</p>
+          <p class="rw-kicker mb-2 text-sm font-bold uppercase tracking-[0.24em] text-blue-700 dark:text-blue-300">Share Report</p>
           <h2 id="share-modal-title" class="text-2xl font-bold text-slate-900 dark:text-slate-100">Share report</h2>
           <p id="share-modal-location" class="mt-1 text-sm text-slate-500 dark:text-slate-400"></p>
         </div>
         <button id="share-modal-close" type="button"
-                class="rounded-lg px-2 py-1 text-2xl leading-none text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
+                class="rw-btn rw-btn-ghost rounded-lg px-2 py-1 text-2xl leading-none text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
                 aria-label="Close share dialog">x</button>
       </div>
 
@@ -197,16 +197,16 @@
         <div>
           <label for="share-email" class="mb-2 block text-sm font-semibold text-slate-600 dark:text-slate-300">Recipient email</label>
           <input id="share-email" name="email" type="email" required
-                 class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
+                 class="rw-field w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
                  placeholder="name@example.com">
         </div>
-        <button type="submit" class="w-full rounded-2xl bg-blue-500 px-5 py-3 font-semibold text-white hover:bg-blue-600 dark:bg-blue-600">
+        <button type="submit" class="rw-btn rw-btn-primary w-full rounded-2xl bg-blue-500 px-5 py-3 font-semibold text-white hover:bg-blue-600 dark:bg-blue-600">
           Share by Email
         </button>
       </form>
 
       <div class="mt-4">
-        <button id="share-whatsapp" type="button" class="w-full rounded-2xl bg-green-500 px-5 py-3 font-semibold text-white hover:bg-green-600 dark:bg-green-600">
+        <button id="share-whatsapp" type="button" class="rw-btn rw-btn-success w-full rounded-2xl bg-green-500 px-5 py-3 font-semibold text-white hover:bg-green-600 dark:bg-green-600">
           Share by WhatsApp
         </button>
       </div>

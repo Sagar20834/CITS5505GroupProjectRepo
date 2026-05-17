@@ -21,21 +21,21 @@ from .reports import reports_bp
 from .user_management import user_management_bp
 
 STATUS_STYLES = {
-    "Reported": "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-100",
-    "Under Review": "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100",
-    "Fixed": "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100",
+    "Reported": "rw-chip rw-chip-warning bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-100",
+    "Under Review": "rw-chip rw-chip-info bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100",
+    "Fixed": "rw-chip rw-chip-success bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100",
 }
 MODERATION_STYLES = {
-    "Pending Approval": "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-100",
-    "Approved": "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100",
-    "Rejected": "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100",
+    "Pending Approval": "rw-chip rw-chip-warning bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-100",
+    "Approved": "rw-chip rw-chip-success bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100",
+    "Rejected": "rw-chip rw-chip-danger bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100",
 }
 
 SEVERITY_STYLES = {
-    "Low": "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-100",
-    "Medium": "bg-sky-100 text-sky-800 dark:bg-sky-900 dark:text-sky-100",
-    "High": "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-100",
-    "Urgent": "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100",
+    "Low": "rw-chip rw-chip-success bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-100",
+    "Medium": "rw-chip rw-chip-info bg-sky-100 text-sky-800 dark:bg-sky-900 dark:text-sky-100",
+    "High": "rw-chip rw-chip-alert bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-100",
+    "Urgent": "rw-chip rw-chip-danger bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100",
 }
 LOCAL_TIMEZONE = ZoneInfo("Australia/Perth")
 

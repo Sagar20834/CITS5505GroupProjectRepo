@@ -12,18 +12,17 @@ The application is designed around three main workflows:
 - Registered users can submit reports, track their own reports, comment on reports, and confirm that they have seen the same issue.
 - Admin users can review new reports before they become public, approve or reject submissions, update repair progress, change severity, remove inappropriate content, and manage users.
 
-Reports are stored in SQLite through SQLAlchemy models. New reports enter a pending approval state, public pages show approved reports only, and dashboard charts are generated from persisted report data. The interface is built with Flask routes, Jinja templates, Tailwind CSS, and small JavaScript enhancements such as address autocomplete and Chart.js analytics.
+Reports are stored in SQLite through SQLAlchemy models. New reports enter a pending approval state, public pages show approved reports only, and dashboard charts are generated from persisted report data. The interface is built with Flask routes, Jinja templates, Tailwind CSS, a custom MD3-inspired Ocean Breeze theme, and JavaScript enhancements such as address autocomplete, Chart.js analytics, scroll reveal, and animated canvas/background effects.
 
 ## Group Members
 
 
 | UWA ID | Name | GitHub username |
 | --- | --- | --- |
-| TODO | Dipta Datta Gupta | diptadg |
-| TODO | Sagar Kumar Sah Kanu | Sagar20834 |
-| TODO | Harshil Patel | Harshil8802 |
-| TODO | Ziqi Meng | TODO |
-| TODO | Jiongge | Jiongge |
+| 24735786 | Dipta Datta Gupta | diptadg |
+| 25143621 | Sagar Kumar Sah Kanu | Sagar20834 |
+| 24585822 | Harshil Prafulbhai Ratanpara | Harshil8802 |
+| 24645175 | Ziqi Meng | Jiongge |
 
 ## Features
 
@@ -37,8 +36,13 @@ Reports are stored in SQLite through SQLAlchemy models. New reports enter a pend
 - Pagination for public reports and admin report management.
 - Report confirmations so users can mark that they have seen the same issue.
 - Comment threads on report detail pages.
+- Account-dropdown notifications for report submission and moderation updates, backed by persisted database rows so unread notifications survive logout until marked read.
 - Admin actions for approval, progress updates, severity updates, comment deletion, report deletion, and user blocking.
+- Separate admin user management dashboard at `/admin/users/` with account status, role labels, activity counts, pagination, and block/unblock controls.
+- Blocking enforcement for future logins and already-active sessions.
+- Dashboard and admin hotspot panels that group approved reports by normalized location, deduplicate repeated reports from the same logged-in user, and count true guest reports as separate signals.
 - Dashboard analytics using persisted report data and Chart.js.
+- MD3-inspired cyberpunk visual system with Ocean Breeze color tokens, readable Space Grotesk typography, animated landing hero canvas, global ambient background, scroll reveal, card hover effects, and theme-aware chart colors.
 
 ## Technology Stack
 
@@ -50,6 +54,7 @@ Reports are stored in SQLite through SQLAlchemy models. New reports enter a pend
 - SQLite
 - Jinja templates
 - Tailwind CSS
+- Custom CSS and JavaScript under `roadwatch/static/`
 - Chart.js
 - pytest
 - Selenium
@@ -60,6 +65,7 @@ Reports are stored in SQLite through SQLAlchemy models. New reports enter a pend
 ```text
 app.py                  Flask app entry point
 roadwatch/              Application package
+roadwatch/static/       Theme stylesheet and browser-side animation/effects scripts
 templates/              Jinja templates
 migrations/             Alembic/Flask-Migrate database migrations
 tests/                  pytest backend workflow tests
@@ -105,7 +111,7 @@ Then open `http://127.0.0.1:5000`.
 
 ### Email sharing setup
 
-Report sharing by email sends through SMTP. Configure these environment variables before starting Flask:
+Report sharing by email sends through SMTP. This demo project includes SMTP defaults in `roadwatch/config.py` for the university presentation. To use a different sender, set environment variables before starting Flask:
 
 ```powershell
 $env:MAIL_SERVER="smtp.gmail.com"
@@ -118,11 +124,11 @@ $env:MAIL_DEFAULT_SENDER="RoadWatch Perth <your-email@example.com>"
 flask --app app run
 ```
 
-For Gmail, use an app password rather than your normal account password.
+For Gmail, use an app password rather than your normal account password. Real environment variables take precedence over the demo defaults in `roadwatch/config.py`.
 
 ## Demo Data
 
-The demo seed command creates users, reports, comments, confirmations, status notes, structured locations, and a mix of approval states.
+The demo seed command creates users, reports, comments, confirmations, status notes, structured locations, repeated-location hotspots, and a mix of approval states.
 
 Run `flask --app app seed-demo` after setup to populate the local database. Without this step, the app is still usable, but public pages and dashboards show empty states until reports are submitted and approved.
 
@@ -157,11 +163,24 @@ Current coverage includes:
 
 - User registration.
 - User login and logout.
+- Safe `next` redirect handling during login.
+- Blocked users being prevented from logging in.
+- Already-logged-in users being forced out after an admin blocks them.
 - Anonymous report submission.
 - Logged-in report submission.
+- Persisted notification creation, read-state updates, unread notification history after logout/login, and clearing read notifications from the dropdown.
+- Demo reset clearing notifications along with reports, users, comments, confirmations, and status notes.
 - Report edit and delete permissions.
+- Pending-report visibility rules for owners, admins, and the public.
 - Admin-only progress and severity updates.
+- Admin user management dashboard and block/unblock behavior.
 - Admin comment deletion.
+- AJAX report confirmations.
+- Email share success, missing-mail-configuration handling, invalid-email rejection, and WhatsApp share rendering.
+- Address suggestion endpoint behavior and Photon response normalization.
+- Dashboard/admin hotspot visibility and deduplication logic.
+- Perth timezone display through `datetime_label`.
+- Render checks for the theme stylesheet, ambient background, landing hero canvas, and animation scripts.
 - Model helpers such as `reporter_label`, `can_be_managed_by`, and `can_be_viewed_by`.
 
 ## Running Selenium Browser Tests
@@ -205,7 +224,9 @@ If migrations change, run:
 flask --app app db upgrade
 ```
 
-The application also performs a lightweight startup schema sync as a local safeguard for missing tables, columns, and indexes. Alembic migrations remain the source of truth, so `flask --app app db upgrade` should still be run after pulling schema changes.
+The current migration set includes the notifications table used by account-dropdown history. The application also performs a lightweight startup schema sync as a local safeguard for missing tables, columns, and indexes. Alembic migrations remain the source of truth, so `flask --app app db upgrade` should still be run after pulling schema changes.
+
+Schema creation and migrations do not load application content. A fresh database remains empty until you run `flask --app app seed-demo` or create users and reports through the web interface.
 
 To inspect the current migration head:
 
